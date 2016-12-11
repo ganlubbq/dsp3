@@ -44,9 +44,6 @@ for pp = 1:length(snr)
 end
 
 h1 = figure(1); plot(snr,cc,'k.-'); grid on; hold on;
-h2 = figure(2); plot(snr,log10(bitpersym-cc),'k.-'); grid on; hold on;
-mngFigureWindow(h1,h2,'lr');
-
 
 %% 8-QAM
 
@@ -81,9 +78,6 @@ for pp = 1:length(snr)
 end
 
 h1 = figure(1); plot(snr,cc,'c.-'); grid on; hold on;
-h2 = figure(2); plot(snr,log10(bitpersym-cc),'c.-'); grid on; hold on;
-mngFigureWindow(h1,h2,'lr');
-
 
 %% 16-QAM
 bitpersym = 4;
@@ -117,9 +111,6 @@ for pp = 1:length(snr)
 end
 
 h1 = figure(1); plot(snr,cc,'g.-'); grid on;
-h2 = figure(2); plot(snr,log10(bitpersym-cc),'g.-'); grid on;
-mngFigureWindow(h1,h2,'lr');
-
 
 %% 32-QAM
 bitpersym = 5;
@@ -153,9 +144,6 @@ for pp = 1:length(snr)
 end
 
 h1 = figure(1); plot(snr,cc,'b.-'); grid on;
-h2 = figure(2); plot(snr,log10(bitpersym-cc),'b.-'); grid on;
-mngFigureWindow(h1,h2,'lr');
-
 
 %% 64-QAM
 bitpersym = 6;
@@ -194,11 +182,5 @@ lcc = log2(1+idbw(snr));
 h1 = figure(1); plot(snr,cc,'r.-'); plot(snr,lcc,'k-'); grid on; ylim([1,10]);
 hold off
 xlabel('SNR (dB)'); ylabel('Capacity (bit/symbol)'); legend('QPSK','8-QAM','16-QAM','32-QAM','64-QAM');
-
-h2 = figure(2); plot(snr,log10(bitpersym-cc),'r.-'); grid on;
-hold off
-xlabel('SNR (dB)'); ylabel('BER'); legend('QPSK','8-QAM','16-QAM','32-QAM','64-QAM');
-
-mngFigureWindow(h1,h2,'lr');
 
 
