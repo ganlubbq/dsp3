@@ -1,3 +1,4 @@
+function [varargout] = TekDPO72004(h,cmdStr,parmCell)
 % TekDPO72004 Scope control programing
 %
 % Example: 
@@ -9,12 +10,6 @@
 % Note: 
 % 
 % See Also: 
-% 
-% Copyright 2011 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
-function [varargout] = TekDPO72004(h,cmdStr,parmCell)
-
 switch cmdStr
     
 	case 'start'
@@ -69,3 +64,4 @@ switch cmdStr
 end
 
 return
+
