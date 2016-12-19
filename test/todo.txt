@@ -1,0 +1,15 @@
+Arburg
+Fixed point -> quantizer
+Bandpass sampling -> test
+Constellation ML decision
+Noise whitening filter
+Channel coefficients estimate
+Water filling
+Effective noise bandwidth
+ENOB
+quantization noise
+RIN noise
+Timing jitter
+Skew
+Costas Loop
+Theoretical BER of m-QAM
