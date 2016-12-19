@@ -89,6 +89,7 @@ freqVector          = getFFTGrid(numSamples,samplingFs);
 ALPHABET_SIZE       = 2^bitpersym;
 vM.StartTime        = datestr(now);
 timeVectorAbs       = timeVector; % initialize absolute time
+
 if LOG
     logFile = fopen('log','a');
     fprintf(logFile,'-------------------------------------');
