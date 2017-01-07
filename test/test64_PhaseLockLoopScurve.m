@@ -20,7 +20,7 @@ symRef = symTx;
 
 
 %% High SNR Phase-locked loop S-curve
-snr = 0:10;
+snr = 20:20;
 
 % define phase error
 phaseNoise = -pi:0.1:pi+0.1;
@@ -71,7 +71,7 @@ sc = [];
 
 
 %% Low SNR Phase-locked loop S-curve instantanuous
-snr = -2;
+snr = -10;
 
 for ii = 1:10
     
