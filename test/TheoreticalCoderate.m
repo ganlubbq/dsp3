@@ -49,5 +49,7 @@ xlabel('SNR (dB)'); ylabel('Capacity (bit/symbol)'); legend('BPSK','Shannon');
 %% Coding rate
 esno = 10*log10(0.5.*10.^(snr/10)); % esno = .5*snr for real modulation
 ebno = esno - 10*log10(bitpersym) - 10*log10(cc); % theoretical code rate is equal to capacity
-figure; plot(ebno,cc); grid on; xlabel('E_b/N_0'); ylabel('Coding Rate');
+h2=figure; plot(ebno,cc); grid on; xlabel('E_b/N_0'); ylabel('Coding Rate');
+
+mngFigureWindow(h1,h2);
 
