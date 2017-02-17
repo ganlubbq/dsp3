@@ -1,12 +1,16 @@
 %% TEST SCRIPT FOR CALCULATING THEORETICAL BER VS OSNR
 % CALCULATING THEORETICAL BER OF M-QAM SYSTEM WITH GAUSSIAN NOISE
 %%
-clear
+function [] = TheoreticalBERv2(input_k)
+
+if nargin<1;
+    input_k = 1;
+end
 
 nSymbol = 10^6;
 
 % NUMBER OF BIT PER SYMBOL
-k = 1
+k = input_k;
 
 refbit = randi([0 1],k,nSymbol);
 
@@ -17,8 +21,6 @@ sym = symbolizerGrayQam(refbit);
 ps = sum(abs(sym).^2)/nSymbol; 
 
 snr = -10:10; % in dB
-cr = 1; % coding rate
-sps = 1;
 
 for ndx = 1:length(snr)
     
@@ -42,5 +44,6 @@ else
 end
 
 figure; plot(snr,log10(ber),'s-',snr,log10(t_ber),'k-'); grid on
-xlabel('SNR dB'); ylabel('LOG10 BER');
+xlabel('SNR dB'); ylabel('LOG10 BER'); legend(sprintf('%d bit per symbol',k),'Theory');
+end
 
