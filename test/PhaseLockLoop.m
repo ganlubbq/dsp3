@@ -8,7 +8,7 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-
+%
 %% SINGLE FREQUENCY WITH FIXED PHASE ERROR
 clear
 
@@ -70,6 +70,7 @@ subplot(2,2,4); plot(tvec,dbw(J)); grid on; ylim([-100 20])
 % theta=exp(i*phi) as the unknown parameter. However, this simple
 % transformation results a NONLINEAR constrained LS problem...
 
+% no solution yet...
 
 %% Solving the nonlinear LS function with Newton-Raphson method
 % Using least squares equalization model, i.e., J = |x*exp(-j*phi)-ref|^2
@@ -88,7 +89,7 @@ for k = 2:length(x)
     s(k) = x(k).*exp(-1j*phi(k-1));
     % stochastic gradient
     grad(k) = -imag(s(k).*conj(ref(k)));
-    % stochastic hessian (be careful when hessian is small)
+    % stochastic hessian (BE CAREFUL when hessian is small!!!)
     hess(k) = real(s(k).*conj(ref(k)));
     % err integration
     nco(k) = nco(k-1) + grad(k)/hess(k);
