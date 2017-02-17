@@ -1,5 +1,5 @@
 %% TEST SCRIPT FOR CARRIER PHASE ESTIMATION COMPARISON
-%
+% not finished
 %
 %% QPSK WITH TIME VARYING PHASE ERROR
 clear
@@ -23,7 +23,8 @@ symRef = symTx;
 txLaserPnVar = 2*pi*10e3/2e9;
 phaseNoise = genLaserPhaseNoise(symlen,txLaserPnVar,pi/6);
 % phaseNoise = 0; % debug, one could also test fixed phase error
-symTx = symTx.*exp(1j*phaseNoise);
+
+symTx = symTx .* exp( 1j * phaseNoise);
 
 for ii = 1:length(snr)
     th2 = 10*log10(sp) - snr(ii);
