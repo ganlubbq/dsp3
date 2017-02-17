@@ -8,7 +8,7 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-%
+
 %% SINGLE FREQUENCY WITH FIXED PHASE ERROR
 clear
 
