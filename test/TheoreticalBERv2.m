@@ -1,5 +1,6 @@
 %% TEST SCRIPT FOR CALCULATING THEORETICAL BER VS OSNR
 % CALCULATING THEORETICAL BER OF M-QAM SYSTEM WITH GAUSSIAN NOISE
+% Using one sample per symbol only, i.e. no pulse shaping in this version
 %%
 function [] = TheoreticalBERv2(input_k)
 
