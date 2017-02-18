@@ -21,10 +21,13 @@ sps = 16;
 nSamples = sps*nSymbol;
 
 % Upsampling
-if iscolumn(sym)
+if ~iscolumn(sym)
     sym = sym.';
 end
-temp = repmat(sym,sps,1);
+temp = sym * ones(1,sps);
+temp(:,2:end) = 0; % insert zeros
+temp = temp.';
+% temp = repmat(sym,sps,1);
 sym_upsampled = temp(:);
 
 % get a freq domain raised cosine filter response
@@ -51,17 +54,26 @@ shape = 'normal';
 h = rcosdesign(alpha,span,sps,shape);
 delay = span*sps/2;
 
-if ~iscolumn(sym)
-    sym = sym.';
+% if ~iscolumn(sym)
+%     sym = sym.';
+% end
+% sym_upsampled_i = upfirdn(real(sym), h, sps);
+% sym_upsampled_q = upfirdn(imag(sym), h, sps);
+
+if iscolumn(sym_upsampled)
+    sym_upsampled = sym_upsampled.';
 end
-sym_upsampled_i = upfirdn(real(sym), h, sps);
-sym_upsampled_q = upfirdn(imag(sym), h, sps);
+sym_upsampled_i = firfilt(real(sym_upsampled), h, 'overlap-save','same');
+sym_upsampled_q = firfilt(imag(sym_upsampled), h, 'overlap-save','same');
 
 sym_filtered = sym_upsampled_i + 1j*sym_upsampled_q;
 
 % display signal power after pulse shaping
 signal_power_rcos_time = sum(abs(sym_filtered).^2)/nSamples
 
+if ~iscolumn(sym_filtered)
+    sym_filtered = sym_filtered.';
+end
 h2 = plotEyeDiagram(sym_filtered((1:8192)+delay),2*sps,'e');
 
 mngFigureWindow(h1,h2);
