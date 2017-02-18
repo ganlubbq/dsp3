@@ -7,13 +7,13 @@ function theta = estimateCarrierPhaseLMS(signals,observations,stepsize)
 s = zeros(size(observations));
 J = zeros(size(observations));
 grad = zeros(size(observations));
-pint = zeros(size(observations));
+eint = zeros(size(observations));
 theta = zeros(size(observations));
 
 % initialize stochastic gradient algorithm with least squares criteria
 s(1) = observations(1);
 theta(1) = 0;
-pint(1) = 0;
+eint(1) = 0;
 if length(stepsize)==1
 	mu1 = stepsize;
 else
@@ -26,9 +26,9 @@ for k = 2:length(observations)
     % stochastic gradient
     grad(k) = -imag(s(k).*conj(signals(k)));
     % error integration
-    pint(k) = pint(k-1) + grad(k);
+    eint(k) = eint(k-1) + grad(k);
     % update filter coeff. along opposite direction of gradient
-    theta(k) = theta(k-1) - mu1*grad(k) - mu2*pint(k);
+    theta(k) = theta(k-1) - mu1*grad(k) - mu2*eint(k);
     % squared error
     J(k) = abs(s(k)-signals(k)).^2;
 end
