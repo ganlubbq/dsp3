@@ -54,17 +54,17 @@ shape = 'normal';
 h = rcosdesign(alpha,span,sps,shape);
 delay = span*sps/2;
 
-% if ~iscolumn(sym)
-%     sym = sym.';
-% end
-% sym_upsampled_i = upfirdn(real(sym), h, sps);
-% sym_upsampled_q = upfirdn(imag(sym), h, sps);
-
-if iscolumn(sym_upsampled)
-    sym_upsampled = sym_upsampled.';
+if ~iscolumn(sym)
+    sym = sym.';
 end
-sym_upsampled_i = firfilt(real(sym_upsampled), h, 'overlap-save','same');
-sym_upsampled_q = firfilt(imag(sym_upsampled), h, 'overlap-save','same');
+sym_upsampled_i = upfirdn(real(sym), h, sps);
+sym_upsampled_q = upfirdn(imag(sym), h, sps);
+
+% if iscolumn(sym_upsampled)
+%     sym_upsampled = sym_upsampled.';
+% end
+% sym_upsampled_i = firfilt(real(sym_upsampled), h, 'overlap-save','same');
+% sym_upsampled_q = firfilt(imag(sym_upsampled), h, 'overlap-save','same');
 
 sym_filtered = sym_upsampled_i + 1j*sym_upsampled_q;
 
