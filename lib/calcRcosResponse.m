@@ -1,4 +1,4 @@
-% DESCRIPTION
+% CALCULATE RAISED COSINE DIGITAL FILTER RESPONSE IN FREQUENCY DOMAIN
 % 
 % Example: 
 % 
@@ -10,9 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright default
 
 function H = calcRcosResponse(nSample,fs,fbaud,alpha,mode)
 
@@ -49,7 +47,7 @@ switch mode
     case 1
         H = sqrt(H);
     otherwise
-        error('rcos mode not support!!!');
+        error('raised cosine configuration not supported');
 end
 
 H = [H;conj(flipud(H(2:end-1)))];
