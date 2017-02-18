@@ -1,20 +1,18 @@
-function sym = symbolizerGrayQam(bit)
 % Convert bits in rows to square mQAM symbols according to gray mapping.
 % The decimal order of uncoded symbol in contellation is from topleft to
 % bottomright by columns
 % 
 % Example: sym = symbolizerGrayQam(bit)
 % 
-% Input: 
-%       bit - input bits in rows, the number of rows reps number of bit per
-%             symbol
+% Input: bit - input bits in rows, the number of rows reps number of bit
+% per symbol
 % 
 % Reference: 
 % 
-% Note: 
+% Note: Gray mapping only
 % 
 % See Also: 
-
+function sym = symbolizerGrayQam(bit)
 % size of alphabet
 M = 2^size(bit,1);
 
@@ -24,7 +22,7 @@ nSample = size(bit,2);
 c = constellation(M);
 
 % special case for bpsk
-if M==2
+if M == 2
     sym = c(bit+1); return
 end
 
@@ -41,11 +39,8 @@ sym = c(mapper(dec));
 
 return
 
-% canonical uncoded constellation, from topleft to bottomright
+% canonical uncoded constellation, from topleft to bottomright by columns
 function c = constellation(mn)
-%h = modem.qammod('M',mn);
-%cr = h.Constellation;
-%c = cr(:);
 switch mn
     case 2
         c = [-1; 1];
@@ -53,8 +48,18 @@ switch mn
         c = [-1+1j,-1-1j,1+1j,1-1j;];
     case 16
         ci = [-3 -3 -3 -3 -1 -1 -1 -1 1 1 1 1 3 3 3 3];
-	cq = [3 1 -1 -3 3 1 -1 -3 3 1 -1 -3 3 1 -1 -3];
-	c = ci + 1j*cq;
+        cq = [3 1 -1 -3 3 1 -1 -3 3 1 -1 -3 3 1 -1 -3];
+        c = ci + 1j*cq;
+    case 64
+        ci = [-7*ones(1,8) -5*ones(1,8) -3*ones(1,8) -1*ones(1,8) ones(1,8) 3*ones(1,8) 5*ones(1,8) 7*ones(1,8)];
+        temp = [7 5 3 1 -1 -3 -5 -7];
+        cq = [temp temp temp temp temp temp temp temp];
+        c = ci + 1j*cq;
+    case 256
+        ci = [-15*ones(1,16) -13*ones(1,16) -11*ones(1,16) -9*ones(1,16) -7*ones(1,16) -5*ones(1,16) -3*ones(1,16) -1*ones(1,16) 1*ones(1,16) 3*ones(1,16) 5*ones(1,16) 7*ones(1,16) 9*ones(1,16) 11*ones(1,16) 13*ones(1,16) 15*ones(1,16)];
+        temp = 15:-2:-15;
+        cq = [temp temp temp temp temp temp temp temp temp temp temp temp temp temp temp temp];
+        c = ci + 1j*cq;
     otherwise
         warning('unsupported format');
         keyboard;
