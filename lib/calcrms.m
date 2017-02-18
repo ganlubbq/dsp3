@@ -2,7 +2,7 @@
 % 
 % Example: Y = CALCRMS(X)
 % 
-% Input: 
+% Input: X has to be a 1d vector, either a column or a row vector
 % 
 % Reference: 
 % 
@@ -10,11 +10,13 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright: default
 
 function Y = calcrms(X)
+
+if ~iscolumn(X) && ~isrow(X)
+    warning('input vector has to be a 1d vector'); keyboard;
+end
 
 Y = sqrt(sum(abs(X).^2)/length(X));
 
