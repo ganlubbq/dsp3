@@ -13,14 +13,12 @@
 % in Lightwave Technology, Journal of , vol.28, no.4, pp.662-701, Feb.15,
 % 2010
 % 
-% Note: EDFA¡¯s noise figure F can be expressed as F=2*nsp-(2*nsp-1)/G which
+% Note: EDFAï¿½ï¿½s noise figure F can be expressed as F=2*nsp-(2*nsp-1)/G which
 % is about 2*nsp if the gain G is very large
 % 
 % See Also: calcNoisePowerIDRA
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 Default
 
 function [psd] = calcNoisePowerEDFA(NA,gain,lambda,nsp)
 

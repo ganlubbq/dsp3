@@ -12,7 +12,7 @@ function sym = bit2sym(bit,mn,format)
 % 
 % See Also: 
 % 
-% Copyright (c) 2015 Dawei Wang 
+% Copyright (c) 2015 Default
 
 n = log2(mn);
 

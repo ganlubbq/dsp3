@@ -10,7 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright default
+% Copyright Default
 
 function H = calcRcosResponse(nSample,fs,fbaud,alpha,mode)
 

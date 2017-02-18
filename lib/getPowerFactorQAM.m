@@ -10,9 +10,7 @@
 % 
 % See Also: normalize_mqam
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 default
 
 function [ p ] = getPowerFactorQAM( M )
 

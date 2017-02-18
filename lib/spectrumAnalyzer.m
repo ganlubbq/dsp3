@@ -1,6 +1,6 @@
 function [PSD freqVect] = spectrumAnalyzer(x, freqVect)
 %
-% Copyright 2011 Wang Dawei #PolyU EIE #
+% Copyright default
 %
 
 if nargin<2

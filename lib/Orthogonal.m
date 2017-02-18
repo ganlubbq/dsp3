@@ -11,7 +11,7 @@ function [y,theta] = Orthogonal(x)
 %   
 % See also
 
-% Copyright2011 WANGDAWEI 16/3/2011
+% Copyright2011 default 16/3/2011
 
 for k = 1:size(x,2)
     r1 = real(x(:,k));

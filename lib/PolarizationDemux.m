@@ -23,7 +23,7 @@ function [yout,mse,deth,h1,h2] = PolarizationDemux( xin,mn,sps,polm, ...
 %   
 %   See also CMA_FILTER.c
 
-%   Copyright2011 WANGDAWEI $16/3/2011$ 
+%   Copyright2011 default $16/3/2011$ 
 
 %   Last Modified at PolyU
 

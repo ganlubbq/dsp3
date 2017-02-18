@@ -16,9 +16,7 @@
 % 
 % See Also: calcOptGaussFlt
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 Default
 
 function [H] = calcGaussFlt(nSample,fs,fo,order,bandwidth)
 

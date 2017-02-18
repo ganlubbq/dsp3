@@ -18,9 +18,7 @@
 % 
 % See also: calcBesselRespon, calcOptGaussFlt
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 Default
 
 function [H] = calcDispResponse(nSample,fs,lambda,lambda0,DL,SL)
 

@@ -1,4 +1,6 @@
-%ENDLESSPOLROT Endless polarization rotation of a optical signal
+%ENDLESSPOLROT Endless polarization rotation of a optical signalDawei Wang 
+% 
+% Email: dawei.zju@gmail.com 
 %   The rotation speed is denoted by V with unit of [rad/s] and Fs is the
 %   sampling frequency
 % 
@@ -12,9 +14,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 default
 
 function [y V] = endlessPolRot(x)
 

@@ -10,9 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2011 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright default
 
 function t_ber = T_BER_mQAM(dB_osnr,M,Rs)
 

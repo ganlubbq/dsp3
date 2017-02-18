@@ -11,9 +11,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 Default
 
 function jv = calcJonesVector(azi,ell)
 

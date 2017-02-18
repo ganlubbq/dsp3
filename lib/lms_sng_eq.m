@@ -11,9 +11,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright default
 function [yout,mse,deth,h1] = lms_sng_eq( xin,mn,sps,mu,ntaps,iter,h1)
 
 x = normalizeQam(xin, mn);

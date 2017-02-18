@@ -17,9 +17,7 @@
 % 
 % See Also: calcNoisePowerEDFA
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 Default
 
 function [psd] = calcNoisePowerIDRA(alpha,totlen,lambda,KT)
 

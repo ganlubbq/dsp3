@@ -10,9 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 default
 function y = high_pass_filter(x,Rs,Fs)
 
 beta = 0.9999

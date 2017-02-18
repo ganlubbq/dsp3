@@ -11,9 +11,8 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 Default
+
 function [ser, xout, pos] = ber_anti_rotation(xin, ref_sym)
 
 % Init, ref1 for x and ref2 for y

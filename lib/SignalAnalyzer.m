@@ -2,7 +2,7 @@ classdef SignalAnalyzer < WDeviceHandle
     %SIGNALANALYZER Summary of this class goes here
     %   Detailed explanation goes here
     
-    %   Copyright2011 (dawei.zju@gmail.com)
+    %   Copyright2011 default
     properties
         colormap        = 'hot'
         datamode        = 'real'

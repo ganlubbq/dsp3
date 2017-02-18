@@ -10,9 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright default
 
 function [ y, tphase ] = TimingRecovery( signal, mn, sps, mu, method )
 

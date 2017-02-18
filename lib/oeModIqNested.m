@@ -13,9 +13,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 default
 
 function oSigMod = oeModIqNested(oSig,eSigI,eSigQ,ERdB,Vpi,V1,V2,V3)
 

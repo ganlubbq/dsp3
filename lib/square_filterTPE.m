@@ -10,9 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright default
 
 function [y,phEst] = square_filterTPE(x,symrate,sps,bs,decflag)
 %square timing recovery, 4 samples/symbol in, 2 sps out

@@ -10,9 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2011 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2011 default
 
 function dB_osnr = R_BER_mQAM(ber,M,Rs)
 

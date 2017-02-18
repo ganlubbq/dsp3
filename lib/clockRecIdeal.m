@@ -6,18 +6,16 @@
 %       before  - act as the reference
 %       after   - act as the time shifted version
 % 
-% Referene: I. Fatadin, D. Ives, and S. J. Savory, ¡°Compensation of Frequency
+% Referene: I. Fatadin, D. Ives, and S. J. Savory, ï¿½ï¿½Compensation of Frequency
 % Offset for Differentially Encoded 16- and 64-QAM in the Presence of Laser
-% Phase Noise,¡± IEEE Photonics Technology Letters, vol. 22, no. 3, pp.
-% 176¨C178, Feb. 2010.
+% Phase Noise,ï¿½ï¿½ IEEE Photonics Technology Letters, vol. 22, no. 3, pp.
+% 176ï¿½C178, Feb. 2010.
 % 
 % Note: 
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 Default
 
 function output = clockRecIdeal(after,before)
 

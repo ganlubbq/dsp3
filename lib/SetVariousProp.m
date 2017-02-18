@@ -10,7 +10,7 @@ function [] = SetVariousProp( obj, varargin )
 %
 %   See Also:
 
-%   Copyright2011 Wangdawei
+%   Copyright2011 default
 
 CheckEvenNargin( varargin{:} )
 

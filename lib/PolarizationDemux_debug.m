@@ -8,7 +8,7 @@ function [argout err h1 h2] = PolarizationDemux_debug(signal,mn,sps, ...
 %   
 %   See also CMA_FILTER.c
 
-%   Copyright2011 WANGDAWEI $16/3/2011$ 
+%   Copyright2011 default
 
 %   Last Modified 30/6/2012
 

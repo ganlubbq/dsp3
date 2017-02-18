@@ -6,10 +6,10 @@
 % 
 % See also: 
 %
-% Referene: I. Fatadin, D. Ives, and S. J. Savory, ¡°Compensation of Frequency
+% Referene: I. Fatadin, D. Ives, and S. J. Savory, "Compensation of Frequency
 % Offset for Differentially Encoded 16- and 64-QAM in the Presence of Laser
-% Phase Noise,¡± IEEE Photonics Technology Letters, vol. 22, no. 3, pp.
-% 176¨C178, Feb. 2010.
+% Phase Noise," IEEE Photonics Technology Letters, vol. 22, no. 3, pp.
+% 176-178, Feb. 2010.
 %
 % Copyright2010 WANGDAWEI 16/3/2010
 

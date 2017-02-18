@@ -10,9 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 default
 function p = find_period(rx)
 
 [c,lags] = xcorr(rx(1:1000),rx);

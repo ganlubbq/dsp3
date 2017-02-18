@@ -11,9 +11,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015 Default
 
 function [dspOut1,dspOut2,dspState] = dspMain_built_150927( xi, xq, yi, yq,dspParam)
 
