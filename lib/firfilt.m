@@ -1,15 +1,16 @@
-function y = firfilt(x,h,method,shape)
 % Implementing FIR filter using overlap-and-add and overlap-and-save
 % structures
 % 
-% Example: y = firfilt(x,h,method,shape)
+% Usage: y = firfilt(x,h,method,shape) filters input data x with filter
+% impulse response in time domain h. The implementation method could either
+% be 'overlap-add' or 'overlap-save'
 % 
 % Input: 
-%   x       - input data with length L
-%   h       - filter coeff. with length P < L
-%   y       - output data with max length of L+P-1
-%   method  - structure of FIR filter
-%   shape   - shape of output data
+%       x       - input data with length L
+%       h       - filter coeff. with length P < L
+%       y       - output data with max length of L+P-1
+%       method  - structure of FIR filter
+%       shape   - shape of output data
 % 
 % Reference: 
 % 
@@ -17,6 +18,10 @@ function y = firfilt(x,h,method,shape)
 %   less than length of input data. FFT length is at least 2x filter length
 % 
 % See Also: conv, filter, fftfilt.
+%
+% Copyright 2015 DAWEI DE
+
+function y = firfilt(x,h,method,shape)
 
 if nargin<4
     shape = 'full';
@@ -24,6 +29,10 @@ end
 
 if nargin<3
     method = 'overlap-add';
+end
+
+if ~isrow(x) || ~isrow(h)
+    error('The first and second inputs have to be row vectors');
 end
 
 
@@ -101,11 +110,10 @@ switch shape
 end
 
 %
-figure; 
-hold on; 
-plot(yc,'o-'); 
-plot(y,'gs-'); grid on; legend('conv','overlap-add');
-hold off;
+% figure; hold on; grid on; 
+% plot(yc,'o-'); 
+% plot(y,'gs-'); 
+% legend('linear convolution',sprintf('%s',method)); hold off;
 
 return
 
