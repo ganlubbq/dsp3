@@ -1,7 +1,7 @@
 function vM = go(vSet)
 %% Fiber-optics with DSP
 %
-% -------->datestr(datenum(now))
+% ----> datestr(datenum(now))
 %
 % Birth:   04-Sep-2015 14:10:02
 % Rebuilt: 13-Mar-2016 06:43:24
@@ -337,14 +337,14 @@ end
 %% MZM non-linear pre-comp
 % *add MZM nonlinearity pre-comp. here...*
 
-% DAC - simple oversampling
-tmpTxDrvIx = ones(samplesPerSym,1) *txDrvIx;
-tmpTxDrvQx = ones(samplesPerSym,1) *txDrvQx;
+% DAC - simple oversampling by inserting zeros
+tmpTxDrvIx = ones(samplesPerSym,1) *txDrvIx; tmpTxDrvIx(2:end,:) = 0;
+tmpTxDrvQx = ones(samplesPerSym,1) *txDrvQx; tmpTxDrvQx(2:end,:) = 0;
 txDrvIxWfm = tmpTxDrvIx(:);
 txDrvQxWfm = tmpTxDrvQx(:);
 
-tmpTxDrvIy = ones(samplesPerSym,1) *txDrvIy;
-tmpTxDrvQy = ones(samplesPerSym,1) *txDrvQy;
+tmpTxDrvIy = ones(samplesPerSym,1) *txDrvIy; tmpTxDrvIy(2:end,:) = 0;
+tmpTxDrvQy = ones(samplesPerSym,1) *txDrvQy; tmpTxDrvQy(2:end,:) = 0;
 txDrvIyWfm = tmpTxDrvIy(:);
 txDrvQyWfm = tmpTxDrvQy(:);
 
