@@ -1,69 +1,58 @@
 %% TEST SCRIPT FOR CALCULATING THEORETICAL BER VS OSNR
 % CALCULATING THEORETICAL BER OF M-QAM SYSTEM WITH GAUSSIAN NOISE
+% Denoted to pulse shaping, multiple samples per symbol, observing the ISI
+% effet.
 %%
+function [] = TheoreticalBERv3(input_k)
 
-clear all
-% close all
+if nargin<1;
+    input_k = 1;
+end
 
-nSymbol = 10^6;
+nSymbol = 2^16;
 
 % NUMBER OF BIT PER SYMBOL
-k = 2
-
-% SYMBOL RATE
-rs = 28e9;
-
-% NOISE BANDWIDTH 
-bn = 12.5e9;
+k = input_k;
 
 refbit = randi([0 1],k,nSymbol);
 
 % mapping bit to symbol
-if k==1
-    sym = symbolizerBPSK(refbit);
-else
-    sym = symbolizerGrayQam(refbit);
-end
+sym = symbolizerGrayQam(refbit);
 
-snr = 0:0.5:10; % in dB
-cr = 1; % coding rate
-sps = 8;
-Fs = sps*rs;
-nSamples = sps*nSymbol
+% symbol power
+ps = sum(abs(sym).^2)/nSymbol; 
+
+snr = -10:0.5:10; % in dB
+
+sps = 16;
+
+nSamples = sps*nSymbol;
 
 % Upsampling
-sym = repmat(sym,sps,[]);
+if iscolumn(sym)
+    sym = sym.';
+end
+sym = repmat(sym,sps,1);
 sym = sym(:);
 
-freqVector = getFFTGrid(nSamples,Fs);
+% get a freq domain raised cosine filter response
+Rs = 1;
+Fs = sps;
+freqVect = getFFTGrid(nSamples,Fs);
+alpha = 0.36; mode = 0;
+H = calcRcosResponse(nSamples,Fs,Rs,alpha,mode);
 
-alpha = 0.36;
-H = calcRcosResponse(nSamples,Fs,rs,alpha,0);
-
+% filtering signal in frequency domain
 symi = real(ifft(fft(real(sym)).*H));
 symq = real(ifft(fft(imag(sym)).*H));
 
-figure; plot(symi(1:1000)); grid on
+sym = symi + 1j*symq;
 
-ps = sum(abs(sym).^2)/nSymbol; % symbol power
+ps = sum(abs(sym).^2)/nSamples; % symbol power
+
+h = plotEyeDiagram(sym(1:8192),16,'e');
 
 
 
-
-
-%for ndx = 1:length(snr)
-%    pn = ps/idbw(snr(ndx));
-%    noise = genWGN(size(sym,1),size(sym,2),pn,'linear','complex');
-%    signal = sym + noise;
-%    if k==1
-%        bit = slicerBPSK(signal);
-%    else
-%        bit = slicerGrayQam(signal,2^k);
-%    end
-%    ber(ndx) = nnz(bit(:)-refbit(:))/(k*nSymbol);
-%    disp(sprintf('snr = %d, ber = %.2e',snr(ndx),ber(ndx)));
-%end
-%t_ber = T_BER_SNR_mQAM(snr,2^k);
-%% t_ber = (1/k)*3/2*erfc(sqrt(k*0.1*(10.^(EbNo_db/10))));
-%figure; plot(snr,log10(ber),'s-',snr,log10(t_ber),'k-'); grid on
+end
 
