@@ -15,7 +15,7 @@
 function h = plotEyeDiagram(x, period, xMode)
 
 if ~iscolumn(x)
-    warning('input has to be a column vector'); keyboard;
+    error('input has to be a column vector');
 end
 
 offset = 0;
