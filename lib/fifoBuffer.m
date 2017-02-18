@@ -12,22 +12,20 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright default
 
 function [newstate] = fifoBuffer(state,data)
 
+% number of columns, data length
 N = size(data,2);
 
 if N > size(state,2)
-    warning('data length larger than buffer length');
+    warning('data length larger than buffer length, lossing data');
     N = size(state,2);
 end
 
-data1 = state(:,N+1:end);
-
-newstate = [data1 data(:,1:N)];
+% fifo
+newstate = [state(:,N+1:end) data(:,1:N)];
 
 return
 
