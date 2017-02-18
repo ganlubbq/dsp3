@@ -6,18 +6,15 @@ function vM = go(vSet)
 % Birth:   04-Sep-2015 14:10:02
 % Rebuilt: 13-Mar-2016 06:43:24
 % Rebuilt: 12 Nov-2016 15:52:00
+% Rebuilt: 18-Feb-2017 17:19:42
 %
 % Data Streaming
 %
 % DSP mode: 0-Offline; 1-Real-time
 %
-% Refined: 09-Dec-2016 04:34:38
-%
-%
-
+% Refined: 18-Feb-2017 17:19:42
 
 close all
-
 
 %% Constant
 LIGHT_SPEED             = 299792458;
