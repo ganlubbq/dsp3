@@ -9,9 +9,10 @@ end
 if ~iscolumn(BER1)
     warning('input ber1 has to be a column vector'); keyboard;
 end
-if ~iscolumn(BER2)
-    warning('input ber2 has to be a column vector'); keyboard;
-end
+% Comment out to support matrix form of BER2
+% if ~iscolumn(BER2)
+%     warning('input ber2 has to be a column vector'); keyboard;
+% end
 if ~isscalar(tarBER)
     warning('input tarBER has to be a scalar'); keyboard;
 end
