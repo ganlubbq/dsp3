@@ -15,13 +15,13 @@ clear
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
 
 bitpersym = 2;
-mn = 2^bitpersym;
+
 symlen = 2^16;
-tvec = 0:(1/2e9):(symlen-1)*(1/2e9);
+tvec = (0:(1/2e9):(symlen-1)) * (1/2e9);
 
 % input power
-a = constellation(mn);
-sp = sum(abs(a).^2)/mn;
+a = constellation(2^bitpersym);
+sp = sum(abs(a).^2) / (2^bitpersym);
 
 % _TWO DIMENSION COMPLEX GAUSSIAN NOISE_
 snr = 13;
@@ -38,7 +38,7 @@ phaseNoise = genLaserPhaseNoise(symlen,txLaserPnVar,pi/6);
 
 % add phase noise with cfo
 cfo = 20e6;
-symTxPn = symTx.*exp(1j*phaseNoise).*exp(1j*2*pi*cfo*tvec);
+symTxPn = symTx .* exp(1j*phaseNoise) .* exp(1j*2*pi*cfo*tvec);
 
 % add white gaussian noise
 symTxPn = symTxPn + z;
@@ -56,18 +56,18 @@ phi(1) = 0;
 nco(1) = 0;
 for k = 2:length(symTxPn)
     % output
-    symRec(k) = symTxPn(k).*exp(-1j*phi(k-1));
+    symRec(k) = symTxPn(k) .* exp(-1j * phi(k-1));
     % stochastic gradient, also a PED with a typical S-curve
-    grad(k) = -imag(symRec(k).*conj(symTx(k)));
+    grad(k) = -imag(symRec(k) .* conj(symTx(k)));
      % err integration
     nco(k) = nco(k-1) + grad(k);
     % update filter coeff. along opposite direction of gradient
     phi(k) = phi(k-1) - mu1*grad(k) - mu2*nco(k);
     % squared error
-    J(k) = abs(symRec(k)-symTx(k)).^2;
+    J(k) = abs(symRec(k) - symTx(k)).^2;
 end
 
-truePhase = unwrap(angle((symTxPn-z).*conj(symTx)));
+truePhase = unwrap(angle((symTxPn-z) .* conj(symTx)));
 
 figure; 
 subplot(221); plot(symTxPn,'.'); grid on; axis([-2.5 2.5 -2.5 2.5]);
