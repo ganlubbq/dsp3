@@ -17,9 +17,13 @@ if size(signals,1) < size(signals,2)
     warning('underdetermined system');
 end
 
+if ~iscolumn(observations)
+    warning('second input has to be a column vector'); keyboard;
+end
+
 % solving an overdetermined system to minimize squared error
 % estimated = inv(signals'*signals)*signals'*observations;
-estimated = (signals'*signals)\(signals')*observations;
+estimated = (signals' * signals) \ (signals') * observations;
 
 end
 
