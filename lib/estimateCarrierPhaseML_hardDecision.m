@@ -5,13 +5,15 @@ function theta = estimateCarrierPhaseML_hardDecision(observations, blocksize, mn
 %
 % mn in the input stands for mn-QAM
 
-
+if ~iscolumn(observations)
+    error('first input has to be a column vector');
+end
 
 % based on decision
 signals = makeHardDecision(observations, mn);
 
 % sliding window smoothing
-H = smooth(observations(:) .* conj(signals), blocksize);
+H = smooth(observations .* conj(signals), blocksize);
 
 % the use of angle func. limits the estimation range
 theta = angle(H);
