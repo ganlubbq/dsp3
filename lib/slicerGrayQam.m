@@ -1,4 +1,4 @@
-function bit = slicerGrayQam(sym,M)
+function bit = slicerGrayQam(sym, M)
 % Convert square mQAM symbols to bits in rows according to gray mapping.
 % The decimal order of uncoded symbol in contellation is from topleft to
 % bottomright by columns
@@ -17,7 +17,7 @@ function bit = slicerGrayQam(sym,M)
 % See Also: 
 
 % special case of bpsk
-if M==2
+if M == 2
     bit = real(sym)>0; return
 end
 
@@ -35,7 +35,7 @@ decndx = slicer(sym,M);
 mapper = mapint(M);
 
 % put dec through mapper than do dec2bin
-bit = dec2bin(mapper(decndx),k);
+bit = dec2bin(mapper(decndx), k);
 
 return
 
