@@ -58,7 +58,7 @@ xlabel('SNR'); ylabel('BER');
 h2=figure; plot(1:symlen,phaseNoise,'LineWidth',2); hold on
            plot(1:symlen,phi); grid on
 
-mngFigureWindow(h1,h2,'lr');
+mngFigureWindow(h1,h2);
 
 %% Low SNR Phase-locked loop
 snr = -10:0;
@@ -95,7 +95,7 @@ xlabel('SNR'); ylabel('BER');
 h2=figure; plot(1:symlen,phaseNoise,'LineWidth',2); hold on
            plot(1:symlen,phi); grid on
 
-mngFigureWindow(h1,h2,'lr');
+mngFigureWindow(h1,h2);
 
 
 
