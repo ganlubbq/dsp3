@@ -1,18 +1,20 @@
-function [PSD freqVect] = spectrumAnalyzer(x, freqVect)
+function [PSD, freqVect] = spectrumAnalyzer(x, freqVect)
 %
-% Copyright default
+% Copyright DEFAULT
 %
 
-if nargin<2
+if nargin < 2
 	nSamples = length(x);
-	freqVect = [(0:nSamples/2-1)'; flipud(-(1:(nSamples/2))')] *1.0/nSamples;
+	freqVect = [(0:nSamples/2-1)'; flipud(-(1:(nSamples/2))')] * 1.0 / nSamples;
 end
 
-PSD = abs(fft(x)./nSamples).^2;
+PSD = abs(fft(x) ./ nSamples) .^ 2;
 
-figure();
-plot(fftshift(freqVect), 10*log10(fftshift(PSD))); grid on
-xlim([min(freqVect) max(freqVect)]);
+figure(); grid on
+plot(fftshift(freqVect), 10*log10(fftshift(PSD))); 
+
+xlim([min(freqVect), max(freqVect)]);
+
 % set sensitivity by limiting the y axis
 % to do
 
