@@ -30,6 +30,10 @@ offset = 0;
 %     'RefreshPlot', 'on'...
 %     );
 
+% get rid of extra data
+tmp = mod(length(x), period);
+x = x(1:end-tmp);
+
 x = reshape(x,period,[]);
 
 switch xMode
