@@ -6,6 +6,8 @@ function [PSD, freqVect] = spectrumAnalyzer(x, freqVect)
 if nargin < 2
 	nSamples = length(x);
 	freqVect = [(0:nSamples/2-1)'; flipud(-(1:(nSamples/2))')] * 1.0 / nSamples;
+else
+    nSamples = length(x);
 end
 
 PSD = abs(fft(x) ./ nSamples) .^ 2;
