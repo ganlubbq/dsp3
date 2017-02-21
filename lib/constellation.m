@@ -1,6 +1,6 @@
 function c = constellation(mn)
 %CONSTELLATION Give the canonical form of uncoded constellations for mn-QAM
-%
+% The integer index is from topleft to bottomright by columns
 
 
 switch mn
