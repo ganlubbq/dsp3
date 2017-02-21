@@ -108,7 +108,7 @@ Txsamplerate        = samplingFs;
 txLaserPnVar        = 2*pi*txLaserLw/Txsamplerate;
 TxVpi               = 3; % [V]
 TxMzExr             = 35; % [dB]
-txLpfOrder          = 1;
+txLpfOrder          = 4;
 txLpfBw             = 0.75*baudrate; % [Hz]
 TxlaserAzi          = 0;
 TxlaserEll          = 0;
@@ -156,7 +156,12 @@ rxPdDark            = 10E-9;
 
 TxPilotX         = [];
 TxPilotY         = [];
+
+
 % preparing filter responses
+txPulseShapeFilter.RollOffFactor = 0.35;
+txPulseShapeFilter.freqRespRC = calcRcosResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 0);
+txPulseShapeFilter.freqRespRRC = calcRcosResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 1);
 txBesselFilterH     = calcBesselResponse(numSamples,samplingFs,txLpfOrder,txLpfBw);
 txNyquistFilterH    = calcNyquistFiltResponse(numSamples,samplingFs,baudrate,0.1,0);
 txGaussianFilterH   = calcGaussFlt(numSamples,samplingFs,0,txLpfOrder,txLpfBw);
@@ -169,6 +174,8 @@ rxGaussianFilterH   = calcGaussFlt(numSamples,samplingFs,0,rxLpfOrder,rxLpfBw);
 % plot(freqVector,dbw(abs(txGaussianFilterH).^2),'g','LineWidth',2); 
 % grid on; ylim([-70 10]); hold off
 optGaussianFilter   = calcOptGaussFlt(numSamples,samplingFs,0,optFilterOrder,optFilterBw);
+
+
 % initialize buffer
 buffer.txBitsX      = randi([0 1],bitpersym,FRAME_WINDOW*symbolsPerFrame);
 buffer.txBitsY      = randi([0 1],bitpersym,FRAME_WINDOW*symbolsPerFrame);
@@ -178,8 +185,8 @@ buffer.txPhaseNoise = genLaserPhaseNoise(numSamples,txLaserPnVar,0);
 buffer.rxPhaseNoise = genLaserPhaseNoise(numSamples,Rxpnvar,0);
 buffer.txLaserRIN   = zeros(1,numSamples);
 buffer.rxLaserRIN   = zeros(1,numSamples);
-buffer.noiseX       = zeros(1,numSamples);
-buffer.noiseY       = zeros(1,numSamples);
+buffer.channelNoiseX       = zeros(1,numSamples);
+buffer.channelNoiseY       = zeros(1,numSamples);
 buffer.thermNsIx    = zeros(1,numSamples);
 buffer.thermNsQx    = zeros(1,numSamples);
 buffer.thermNsIy    = zeros(1,numSamples);
@@ -188,6 +195,8 @@ buffer.shotNsIx     = zeros(1,numSamples);
 buffer.shotNsQx     = zeros(1,numSamples);
 buffer.shotNsIy     = zeros(1,numSamples);
 buffer.shotNsQy     = zeros(1,numSamples);
+
+
 % clear memory
 memory1				= [];
 memory2				= [];
@@ -198,15 +207,15 @@ dspMemCount		= 0;
 % Controller
 sysParam.addCD              = 0;
 sysParam.addPMD             = 0;
-sysParam.addLaserRIN        = 1;
-sysParam.addLaserPN         = 1;
+sysParam.addLaserRIN        = 0;
+sysParam.addLaserPN         = 0;
 sysParam.addPolarRot        = 0;
 sysParam.addThermNoise      = 0;
 sysParam.addShotNoise       = 0;
 sysParam.addAdcClockJitter  = 0;
 sysParam.addFreqOffset      = 0;
 sysParam.doBalanced         = 1;
-sysParam.addFreqOffset      = 1;
+sysParam.addFreqOffset      = 0;
 
 % DSP
 dspParam.Rs					= 28e9;
@@ -254,7 +263,7 @@ refBitsOfflineY		= [];
 %% Start main loop
 for RUN = 1:MAX_RUN_NUMBER
 
-% Binary source
+% Binary source for a new frame
 bitsX = randi([0 1],bitpersym,symbolsPerFrame);
 bitsY = randi([0 1],bitpersym,symbolsPerFrame);
 
@@ -262,10 +271,11 @@ bitsY = randi([0 1],bitpersym,symbolsPerFrame);
 [buffer.txBitsX] = fifoBuffer(buffer.txBitsX,bitsX);
 [buffer.txBitsY] = fifoBuffer(buffer.txBitsY,bitsY);
 
-if DSP_MODE==0
+% offline mode; take the center frame as the reference
+if DSP_MODE == 0
 	refBitsOfflineX = [refBitsOfflineX buffer.txBitsX(:,(1:symbolsPerFrame)+symbolsPerFrame)];
 	refBitsOfflineY = [refBitsOfflineY buffer.txBitsY(:,(1:symbolsPerFrame)+symbolsPerFrame)];
-elseif DSP_MODE==1
+elseif DSP_MODE == 1
 	refBitsX = buffer.txBitsX(:,1:symbolsPerFrame);
 	refBitsY = buffer.txBitsY(:,1:symbolsPerFrame);
 end
@@ -281,13 +291,19 @@ txBaudY = symbolizerGrayQam(buffer.txBitsY);
 
 %% TX laser pol x/y 
 
-% buffer phase noise
-tmpPN = genLaserPhaseNoise(samplesPerFrame,txLaserPnVar,buffer.txPhaseNoise(end));
-buffer.txPhaseNoise = fifoBuffer(buffer.txPhaseNoise,tmpPN);
+% generate new phase noise for the new frame
+tmpPN = genLaserPhaseNoise(samplesPerFrame,txLaserPnVar, buffer.txPhaseNoise(end));
+
+% fifo
+buffer.txPhaseNoise = fifoBuffer(buffer.txPhaseNoise, tmpPN);
 
 % buffer laser RIN is really defined as one-sided power variance
-tmpRIN = genWGN(1,samplesPerFrame,idbw(txLaserRIN)*(TxLaserPow^2)*(samplingFs/2),'linear','real');
-buffer.txLaserRIN = fifoBuffer(buffer.txLaserRIN,tmpRIN);
+
+% generate new rin for new frame
+tmpRIN = genWGN(1,samplesPerFrame, idbw(txLaserRIN) * (TxLaserPow^2) * (0.5*samplingFs), 'linear', 'real');
+
+% fifo
+buffer.txLaserRIN = fifoBuffer(buffer.txLaserRIN, tmpRIN);
 
 if doPlot
     pltIndex = 1:500;
@@ -297,17 +313,18 @@ end
 % laser on
 if sysParam.addLaserRIN
     if sysParam.addLaserPN
-        txLaser = sqrt(TxLaserPow+buffer.txLaserRIN).* exp(1j*buffer.txPhaseNoise);
+        txLaser = sqrt(TxLaserPow + buffer.txLaserRIN) .* exp(1j * buffer.txPhaseNoise);
     else
-        txLaser = sqrt(TxLaserPow+buffer.txLaserRIN);
+        txLaser = sqrt(TxLaserPow + buffer.txLaserRIN);
     end
 else
     if sysParam.addLaserPN
-        txLaser = sqrt(TxLaserPow).* exp(1j*buffer.txPhaseNoise);
+        txLaser = sqrt(TxLaserPow) .*  exp(1j * buffer.txPhaseNoise);
     else
-        txLaser = sqrt(TxLaserPow)*ones(1,length(buffer.txLaserRIN));
+        txLaser = sqrt(TxLaserPow) * ones(1,numSamples);
     end
 end
+
 % if doPlot
 %     figure(FIG_TXLASER); plot(abs(txLaser(pltIndex).^2)); grid on; title('Tx laser power waveform');
 % end
@@ -315,17 +332,17 @@ end
 
 %% Driver
 % normalize
-txBaudRealX = real(txBaudX)/(sqrt(ALPHABET_SIZE)-1);
-txBaudImagX = imag(txBaudX)/(sqrt(ALPHABET_SIZE)-1);
-txBaudRealY = real(txBaudY)/(sqrt(ALPHABET_SIZE)-1);
-txBaudImagY = imag(txBaudY)/(sqrt(ALPHABET_SIZE)-1);
+txBaudRealX = real(txBaudX) / (sqrt(ALPHABET_SIZE)-1);
+txBaudImagX = imag(txBaudX) / (sqrt(ALPHABET_SIZE)-1);
+txBaudRealY = real(txBaudY) / (sqrt(ALPHABET_SIZE)-1);
+txBaudImagY = imag(txBaudY) / (sqrt(ALPHABET_SIZE)-1);
 
 % pre-distortion
 if doMzmComp
-    txDrvIx = asin(txBaudRealX)*TxVpi/pi;
-    txDrvQx = asin(txBaudImagX)*TxVpi/pi;
-    txDrvIy = asin(txBaudRealY)*TxVpi/pi;
-    txDrvQy = asin(txBaudImagY)*TxVpi/pi;
+    txDrvIx = asin(txBaudRealX) * TxVpi /pi;
+    txDrvQx = asin(txBaudImagX) * TxVpi /pi;
+    txDrvIy = asin(txBaudRealY) * TxVpi /pi;
+    txDrvQy = asin(txBaudImagY) * TxVpi /pi;
 else
     txDrvIx = (txBaudRealX*TxModEff)*TxVpi/pi;
     txDrvQx = (txBaudImagX*TxModEff)*TxVpi/pi;
@@ -337,29 +354,31 @@ end
 %% MZM non-linear pre-comp
 % *add MZM nonlinearity pre-comp. here...*
 
+
+%% Pulse shaping
 % DAC - simple oversampling by inserting zeros
-tmpTxDrvIx = ones(samplesPerSym,1) *txDrvIx; tmpTxDrvIx(2:end,:) = 0;
-tmpTxDrvQx = ones(samplesPerSym,1) *txDrvQx; tmpTxDrvQx(2:end,:) = 0;
-txDrvIxWfm = tmpTxDrvIx(:);
-txDrvQxWfm = tmpTxDrvQx(:);
+tmpTxDrvIx = ones(samplesPerSym,1) * txDrvIx; tmpTxDrvIx(2:end,:) = 0;
+tmpTxDrvQx = ones(samplesPerSym,1) * txDrvQx; tmpTxDrvQx(2:end,:) = 0;
+txDrvIxUps = tmpTxDrvIx(:);
+txDrvQxUps = tmpTxDrvQx(:);
 
-tmpTxDrvIy = ones(samplesPerSym,1) *txDrvIy; tmpTxDrvIy(2:end,:) = 0;
-tmpTxDrvQy = ones(samplesPerSym,1) *txDrvQy; tmpTxDrvQy(2:end,:) = 0;
-txDrvIyWfm = tmpTxDrvIy(:);
-txDrvQyWfm = tmpTxDrvQy(:);
-
+tmpTxDrvIy = ones(samplesPerSym,1) * txDrvIy; tmpTxDrvIy(2:end,:) = 0;
+tmpTxDrvQy = ones(samplesPerSym,1) * txDrvQy; tmpTxDrvQy(2:end,:) = 0;
+txDrvIyUps = tmpTxDrvIy(:);
+txDrvQyUps = tmpTxDrvQy(:);
 
 
 % bessel filtering
-dat_drv_xi = real(ifft(fft(txDrvIxWfm).*txBesselFilterH));
-dat_drv_xq = real(ifft(fft(txDrvQxWfm).*txBesselFilterH));
-dat_drv_yi = real(ifft(fft(txDrvIyWfm).*txBesselFilterH));
-dat_drv_yq = real(ifft(fft(txDrvQyWfm).*txBesselFilterH));
+txDrvIxWfm = real(ifft(fft(txDrvIxUps) .* txPulseShapeFilter.freqRespRC));
+txDrvQxwfm = real(ifft(fft(txDrvQxUps) .* txPulseShapeFilter.freqRespRC));
+txDrvIyWfm = real(ifft(fft(txDrvIyUps) .* txPulseShapeFilter.freqRespRC));
+txDrvQyWfm = real(ifft(fft(txDrvQyUps) .* txPulseShapeFilter.freqRespRC));
+
 if doPlot
     if exist('FIG_DRVEYE','var')
-        plotEyeDiagram(FIG_DRVEYE,dat_drv_xi, baudrate, samplingFs, 'electrical');
+        plotEyeDiagram(FIG_DRVEYE,txDrvIxWfm, baudrate, samplingFs, 'electrical');
     else
-        FIG_DRVEYE = plotEyeDiagram([],dat_drv_xi, baudrate, samplingFs, 'electrical');
+        FIG_DRVEYE = plotEyeDiagram([],txDrvIxWfm, baudrate, samplingFs, 'electrical');
     end
     title('Electrical dirver signal');
 end
@@ -375,12 +394,13 @@ end
 
 %% MZM
 
+% the bias point
 V1 = - TxVpi/2;
 V2 = - TxVpi/2;
 V3 = + TxVpi/2;
 
-txOptSigX = oeModIqNested(txLaser,dat_drv_xi,dat_drv_xq,TxMzExr,TxVpi,V1,V2,V3);
-txOptSigY = oeModIqNested(txLaser,dat_drv_yi,dat_drv_yq,TxMzExr,TxVpi,V1,V2,V3);
+txOptSigX = oeModIqNested(txLaser, txDrvIxWfm, txDrvQxwfm, TxMzExr, TxVpi, V1, V2, V3);
+txOptSigY = oeModIqNested(txLaser, txDrvIyWfm, txDrvQyWfm, TxMzExr, TxVpi, V1, V2, V3);
 
 
 if doPlot
@@ -394,6 +414,8 @@ end
 
 
 %% OSNR
+% here goes an OSNR emulator
+
 
 
 %% Fiber channel
@@ -401,26 +423,28 @@ end
 if ~doRndPMD % if random birefrigence is switched off, use simple model
     
     % convert osnr to snr per sample
-    SNR         = osnr2snr(OSNR,baudrate,samplesPerSym,'complex');
+    SNR = osnr2snr(OSNR, baudrate, samplesPerSym, 'complex');
     
-    % calc noise power
+    % calc noise power, should we use the power of optimal samples only ??
     sigPowXdb   = dbw(calcrms(txOptSigX)^2);
     sigPowYdb   = dbw(calcrms(txOptSigY)^2);
-    noisePowerx = idbw(sigPowXdb-SNR);
-    noisePowery = idbw(sigPowYdb-SNR);
+    noisePowerx = idbw(sigPowXdb - SNR);
+    noisePowery = idbw(sigPowYdb - SNR);
     
-    % buffer noise
-    noiseX          = genWGN(1,samplesPerFrame,noisePowerx,'linear','complex');
-    noiseY          = genWGN(1,samplesPerFrame,noisePowery,'linear','complex');
-    buffer.noiseX   = fifoBuffer(buffer.noiseX,noiseX);
-    buffer.noiseY   = fifoBuffer(buffer.noiseY,noiseY);
+    % generate new noise for new frame 
+    channelNoiseX = genWGN(1,samplesPerFrame,noisePowerx,'linear','complex');
+    channelNoiseY = genWGN(1,samplesPerFrame,noisePowery,'linear','complex');
+    
+    % fifo
+    buffer.channelNoiseX = fifoBuffer(buffer.channelNoiseX, channelNoiseX);
+    buffer.channelNoiseY = fifoBuffer(buffer.channelNoiseY, channelNoiseY);
     
     % add noise
-    txOptSigX     = txOptSigX + buffer.noiseX(:);
-    txOptSigY     = txOptSigY + buffer.noiseY(:);
+    txOptSigX = txOptSigX + buffer.channelNoiseX(:);
+    txOptSigY = txOptSigY + buffer.channelNoiseY(:);
     
     % fiber
-    lk_rotjump      = mod(smfPolarRotSpeed * timeVectorAbs, 2*pi);
+    lk_rotjump = mod(smfPolarRotSpeed * timeVectorAbs, 2*pi);
     lk_theta = smfPolarIniAngle + lk_rotjump;
 %     smfPolarIniAngle = lk_theta(numSamples);
     
@@ -433,14 +457,14 @@ if ~doRndPMD % if random birefrigence is switched off, use simple model
     end
     
     if sysParam.addCD        
-        [HCD] = calcDispResponse(numSamples,samplingFs,centerWave,centerWave,lnk_DL,lnk_SL);
-        tmpOptSigX = ifft(fft(tmpOptSigX).*HCD);
-        tmpOptSigY = ifft(fft(tmpOptSigY).*HCD);
+        [HCD] = calcDispResponse(numSamples, samplingFs, centerWave, centerWave, lnk_DL, lnk_SL);
+        tmpOptSigX = ifft(fft(tmpOptSigX) .* HCD);
+        tmpOptSigY = ifft(fft(tmpOptSigY) .* HCD);
     end
     
     if sysParam.addPMD
-        tmpOptSigX = ifft(fft(tmpOptSigX).*exp(-1j*2*pi*freqVector*(+lk_DGD/2)).*exp(-1j*2*pi*uv_fc*(+lk_DGD/2)));
-        tmpOptSigY = ifft(fft(tmpOptSigY).*exp(-1j*2*pi*freqVector*(-lk_DGD/2)).*exp(-1j*2*pi*uv_fc*(-lk_DGD/2)));
+        tmpOptSigX = ifft(fft(tmpOptSigX) .* exp(-1j*2*pi*freqVector*(+lk_DGD/2)).*exp(-1j*2*pi*uv_fc*(+lk_DGD/2)));
+        tmpOptSigY = ifft(fft(tmpOptSigY) .* exp(-1j*2*pi*freqVector*(-lk_DGD/2)).*exp(-1j*2*pi*uv_fc*(-lk_DGD/2)));
     end
     
     if sysParam.addPolarRot % rotate back only if polarization rotation is on 
@@ -452,8 +476,8 @@ if ~doRndPMD % if random birefrigence is switched off, use simple model
         tmpOptSigX = tmpOptSigX.*cos(lk_theta) - tmpOptSigY.*sin(lk_theta);
         tmpOptSigY = tmpOptSigX.*sin(lk_theta) + tmpOptSigY.*cos(lk_theta);
         % update absolute time
-        timeVectorAbs = ((0:numSamples-1)'+samplesPerFrame)/samplingFs;
-        lk_rotjump      = mod(smfPolarRotSpeed * timeVectorAbs, 2*pi);
+        timeVectorAbs = ((0:numSamples-1)' + samplesPerFrame) / samplingFs;
+        lk_rotjump = mod(smfPolarRotSpeed * timeVectorAbs, 2*pi);
     end
     
 else % if random birefrigence is on, use SSF model
@@ -475,69 +499,71 @@ end
 
 %% RX laser
 % polarization control
-loJonesVector = calcJonesVector(RxLaserAzi,RxLaserEll);
+loJonesVector = calcJonesVector(RxLaserAzi, RxLaserEll);
+
+% generate new phase noise for new frame
+tmpPN = genLaserPhaseNoise(samplesPerFrame, Rxpnvar, buffer.rxPhaseNoise(end));
 
 % fifo
-tmpPN = genLaserPhaseNoise(samplesPerFrame,Rxpnvar,buffer.rxPhaseNoise(end));
-buffer.rxPhaseNoise = fifoBuffer(buffer.rxPhaseNoise,tmpPN);
+buffer.rxPhaseNoise = fifoBuffer(buffer.rxPhaseNoise, tmpPN);
 
 % buffer laser rin
 tmpRIN = genWGN(1,samplesPerFrame,idbw(rxLaserRIN)*(rxLaserPow^2)*(samplingFs/2),'linear','real');
-buffer.rxLaserRIN = fifoBuffer(buffer.rxLaserRIN,tmpRIN);
+buffer.rxLaserRIN = fifoBuffer(buffer.rxLaserRIN, tmpRIN);
 
 % laser on
 if sysParam.addLaserRIN
     if sysParam.addLaserPN
-        rxLaser = sqrt(rxLaserPow+buffer.rxLaserRIN).* exp(1j*buffer.rxPhaseNoise);
+        rxLaser = sqrt(rxLaserPow + buffer.rxLaserRIN) .* exp(1j*buffer.rxPhaseNoise);
     else
-        rxLaser = sqrt(rxLaserPow+buffer.rxLaserRIN);
+        rxLaser = sqrt(rxLaserPow + buffer.rxLaserRIN);
     end
 else
     if sysParam.addLaserPN
-        rxLaser = sqrt(rxLaserPow).* exp(1j*buffer.rxPhaseNoise);
+        rxLaser = sqrt(rxLaserPow) .* exp(1j*buffer.rxPhaseNoise);
     else
-        rxLaser = sqrt(rxLaserPow)*ones(1,length(buffer.rxLaserRIN));
+        rxLaser = sqrt(rxLaserPow) * ones(1,length(buffer.rxLaserRIN));
     end
 end
 
 % control the polarization
-rxLaser = loJonesVector * sqrt(abs(rxLaser).^2).* [sign(rxLaser);sign(rxLaser)];
+rxLaser = loJonesVector * sqrt(abs(rxLaser).^2) .* [sign(rxLaser);sign(rxLaser)];
 
 % PBS / PBC
-loLaserPx = sqrt(rxPbcPowSpltRatio)* exp(-1j*rxPbcPhaseRetard)* rxLaser(1,:).';
-loLaserPy = sqrt(1-rxPbcPowSpltRatio)* rxLaser(2,:).';
+loLaserPx = sqrt(rxPbcPowSpltRatio) * exp(-1j*rxPbcPhaseRetard) * rxLaser(1,:).';
+loLaserPy = sqrt(1-rxPbcPowSpltRatio) * rxLaser(2,:).';
 
 
 %% Hybrid
-hybrid90       = deg2rad(HYBRID_90_PHASESHIFT);
+hybrid90 = deg2rad(HYBRID_90_PHASESHIFT);
 
 switch DETECTION_MODE
     case 'HOM'
         % freq_offset     = Rxcenterfreq - Txcenterfreq;
         if sysParam.addFreqOffset
-            xRealP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector).*  loLaserPx;
-            xRealN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector).* -loLaserPx;
-            xImagP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector).*  exp(1j*hybrid90).*loLaserPx;
-            xImagN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector).* -exp(1j*hybrid90).*loLaserPx;
-            yRealP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector).*  loLaserPy;
-            yRealN = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector).* -loLaserPy;
-            yImagP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector).*  exp(1j*hybrid90).*loLaserPy;
-            yImagN = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector).* -exp(1j*hybrid90).*loLaserPy;
+            xRealP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPx;
+            xRealN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPx;
+            xImagP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  exp(1j*hybrid90) .*loLaserPx;
+            xImagN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .* -exp(1j*hybrid90) .*loLaserPx;
+            yRealP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPy;
+            yRealN = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPy;
+            yImagP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .*  exp(1j*hybrid90) .*loLaserPy;
+            yImagN = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .* -exp(1j*hybrid90) .*loLaserPy;
         else
             xRealP = rxOptSigX + loLaserPx;
             xRealN = rxOptSigX - loLaserPx;
-            xImagP = rxOptSigX + exp(1j*hybrid90).*loLaserPx;
-            xImagN = rxOptSigX - exp(1j*hybrid90).*loLaserPx;
+            xImagP = rxOptSigX + exp(1j*hybrid90) .*loLaserPx;
+            xImagN = rxOptSigX - exp(1j*hybrid90) .*loLaserPx;
             yRealP = rxOptSigY + loLaserPy;
             yRealN = rxOptSigY - loLaserPy;
-            yImagP = rxOptSigY + exp(1j*hybrid90).*loLaserPy;
-            yImagN = rxOptSigY - exp(1j*hybrid90).*loLaserPy;
+            yImagP = rxOptSigY + exp(1j*hybrid90) .*loLaserPy;
+            yImagN = rxOptSigY - exp(1j*hybrid90) .*loLaserPy;
         end
     case 'HET'
-        xHetP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector).*  loLaserPx;
-        xHetN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector).* -loLaserPx;
-        yHetP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector).*  loLaserPy;
-        yHetN = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector).* -loLaserPy;
+        xHetP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPx;
+        xHetN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPx;
+        yHetP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPy;
+        yHetN = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPy;
     otherwise
         error(EID,'detection mode not supported !!');
 end
