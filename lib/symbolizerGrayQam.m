@@ -39,34 +39,6 @@ sym = c(mapper(dec));
 
 return
 
-% canonical uncoded constellation, from topleft to bottomright by columns
-function c = constellation(mn)
-switch mn
-    case 2
-        c = [-1; 1];
-    case 4
-        c = [-1+1j,-1-1j,1+1j,1-1j;];
-    case 16
-        ci = [-3 -3 -3 -3 -1 -1 -1 -1 1 1 1 1 3 3 3 3];
-        cq = [3 1 -1 -3 3 1 -1 -3 3 1 -1 -3 3 1 -1 -3];
-        c = ci + 1j*cq;
-    case 64
-        ci = [-7*ones(1,8) -5*ones(1,8) -3*ones(1,8) -1*ones(1,8) ones(1,8) 3*ones(1,8) 5*ones(1,8) 7*ones(1,8)];
-        temp = [7 5 3 1 -1 -3 -5 -7];
-        cq = [temp temp temp temp temp temp temp temp];
-        c = ci + 1j*cq;
-    case 256
-        ci = [-15*ones(1,16) -13*ones(1,16) -11*ones(1,16) -9*ones(1,16) -7*ones(1,16) -5*ones(1,16) -3*ones(1,16) -1*ones(1,16) 1*ones(1,16) 3*ones(1,16) 5*ones(1,16) 7*ones(1,16) 9*ones(1,16) 11*ones(1,16) 13*ones(1,16) 15*ones(1,16)];
-        temp = 15:-2:-15;
-        cq = [temp temp temp temp temp temp temp temp temp temp temp temp temp temp temp temp];
-        c = ci + 1j*cq;
-    otherwise
-        warning('unsupported format');
-        keyboard;
-end
-
-return
-
 % gray integer mapper for m-qam
 function order = mapint(mn)
 
