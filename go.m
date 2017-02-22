@@ -102,42 +102,46 @@ end
 
 
 %% Project setting
-
-Txcenterfreq        = CENTER_FREQUENCY;
-TxcenterWave        = LIGHT_SPEED/Txcenterfreq;
-txLaserLw           = LASER_LINEWIDTH;
 Txsamplerate        = samplingFs;
-txLaserPnVar        = 2*pi*txLaserLw/Txsamplerate;
-TxVpi               = 3; % [V]
-TxMzExr             = 35; % [dB]
-txLpfOrder          = 4;
-txLpfBw             = 0.75*baudrate; % [Hz]
-TxlaserAzi          = 0;
-TxlaserEll          = 0;
-TxLaserPow          = 1e-3; % [W]
-TxModEff            = 0.55; % modulation efficiency
-txLaserRIN          = -130; % dB/Hz
 
-chn_n2              = 2.6e-20;
-chn_coreArea        = 80e-12; % [m^2]
-% chn_Angle          = 0; % [degree]
-chn_lossX          = 0.2; % [dB/km]
-chn_lossY          = 0.2;
-chn_spanLength     = 80e3; % [m]
-chn_numSpan		= 2;
-chn_stepLength     = 1e3; % [m]
-chn_corrLength     = 100; % [m]
-chn_dispD          = 17e-6; % [s/m]
-chn_dispS          = 0.08e3; % [s/m^2]
-chn_fullPMD        = 0;
-chn_PMDparam       = 0.5e-12/31.623;
-chn_ASEseed        = 0;
-optFilterOrder   = 4;
-optFilterBw    = 40e9;
-smfPolarIniAngle         = 0;
+txLaser.centerFreq = CENTER_FREQUENCY;
+txLaser.centerLambda = LIGHT_SPEED / txLaser.centerFreq;
+txLaser.linewidth = LASER_LINEWIDTH;
+txLaser.phaseNoiseVar = 2*pi * txLaser.linewidth / samplingFs;
+txLaser.azimuth = 0;
+txLaser.ellipticity = 0;
+txLaser.power = 1e-3; % [W]
+txLaser.RIN = -130; % dBc/Hz
+
+modulator.Vpi = 3; % [V]
+modulator.extRatio = 35; % [dB]
+modulator.efficiency            = 0.55; % modulation efficiency
+
+transmtter.orderLPF = 4;
+transmtter.bandwidth = 0.75 * baudrate; % [Hz]
+transmtter.pilotX = [];
+transmtter.pilotY = [];
+
+fiber.n2 = 2.6e-20;
+fiber.coreArea = 80e-12; % [m^2]
+% fiber.initAngle = 0; % [degree]
+fiber.lossFast = 0.2; % [dB/km]
+fiber.lossSlow = 0.2;
+fiber.spanLength = 80e3; % [m]
+fiber.spanNum = 2;
+chn_stepLength = 1e3; % [m]
+chn_corrLength = 100; % [m]
+chn_dispD = 17e-6; % [s/m]
+chn_dispS = 0.08e3; % [s/m^2]
+chn_fullPMD = 0;
+chn_PMDparam = 0.5e-12/31.623;
+chn_ASEseed = 0;
+optFilterOrder = 4;
+optFilterBw = 40e9;
+smfPolarIniAngle = 0;
 smfPolarRotSpeed = 30e3; % rad/s
-lnk_DL			= chn_dispD*chn_spanLength*chn_numSpan;
-lnk_SL			= chn_dispS*chn_spanLength*chn_numSpan;
+lnk_DL = chn_dispD*fiber.spanLength*fiber.spanNum;
+lnk_SL = chn_dispS*fiber.spanLength*fiber.spanNum;
 
 Rxcenterfreq        = CENTER_FREQUENCY;
 RxcenterWave        = LIGHT_SPEED/Rxcenterfreq;
@@ -158,17 +162,16 @@ rxPdDark            = 10E-9;
 
 pd_thmvar   = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * (0.5 * samplingFs);
 
-TxPilotX         = [];
-TxPilotY         = [];
+
 
 
 % preparing filter responses
 txPulseShapeFilter.RollOffFactor = 0.35;
 txPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 0);
 txPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 1);
-txPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, txLpfOrder, txLpfBw);
+txPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, transmtter.orderLPF, transmtter.bandwidth);
 txPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
-txPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, txLpfOrder, txLpfBw);
+txPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, transmtter.orderLPF, transmtter.bandwidth);
 
 rxPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, rxLpfOrder, rxLpfBw);
 rxPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
@@ -182,7 +185,7 @@ buffer.txBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.txBitsY = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.rxBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.rxBitsY = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
-buffer.txPhaseNoise = genLaserPhaseNoise(numSamples, txLaserPnVar, 0);
+buffer.txPhaseNoise = genLaserPhaseNoise(numSamples, txLaser.phaseNoiseVar, 0);
 buffer.rxPhaseNoise = genLaserPhaseNoise(numSamples, Rxpnvar, 0);
 buffer.txLaserRIN   = zeros(1,numSamples);
 buffer.rxLaserRIN   = zeros(1,numSamples);
@@ -294,7 +297,7 @@ txBaudY = symbolizerGrayQam(buffer.txBitsY);
 %% TX laser pol x/y 
 
 % generate new phase noise for the new frame
-tmpPN = genLaserPhaseNoise(samplesPerFrame,txLaserPnVar, buffer.txPhaseNoise(end));
+tmpPN = genLaserPhaseNoise(samplesPerFrame, txLaser.phaseNoiseVar, buffer.txPhaseNoise(end));
 
 % fifo
 buffer.txPhaseNoise = fifoBuffer(buffer.txPhaseNoise, tmpPN);
@@ -302,7 +305,7 @@ buffer.txPhaseNoise = fifoBuffer(buffer.txPhaseNoise, tmpPN);
 % buffer laser RIN is really defined as one-sided power variance
 
 % generate new rin for new frame
-tmpRIN = genWGN(1,samplesPerFrame, idbw(txLaserRIN) * (TxLaserPow^2) * (0.5*samplingFs), 'linear', 'real');
+tmpRIN = genWGN(1,samplesPerFrame, idbw(txLaser.RIN) * (txLaser.power^2) * (0.5*samplingFs), 'linear', 'real');
 
 % fifo
 buffer.txLaserRIN = fifoBuffer(buffer.txLaserRIN, tmpRIN);
@@ -315,15 +318,15 @@ end
 % laser on
 if sysParam.addLaserRIN
     if sysParam.addLaserPN
-        txLaser = sqrt(TxLaserPow + buffer.txLaserRIN) .* exp(1j * buffer.txPhaseNoise);
+        txLaser.wfm = sqrt(txLaser.power + buffer.txLaserRIN) .* exp(1j * buffer.txPhaseNoise);
     else
-        txLaser = sqrt(TxLaserPow + buffer.txLaserRIN);
+        txLaser.wfm = sqrt(txLaser.power + buffer.txLaserRIN);
     end
 else
     if sysParam.addLaserPN
-        txLaser = sqrt(TxLaserPow) .*  exp(1j * buffer.txPhaseNoise);
+        txLaser.wfm = sqrt(txLaser.power) .*  exp(1j * buffer.txPhaseNoise);
     else
-        txLaser = sqrt(TxLaserPow) * ones(1,numSamples);
+        txLaser.wfm = sqrt(txLaser.power) * ones(1,numSamples);
     end
 end
 
@@ -341,15 +344,15 @@ txBaudImagY = imag(txBaudY) / (sqrt(ALPHABET_SIZE)-1);
 
 % pre-distortion
 if ctrlParam.doMzmComp
-    txDrvIx = asin(txBaudRealX) * TxVpi /pi;
-    txDrvQx = asin(txBaudImagX) * TxVpi /pi;
-    txDrvIy = asin(txBaudRealY) * TxVpi /pi;
-    txDrvQy = asin(txBaudImagY) * TxVpi /pi;
+    txDrvIx = asin(txBaudRealX) * modulator.Vpi /pi;
+    txDrvQx = asin(txBaudImagX) * modulator.Vpi /pi;
+    txDrvIy = asin(txBaudRealY) * modulator.Vpi /pi;
+    txDrvQy = asin(txBaudImagY) * modulator.Vpi /pi;
 else
-    txDrvIx = (txBaudRealX*TxModEff)*TxVpi/pi;
-    txDrvQx = (txBaudImagX*TxModEff)*TxVpi/pi;
-    txDrvIy = (txBaudRealY*TxModEff)*TxVpi/pi;
-    txDrvQy = (txBaudImagY*TxModEff)*TxVpi/pi;
+    txDrvIx = (txBaudRealX * modulator.efficiency) * modulator.Vpi /pi;
+    txDrvQx = (txBaudImagX * modulator.efficiency) * modulator.Vpi /pi;
+    txDrvIy = (txBaudRealY * modulator.efficiency) * modulator.Vpi /pi;
+    txDrvQy = (txBaudImagY * modulator.efficiency) * modulator.Vpi /pi;
 end
 
 
@@ -393,12 +396,12 @@ end
 %% MZM
 
 % the bias point
-V1 = - TxVpi/2;
-V2 = - TxVpi/2;
-V3 = + TxVpi/2;
+V1 = - modulator.Vpi/2;
+V2 = - modulator.Vpi/2;
+V3 = + modulator.Vpi/2;
 
-txOptSigX = oeModIqNested(txLaser, txDrvIxWfm, txDrvQxwfm, TxMzExr, TxVpi, V1, V2, V3);
-txOptSigY = oeModIqNested(txLaser, txDrvIyWfm, txDrvQyWfm, TxMzExr, TxVpi, V1, V2, V3);
+txOptSigX = oeModIqNested(txLaser.wfm, txDrvIxWfm, txDrvQxwfm, modulator.extRatio, modulator.Vpi, V1, V2, V3);
+txOptSigY = oeModIqNested(txLaser.wfm, txDrvIyWfm, txDrvQyWfm, modulator.extRatio, modulator.Vpi, V1, V2, V3);
 
 
 if ctrlParam.doPlot
@@ -537,7 +540,7 @@ hybrid90 = deg2rad(HYBRID_90_PHASESHIFT);
 
 switch DETECTION_MODE
     case 'HOM'
-        % freq_offset     = Rxcenterfreq - Txcenterfreq;
+        % freq_offset     = Rxcenterfreq - txLaser.centerFreq;
         if sysParam.addFreqOffset
             xRealP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPx;
             xRealN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPx;
