@@ -37,7 +37,7 @@ sym = sym(:);
 freqVector = getFFTGrid(nSamples,Fs);
 
 alpha = 0.36;
-H = calcRcosResponse(nSamples,Fs,rs,alpha,0);
+H = calcRCFreqResponse(nSamples,Fs,rs,alpha,0);
 order = 4;
 bandwidth = 0.75*rs;
 H = calcBesselResponse(nSamples,Fs,order,bandwidth);

@@ -17,7 +17,7 @@ RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
 bitpersym = 2;
 
 symlen = 2^16;
-tvec = (0:(1/2e9):(symlen-1)) * (1/2e9);
+tvec = 0 : (1/2e9) : ((symlen-1) * (1/2e9));
 
 % input power
 a = constellation(2^bitpersym);

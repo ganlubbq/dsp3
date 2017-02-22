@@ -54,7 +54,7 @@ for k = 2:length(x)
     J(k) = abs(s(k)-ref(k)).^2;
 end
 
-figure;
+h1 = figure; title('gradient decent');
 % show the phase difference
 subplot(2,2,1); plot(tvec,real(x),'b',tvec,real(ref),'r'); grid on
 % compare reference with output
@@ -99,7 +99,7 @@ for k = 2:length(x)
     J(k) = abs(s(k)-ref(k)).^2;
 end
 
-figure;
+h2 = figure; title('Newton-Raphson');
 % show the phase difference
 subplot(2,2,1); plot(tvec,real(x),'b',tvec,real(ref),'r'); grid on
 % compare reference with output
@@ -111,6 +111,8 @@ subplot(2,2,4); plot(tvec,dbw(J)); grid on; ylim([-100 20])
 
 % depending on the location of initial guess, this method may converge to
 % another solution with pi shift relatively
+
+mngFigureWindow(h1,h2);
 
 
 % EOF

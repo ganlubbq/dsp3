@@ -2,6 +2,8 @@
 % CALCULATING THEORETICAL BER OF M-QAM SYSTEM WITH GAUSSIAN NOISE
 % Denoted to pulse shaping, multiple samples per symbol, observing the ISI
 % effet.
+
+
 %%
 function [] = TheoreticalBERv3(input_k)
 
@@ -43,7 +45,7 @@ Rs = 1;
 Fs = sps;
 freqVect = getFFTGrid(nSamples,Fs);
 alpha = 0.35; mode = 0;
-H = calcRcosResponse(nSamples,Fs,Rs,alpha,mode);
+H = calcRCFreqResponse(nSamples,Fs,Rs,alpha,mode);
 
 % filtering signal in frequency domain
 sym_upsampled_i = real(ifft(fft(real(sym_upsampled)).*H));
