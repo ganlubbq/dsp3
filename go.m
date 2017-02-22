@@ -171,23 +171,23 @@ txPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplin
 txPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, txLpfOrder, txLpfBw);
 
 rxPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, rxLpfOrder, rxLpfBw);
-rxNyquistFilterH = calcNyquistFiltResponse(numSamples,samplingFs,baudrate,0.1,0);
-rxGaussianFilterH = calcGaussFlt(numSamples,samplingFs,0,rxLpfOrder,rxLpfBw);
+rxPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
+rxPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, rxLpfOrder, rxLpfBw);
 
-optGaussianFilter = calcOptGaussFlt(numSamples,samplingFs,0,optFilterOrder,optFilterBw);
+optGaussianFilter = calcOptGaussFlt(numSamples, samplingFs, 0, optFilterOrder, optFilterBw);
 
 
 % initialize buffer
-buffer.txBitsX      = randi([0 1],bitpersym,FRAME_WINDOW*symbolsPerFrame);
-buffer.txBitsY      = randi([0 1],bitpersym,FRAME_WINDOW*symbolsPerFrame);
-buffer.rxBitsX      = randi([0 1],bitpersym,FRAME_WINDOW*symbolsPerFrame);
-buffer.rxBitsY      = randi([0 1],bitpersym,FRAME_WINDOW*symbolsPerFrame);
-buffer.txPhaseNoise = genLaserPhaseNoise(numSamples,txLaserPnVar,0);
-buffer.rxPhaseNoise = genLaserPhaseNoise(numSamples,Rxpnvar,0);
+buffer.txBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
+buffer.txBitsY = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
+buffer.rxBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
+buffer.rxBitsY = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
+buffer.txPhaseNoise = genLaserPhaseNoise(numSamples, txLaserPnVar, 0);
+buffer.rxPhaseNoise = genLaserPhaseNoise(numSamples, Rxpnvar, 0);
 buffer.txLaserRIN   = zeros(1,numSamples);
 buffer.rxLaserRIN   = zeros(1,numSamples);
-buffer.channelNoiseX       = zeros(1,numSamples);
-buffer.channelNoiseY       = zeros(1,numSamples);
+buffer.channelNoiseX  = zeros(1,numSamples);
+buffer.channelNoiseY  = zeros(1,numSamples);
 buffer.thermNsIx    = zeros(1,numSamples);
 buffer.thermNsQx    = zeros(1,numSamples);
 buffer.thermNsIy    = zeros(1,numSamples);
@@ -203,6 +203,7 @@ memory1				= [];
 memory2				= [];
 memory3				= [];
 memory4				= [];
+
 dspMemCount		= 0;
 
 % Controller
