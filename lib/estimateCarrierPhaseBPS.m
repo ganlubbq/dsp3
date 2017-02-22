@@ -22,7 +22,7 @@ phsmat = ones(length(observations),1) * exp(1j*phi);
 xpr = xp .* phsmat;
 
 % distance between rotated data and its hard decision
-for ii=1:M
+for ii = 1:M
 	D(:,ii) = smooth(abs(xpr(:,ii) - makeHardDecision(xpr(:,ii),mn)).^2, blocksize);
 end
 
@@ -30,6 +30,8 @@ end
 
 % unwrap the phase estimation
 theta = unwrap(4 * phi(idx)) / 4;
+
+theta = theta(:);
 
 return
 

@@ -36,6 +36,8 @@ switch mn
         
 end
 
+c = c(:);
+
 return
 
 

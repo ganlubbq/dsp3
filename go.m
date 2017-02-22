@@ -52,9 +52,9 @@ if nargin < 1
     HYBRID_90_PHASESHIFT    = 90; % degree
     ADC_SAMPLING_RATE       = 2; % samples per symbol
     DSP_MODE                = 0; % 0-offline; 1-real time
-    DSO_MEMORY_LENGTH       = 640; % number of frames
+    DSO_MEMORY_LENGTH       = 64; % number of frames
     LASER_LINEWIDTH         = 500e3;
-    OSNR                    = 15.0;
+    OSNR                    = 150;
     baudrate                = 28e9;
     bitpersym               = 2;
     modFormat               = 'QPSK';
@@ -154,14 +154,16 @@ rxPbcPhaseRetard    = 0; % phase retardation of PBC
 rxPdR               = 1.0;
 rxPdDark            = 10E-9;
 
+pd_thmvar   = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * (0.5 * samplingFs);
+
 TxPilotX         = [];
 TxPilotY         = [];
 
 
 % preparing filter responses
 txPulseShapeFilter.RollOffFactor = 0.35;
-txPulseShapeFilter.freqRespRC = calcRcosResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 0);
-txPulseShapeFilter.freqRespRRC = calcRcosResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 1);
+txPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 0);
+txPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 1);
 txBesselFilterH     = calcBesselResponse(numSamples,samplingFs,txLpfOrder,txLpfBw);
 txNyquistFilterH    = calcNyquistFiltResponse(numSamples,samplingFs,baudrate,0.1,0);
 txGaussianFilterH   = calcGaussFlt(numSamples,samplingFs,0,txLpfOrder,txLpfBw);
@@ -224,7 +226,7 @@ dspParam.adcFs				= 56e9;
 dspParam.showEye			= 0;
 dspParam.doFrontEndComp		= 0;
 dspParam.doDigitalLPF		= 0;
-dspParam.doCDC				= 1;
+dspParam.doCDC				= 0;
 dspParam.doCDE				= 0;
 dspParam.doFramer			= 0;
 dspParam.doTraining			= 0;
@@ -357,15 +359,11 @@ end
 
 %% Pulse shaping
 % DAC - simple oversampling by inserting zeros
-tmpTxDrvIx = ones(samplesPerSym,1) * txDrvIx; tmpTxDrvIx(2:end,:) = 0;
-tmpTxDrvQx = ones(samplesPerSym,1) * txDrvQx; tmpTxDrvQx(2:end,:) = 0;
-txDrvIxUps = tmpTxDrvIx(:);
-txDrvQxUps = tmpTxDrvQx(:);
+txDrvIxUps = upSampInsertZeros(txDrvIx, samplesPerSym);
+txDrvQxUps = upSampInsertZeros(txDrvQx, samplesPerSym);
 
-tmpTxDrvIy = ones(samplesPerSym,1) * txDrvIy; tmpTxDrvIy(2:end,:) = 0;
-tmpTxDrvQy = ones(samplesPerSym,1) * txDrvQy; tmpTxDrvQy(2:end,:) = 0;
-txDrvIyUps = tmpTxDrvIy(:);
-txDrvQyUps = tmpTxDrvQy(:);
+txDrvIyUps = upSampInsertZeros(txDrvIy, samplesPerSym);
+txDrvQyUps = upSampInsertZeros(txDrvQy, samplesPerSym);
 
 
 % bessel filtering
@@ -560,51 +558,56 @@ switch DETECTION_MODE
             yImagN = rxOptSigY - exp(1j*hybrid90) .*loLaserPy;
         end
     case 'HET'
-        xHetP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPx;
-        xHetN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPx;
-        yHetP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPy;
-        yHetN = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPy;
+        if sysParam.addFreqOffset
+            xHetP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPx;
+            xHetN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPx;
+            yHetP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPy;
+            yHetN = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPy;
+        else
+            xHetP = rxOptSigX + loLaserPx;
+            xHetN = rxOptSigX - loLaserPx;
+            yHetP = rxOptSigY + loLaserPy;
+            yHetN = rxOptSigY - loLaserPy;
+        end
     otherwise
-        error(EID,'detection mode not supported !!');
+        error('detection mode not supported !!');
 end
 
 
 %% Photo detector
 % dark current
-IpdDark       = rxPdDark;
+IpdDark = rxPdDark;
 
 switch DETECTION_MODE
     case 'HOM'
         % square law detection
-        IpdXrealP     = rxPdR .* abs(xRealP).^2;
-        IpdXrealN     = rxPdR .* abs(xRealN).^2;
-        IpdXimagP         = rxPdR .* abs(xImagP).^2;
-        IpdXimagN         = rxPdR .* abs(xImagN).^2;
-        IpdYrealP     = rxPdR .* abs(yRealP).^2;
-        IpdYrealN     = rxPdR .* abs(yRealN).^2;
-        IpdYimagP         = rxPdR .* abs(yImagP).^2;
-        IpdYimagN         = rxPdR .* abs(yImagN).^2;
+        IpdXrealP = rxPdR .* abs(xRealP).^2;
+        IpdXrealN = rxPdR .* abs(xRealN).^2;
+        IpdXimagP = rxPdR .* abs(xImagP).^2;
+        IpdXimagN = rxPdR .* abs(xImagN).^2;
+        IpdYrealP = rxPdR .* abs(yRealP).^2;
+        IpdYrealN = rxPdR .* abs(yRealN).^2;
+        IpdYimagP = rxPdR .* abs(yImagP).^2;
+        IpdYimagN = rxPdR .* abs(yImagN).^2;
         
         if sysParam.addThermNoise
-            % defined as one-sided noise
-            pd_thmvar   = 4*BOLTZMAN*TEMPERATURE/PD_LOAD_RESISTANCE*(samplingFs/2);
-            IpdThermal1      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal2      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal3      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal4      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal5      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal6      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal7      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal8      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
+            IpdThermal1 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
+            IpdThermal2 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
+            IpdThermal3 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
+            IpdThermal4 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
+            IpdThermal5 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
+            IpdThermal6 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
+            IpdThermal7 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
+            IpdThermal8 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
         else
-            IpdThermal1      = 0;
-            IpdThermal2      = 0;
-            IpdThermal3      = 0;
-            IpdThermal4      = 0;
-            IpdThermal5      = 0;
-            IpdThermal6      = 0;
-            IpdThermal7      = 0;
-            IpdThermal8      = 0;
+            IpdThermal1 = 0;
+            IpdThermal2 = 0;
+            IpdThermal3 = 0;
+            IpdThermal4 = 0;
+            IpdThermal5 = 0;
+            IpdThermal6 = 0;
+            IpdThermal7 = 0;
+            IpdThermal8 = 0;
         end
         
         if sysParam.addShotNoise
@@ -616,62 +619,63 @@ switch DETECTION_MODE
             pd_shtvar6   = 2*ELECTRON*(calcrms(yRealN)^2)*(samplingFs/2);
             pd_shtvar7   = 2*ELECTRON*(calcrms(yImagP)^2)*(samplingFs/2);
             pd_shtvar8   = 2*ELECTRON*(calcrms(yImagN)^2)*(samplingFs/2);
-            IpdShot1      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar1,'linear','real');
-            IpdShot2      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar2,'linear','real');
-            IpdShot3      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar3,'linear','real');
-            IpdShot4      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar4,'linear','real');
-            IpdShot5      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar5,'linear','real');
-            IpdShot6      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar6,'linear','real');
-            IpdShot7      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar7,'linear','real');
-            IpdShot8      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar8,'linear','real');
+            IpdShot1 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar1,'linear','real');
+            IpdShot2 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar2,'linear','real');
+            IpdShot3 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar3,'linear','real');
+            IpdShot4 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar4,'linear','real');
+            IpdShot5 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar5,'linear','real');
+            IpdShot6 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar6,'linear','real');
+            IpdShot7 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar7,'linear','real');
+            IpdShot8 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar8,'linear','real');
         else
-            IpdShot1      = 0;
-            IpdShot2      = 0;
-            IpdShot3      = 0;
-            IpdShot4      = 0;
-            IpdShot5      = 0;
-            IpdShot6      = 0;
-            IpdShot7      = 0;
-            IpdShot8      = 0;
+            IpdShot1 = 0;
+            IpdShot2 = 0;
+            IpdShot3 = 0;
+            IpdShot4 = 0;
+            IpdShot5 = 0;
+            IpdShot6 = 0;
+            IpdShot7 = 0;
+            IpdShot8 = 0;
         end
         
-        V1      = IpdXrealP + IpdDark + IpdThermal1 + IpdShot1;
-        V2      = IpdXrealN + IpdDark + IpdThermal2 + IpdShot2;
-        V3      = IpdXimagP + IpdDark + IpdThermal3 + IpdShot3;
-        V4      = IpdXimagN + IpdDark + IpdThermal4 + IpdShot4;
-        V5      = IpdYrealP + IpdDark + IpdThermal5 + IpdShot5;
-        V6      = IpdYrealN + IpdDark + IpdThermal6 + IpdShot6;
-        V7      = IpdYimagP + IpdDark + IpdThermal7 + IpdShot7;
-        V8      = IpdYimagN + IpdDark + IpdThermal8 + IpdShot8;
+        V1 = IpdXrealP + IpdDark + IpdThermal1 + IpdShot1;
+        V2 = IpdXrealN + IpdDark + IpdThermal2 + IpdShot2;
+        V3 = IpdXimagP + IpdDark + IpdThermal3 + IpdShot3;
+        V4 = IpdXimagN + IpdDark + IpdThermal4 + IpdShot4;
+        V5 = IpdYrealP + IpdDark + IpdThermal5 + IpdShot5;
+        V6 = IpdYrealN + IpdDark + IpdThermal6 + IpdShot6;
+        V7 = IpdYimagP + IpdDark + IpdThermal7 + IpdShot7;
+        V8 = IpdYimagN + IpdDark + IpdThermal8 + IpdShot8;
         
         if sysParam.doBalanced % balanced detection
-            pd_xi			= V1 - V2;
-            pd_xq			= V3 - V4;
-            pd_yi			= V5 - V6;
-            pd_yq			= V7 - V8;
+            pd_xi = V1 - V2;
+            pd_xq = V3 - V4;
+            pd_yi = V5 - V6;
+            pd_yq = V7 - V8;
         else
-            pd_xi			= V1;
-            pd_xq			= V3;
-            pd_yi			= V5;
-            pd_yq			= V7;
+            pd_xi = V1;
+            pd_xq = V3;
+            pd_yi = V5;
+            pd_yq = V7;
         end
         % low-pass filtering
-        pd_xi           = real(ifft(fft(pd_xi).* rxBesselFilterH));
-        pd_xq           = real(ifft(fft(pd_xq).* rxBesselFilterH));
-        pd_yi           = real(ifft(fft(pd_yi).* rxBesselFilterH));
-        pd_yq           = real(ifft(fft(pd_yq).* rxBesselFilterH));
+        pd_xi = real(ifft(fft(pd_xi).* rxBesselFilterH));
+        pd_xq = real(ifft(fft(pd_xq).* rxBesselFilterH));
+        pd_yi = real(ifft(fft(pd_yi).* rxBesselFilterH));
+        pd_yq = real(ifft(fft(pd_yq).* rxBesselFilterH));
+        
     case 'HET'
         % square law detection
-        IpdXrealP     = rxPdR .* abs(xHetP).^2;
-        IpdXrealN         = rxPdR .* abs(xHetN).^2;
-        IpdYrealP     = rxPdR .* abs(yHetP).^2;
-        IpdYrealN         = rxPdR .* abs(yHetN).^2;
+        IpdXrealP = rxPdR .* abs(xHetP).^2;
+        IpdXrealN = rxPdR .* abs(xHetN).^2;
+        IpdYrealP = rxPdR .* abs(yHetP).^2;
+        IpdYrealN = rxPdR .* abs(yHetN).^2;
         if sysParam.addThermNoise
-            pd_thmvar   = 4*BOLTZMAN*TEMPERATURE/PD_LOAD_RESISTANCE*samplingFs;
-            IpdThermal1      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal2      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal3      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal4      = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
+            pd_thmvar = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * samplingFs;
+            IpdThermal1 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
+            IpdThermal2 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
+            IpdThermal3 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
+            IpdThermal4 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
         else
             IpdThermal1      = 0;
             IpdThermal2      = 0;
@@ -713,6 +717,7 @@ switch DETECTION_MODE
     otherwise
         error(EID,'detection mode not supported !!');
 end
+
 if doPlot
     if exist('FIG_EYE','var')
         plotEyeDiagram(FIG_EYE,pd_xi, baudrate, samplingFs, 'electrical');
@@ -722,12 +727,16 @@ if doPlot
     title('Real part of signal after photodetector');
 %     figure(FIG_RECEIVED); plot(pd_xi,pd_xq,'.'); grid on
 end
+
+
 % add electrical spectrum
 % keyboard;
 
 
+
 %% ADC
-ad_head         = round(samplesPerSym/2);
+% ad_head         = round(samplesPerSym/2);
+ad_head         = 1;
 ad_sps_sim      = samplesPerSym;
 
 % need a realistic sampling rate
@@ -756,19 +765,28 @@ end
 % keyboard;
 
 % dsp
-if DSP_MODE==0
+if DSP_MODE == 0
+    
+    % go offline
 	adc_out_len = length(adc1);
-	memory1 = [memory1; adc1(adc_out_len/FRAME_WINDOW+1:end-adc_out_len/FRAME_WINDOW,1)];
-	memory2 = [memory2; adc2(adc_out_len/FRAME_WINDOW+1:end-adc_out_len/FRAME_WINDOW,1)];
-	memory3 = [memory3; adc3(adc_out_len/FRAME_WINDOW+1:end-adc_out_len/FRAME_WINDOW,1)];
-	memory4 = [memory4; adc4(adc_out_len/FRAME_WINDOW+1:end-adc_out_len/FRAME_WINDOW,1)];
+    
+    % push only the center frame to the memory
+	memory1 = [memory1; adc1(adc_out_len/FRAME_WINDOW+1 : end-adc_out_len/FRAME_WINDOW, 1)];
+	memory2 = [memory2; adc2(adc_out_len/FRAME_WINDOW+1 : end-adc_out_len/FRAME_WINDOW, 1)];
+	memory3 = [memory3; adc3(adc_out_len/FRAME_WINDOW+1 : end-adc_out_len/FRAME_WINDOW, 1)];
+	memory4 = [memory4; adc4(adc_out_len/FRAME_WINDOW+1 : end-adc_out_len/FRAME_WINDOW, 1)];
 	
-	dspMemCount = dspMemCount +1;
+	dspMemCount = dspMemCount + 1;
 	
 	if dspMemCount == DSO_MEMORY_LENGTH
+        fprintf('In total %d frames are captured in the memory\n', dspMemCount);
 		break;
-	end
-elseif DSP_MODE==1
+    end
+    
+elseif DSP_MODE == 1
+    
+    % go real-time
+    
 	dspout1		= adc1 + 1j*adc2;
 	dspout2		= adc3 + 1j*adc4;
 	dspout1		= dspout1(1:2:end);
@@ -777,7 +795,7 @@ end
 
 %% Decision
 
-if DSP_MODE==1
+if DSP_MODE == 1
 	
 	de_x = normalizeQam(dspout1,ALPHABET_SIZE);
 	de_y = normalizeQam(dspout2,ALPHABET_SIZE);
@@ -800,9 +818,13 @@ end %% End of main loop
 % [dspout1,dspout2] = dspMain_built_150927(memory1,memory2,memory3,memory4,dspParam);
 [dspout1,dspout2] = dspMain_built_151229(memory1,memory2,memory3,memory4,dspParam);
 
-scatterplot(dspout1)
+h1 = figure(34); plot(dspout1,'.'); grid on;
+h2 = figure(35); plot(dspout2,'.'); grid on;
+mngFigureWindow(h1,h2);
 
-%% decision
+
+
+%% Decision
 %
 % de_x = normalizeQam(dspout1,ALPHABET_SIZE);
 % de_y = normalizeQam(dspout2,ALPHABET_SIZE);

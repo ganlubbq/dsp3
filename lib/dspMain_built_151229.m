@@ -15,7 +15,7 @@
 % 
 % Copyright 2015 Default
 
-function [dspOut1,dspOut2,dspState] = dspMain_built_151229(xi, xq, yi, yq, dspParam)
+function [dspOut1, dspOut2, dspState] = dspMain_built_151229(xi, xq, yi, yq, dspParam)
 
 dspState = [];
 
@@ -28,11 +28,11 @@ YI = yi - sum(yi)/length(yi);
 YQ = yq - sum(yq)/length(yq);
 
 % unit the mean power
-XI = XI/sqrt(sum(abs(XI).^2)/length(XI));
-XQ = XQ/sqrt(sum(abs(XQ).^2)/length(XQ));
+XI = XI / sqrt(sum(abs(XI).^2)/length(XI));
+XQ = XQ / sqrt(sum(abs(XQ).^2)/length(XQ));
 
-YI = YI/sqrt(sum(abs(YI).^2)/length(YI));
-YQ = YQ/sqrt(sum(abs(YQ).^2)/length(YQ));
+YI = YI / sqrt(sum(abs(YI).^2)/length(YI));
+YQ = YQ / sqrt(sum(abs(YQ).^2)/length(YQ));
 
 % remove the non-numerical
 XI(isnan(XI)) = 0;
@@ -48,15 +48,15 @@ YQ = YQ(:);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the power spectral density
-dataX = XI +1j*XQ;
-dataY = YI +1j*YQ;
+dataX = XI + 1j*XQ;
+dataY = YI + 1j*YQ;
 
 psdX = abs(fftshift(fft(dataX))).^2;
 psdY = abs(fftshift(fft(dataY))).^2;
 
 % ACR function is the ifft of PSD of signal
-acrX = abs(ifft(psdX))/length(psdX);
-acrY = abs(ifft(psdY))/length(psdY);
+acrX = abs(ifft(psdX)) / length(psdX);
+acrY = abs(ifft(psdY)) / length(psdY);
 
 figure; plot(acrX); hold; plot(acrY,'r'); hold off
 figure; plot(10*log10(psdX)); hold; plot(10*log10(psdY),'r'); hold off
@@ -84,7 +84,7 @@ sps = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % need to implement a realistic resampling algorithm here
-[up down] = rat( dspParam.Rs*sps / dspParam.adcFs);
+[up, down] = rat(dspParam.Rs*sps / dspParam.adcFs);
 if up == down
     XI = XI;
 	YI = YI;
@@ -102,7 +102,7 @@ else
 	YQ = resample(YQ, up, down);
 end
 
-fs = dspParam.Rs*sps;
+fs = dspParam.Rs * sps;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % COMPLEX_DATA = [RSP_TMP(:,1)+1j*RSP_TMP(:,2),RSP_TMP(:,3)+1j*RSP_TMP(:,4)];
@@ -126,8 +126,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doCDC
 	[dspState.HCD] = calcDispResponse(nSample,fs,dspParam.lambda,dspParam.lambda0,dspParam.DL,dspParam.SL);
-	cdcX = ifft(fft(fecX).*conj(dspState.HCD));
-	cdcY = ifft(fft(fecY).*conj(dspState.HCD));
+	cdcX = ifft(fft(fecX) .* conj(dspState.HCD));
+	cdcY = ifft(fft(fecY) .* conj(dspState.HCD));
 else
     cdcX = fecX;
 	cdcY = fecY;
@@ -181,8 +181,10 @@ end
 if dspParam.doCPE
 	switch dspParam.cpeAlgSelect
 		case 1
-			[cpeX,dspState.CPE_PNx] = cpe_bps(cmaX,dspParam.cpeBlockSize,dspParam.cpeBPSnTestPhase,dspParam.mn);
-			[cpeY,dspState.CPE_PNy] = cpe_bps(cmaY,dspParam.cpeBlockSize,dspParam.cpeBPSnTestPhase,dspParam.mn);
+            dspState.CPE_PNx = estimateCarrierPhaseBPS(cmaX, dspParam.cpeBlockSize, dspParam.cpeBPSnTestPhase, dspParam.mn);
+            dspState.CPE_PNy = estimateCarrierPhaseBPS(cmaY, dspParam.cpeBlockSize, dspParam.cpeBPSnTestPhase, dspParam.mn);
+			cpeX = cmaX .* exp(-1j*dspState.CPE_PNx);
+			cpeY = cmaY .* exp(-1j*dspState.CPE_PNx);
 		case 2
 			[cpeX,dspState.CPE_PNx] = cpe_vvpe(cmaX,dspParam.cpeBlockSize,dspParam.vvpeAvgMode);
 			[cpeY,dspState.CPE_PNy] = cpe_vvpe(cmaY,dspParam.cpeBlockSize,dspParam.vvpeAvgMode);
@@ -199,8 +201,8 @@ else
 end
 
 if dspParam.doMLCPE
-	cpeX = cpe_mle(cpeX,dspParam.cpeMlBlkSize,dspParam.cpeMlIter,dspParam.mn);
-	cpeY = cpe_mle(cpeY,dspParam.cpeMlBlkSize,dspParam.cpeMlIter,dspParam.mn);
+% 	cpeX = cpe_mle(cpeX,dspParam.cpeMlBlkSize,dspParam.cpeMlIter,dspParam.mn);
+% 	cpeY = cpe_mle(cpeY,dspParam.cpeMlBlkSize,dspParam.cpeMlIter,dspParam.mn);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
