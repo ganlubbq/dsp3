@@ -21,35 +21,31 @@ sps = 16;
 
 nSamples = sps*nSymbol;
 
-% Upsampling
+%% Upsampling
 if ~iscolumn(sym)
     sym = sym.';
 end
-temp = sym * ones(1,sps);
-temp(:,2:end) = 0; % insert zeros
-temp = temp.';
-% temp = repmat(sym,sps,1);
-sym_upsampled = temp(:);
+sym_upsampled = upSampInsertZeros(sym, sps);
 
-% get a freq domain raised cosine filter response
+%% get a freq domain raised cosine filter response
 Rs = 1;
 Fs = sps;
 freqVect = getFFTGrid(nSamples,Fs);
 alpha = 0.35; mode = 0;
-H = calcRcosResponse(nSamples,Fs,Rs,alpha,mode);
+H = calcRCFreqResponse(nSamples, Fs, Rs, alpha, mode);
 
 % filtering signal in frequency domain
-sym_upsampled_i = real(ifft(fft(real(sym_upsampled)).*H));
-sym_upsampled_q = real(ifft(fft(imag(sym_upsampled)).*H));
+sym_upsampled_i = real(ifft(fft(real(sym_upsampled)) .* H));
+sym_upsampled_q = real(ifft(fft(imag(sym_upsampled)) .* H));
 
 sym_filtered = sym_upsampled_i + 1j*sym_upsampled_q;
 
 % display signal power after pulse shaping
-signal_power_rcos_freq = sum(abs(sym_filtered).^2)/nSamples
+signal_power_rcos_freq = sum(abs(sym_filtered).^2) / nSamples
 
 h1 = plotEyeDiagram(sym_filtered(1:8192),2*sps,'e');
 
-% design a rcos digital filter
+%% design a rcos digital filter
 span = 10;
 shape = 'normal';
 h = rcosdesign(alpha,span,sps,shape);
@@ -78,4 +74,6 @@ end
 h2 = plotEyeDiagram(sym_filtered((1:8192)+delay),2*sps,'e');
 
 mngFigureWindow(h1,h2);
+
+%%
 
