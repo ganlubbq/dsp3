@@ -58,8 +58,8 @@ psdY = abs(fftshift(fft(dataY))).^2;
 acrX = abs(ifft(psdX)) / length(psdX);
 acrY = abs(ifft(psdY)) / length(psdY);
 
-figure; plot(acrX); hold; plot(acrY,'r'); hold off
-figure; plot(10*log10(psdX)); hold; plot(10*log10(psdY),'r'); hold off
+% figure; plot(acrX); hold; plot(acrY,'r'); hold off
+% figure; plot(10*log10(psdX)); hold; plot(10*log10(psdY),'r'); hold off
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.showEye

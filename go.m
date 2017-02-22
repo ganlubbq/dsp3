@@ -25,27 +25,28 @@ TEMPERATURE             = 300;
 PD_LOAD_RESISTANCE      = 5000; % TIA in PD
 NOISE_REFERENCE_BAND    = 12.5e9; % for OSNR definition
 DETECTION_MODE          = 'HOM'; % HOM or HET
-EID                     = 'ErrInGo';
+EID                     = 'goErr';
 CENTER_FREQUENCY        = 193.1e12;
 CENTER_WAVELENGTH       = LIGHT_SPEED/CENTER_FREQUENCY;
 LOG                     = 0;
 FIG_TXPN                = 1;
 FIG_TXLASER             = 2;
-% FIG_DRVEYE              = 3;
+FIG_DRVEYE              = 3;
 FIG_RECEIVED            = 4;
 FIG_AFTERADC            = 5;
 
 %% Switches
-doPilot                 = 0;
-doNFC                   = 0;
-doRZ                    = 0;
-doNyquist               = 0;
-doRndPMD                = 0;
-doMzmComp               = 1;
-doCoherent              = 1;
-doDSP                   = 1;
-doBalance               = 1;
-doPlot                  = 0;
+ctrlParam.doPilot       = 0;
+ctrlParam.doNFC         = 0;
+ctrlParam.doRZ          = 0;
+ctrlParam.doNyquist     = 0;
+ctrlParam.doRndPMD      = 0;
+ctrlParam.doMzmComp     = 1;
+ctrlParam.doCoherent    = 1;
+ctrlParam.doDSP         = 1;
+ctrlParam.doBalance     = 1;
+ctrlParam.doPlot        = 0;
+ctrlParam.verbose       = 1;
 
 if nargin < 1 
     MAX_RUN_NUMBER          = 1000;
@@ -79,10 +80,10 @@ timewindow          = 512 / baudrate;
 symbolsPerFrame     = timewindow * baudrate;
 samplesPerSym       = samplingFs / baudrate;
 samplesPerFrame     = symbolsPerFrame * samplesPerSym;
-vctFreqPerFrm       = getFFTGrid(samplesPerFrame,samplingFs);
+vctFreqPerFrm       = getFFTGrid(samplesPerFrame, samplingFs);
 numSamples          = FRAME_WINDOW * samplesPerFrame;
-timeVector          = (0:numSamples-1)'/samplingFs;
-freqVector          = getFFTGrid(numSamples,samplingFs);
+timeVector          = (0:numSamples-1)' / samplingFs;
+freqVector          = getFFTGrid(numSamples, samplingFs);
 ALPHABET_SIZE       = 2^bitpersym;
 vM.StartTime        = datestr(now);
 timeVectorAbs       = timeVector; % initialize absolute time
@@ -99,8 +100,9 @@ else
     logFile = 1;
 end
 
+
 %% Project setting
-%[transmitter]
+
 Txcenterfreq        = CENTER_FREQUENCY;
 TxcenterWave        = LIGHT_SPEED/Txcenterfreq;
 txLaserLw           = LASER_LINEWIDTH;
@@ -164,18 +166,15 @@ TxPilotY         = [];
 txPulseShapeFilter.RollOffFactor = 0.35;
 txPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 0);
 txPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 1);
-txBesselFilterH     = calcBesselResponse(numSamples,samplingFs,txLpfOrder,txLpfBw);
-txNyquistFilterH    = calcNyquistFiltResponse(numSamples,samplingFs,baudrate,0.1,0);
-txGaussianFilterH   = calcGaussFlt(numSamples,samplingFs,0,txLpfOrder,txLpfBw);
-rxBesselFilterH     = calcBesselResponse(numSamples,samplingFs,rxLpfOrder,rxLpfBw);
-rxNyquistFilterH    = calcNyquistFiltResponse(numSamples,samplingFs,baudrate,0.1,0);
-rxGaussianFilterH   = calcGaussFlt(numSamples,samplingFs,0,rxLpfOrder,rxLpfBw);
-% figure; hold on; title('Filter frequency response');
-% plot(freqVector,dbw(abs(txBesselFilterH).^2),'b','LineWidth',2);
-% plot(freqVector,dbw(abs(txNyquistFilterH).^2),'r','LineWidth',2);
-% plot(freqVector,dbw(abs(txGaussianFilterH).^2),'g','LineWidth',2); 
-% grid on; ylim([-70 10]); hold off
-optGaussianFilter   = calcOptGaussFlt(numSamples,samplingFs,0,optFilterOrder,optFilterBw);
+txPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, txLpfOrder, txLpfBw);
+txPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
+txPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, txLpfOrder, txLpfBw);
+
+rxPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, rxLpfOrder, rxLpfBw);
+rxNyquistFilterH = calcNyquistFiltResponse(numSamples,samplingFs,baudrate,0.1,0);
+rxGaussianFilterH = calcGaussFlt(numSamples,samplingFs,0,rxLpfOrder,rxLpfBw);
+
+optGaussianFilter = calcOptGaussFlt(numSamples,samplingFs,0,optFilterOrder,optFilterBw);
 
 
 % initialize buffer
@@ -307,7 +306,7 @@ tmpRIN = genWGN(1,samplesPerFrame, idbw(txLaserRIN) * (TxLaserPow^2) * (0.5*samp
 % fifo
 buffer.txLaserRIN = fifoBuffer(buffer.txLaserRIN, tmpRIN);
 
-if doPlot
+if ctrlParam.doPlot
     pltIndex = 1:500;
     figure(FIG_TXPN); plot(tmpPN(pltIndex)); grid on; title('Tx Phase Noise');
 end
@@ -327,7 +326,7 @@ else
     end
 end
 
-% if doPlot
+% if ctrlParam.doPlot
 %     figure(FIG_TXLASER); plot(abs(txLaser(pltIndex).^2)); grid on; title('Tx laser power waveform');
 % end
 
@@ -340,7 +339,7 @@ txBaudRealY = real(txBaudY) / (sqrt(ALPHABET_SIZE)-1);
 txBaudImagY = imag(txBaudY) / (sqrt(ALPHABET_SIZE)-1);
 
 % pre-distortion
-if doMzmComp
+if ctrlParam.doMzmComp
     txDrvIx = asin(txBaudRealX) * TxVpi /pi;
     txDrvQx = asin(txBaudImagX) * TxVpi /pi;
     txDrvIy = asin(txBaudRealY) * TxVpi /pi;
@@ -372,7 +371,7 @@ txDrvQxwfm = real(ifft(fft(txDrvQxUps) .* txPulseShapeFilter.freqRespRC));
 txDrvIyWfm = real(ifft(fft(txDrvIyUps) .* txPulseShapeFilter.freqRespRC));
 txDrvQyWfm = real(ifft(fft(txDrvQyUps) .* txPulseShapeFilter.freqRespRC));
 
-if doPlot
+if ctrlParam.doPlot
     if exist('FIG_DRVEYE','var')
         plotEyeDiagram(FIG_DRVEYE,txDrvIxWfm, baudrate, samplingFs, 'electrical');
     else
@@ -401,7 +400,7 @@ txOptSigX = oeModIqNested(txLaser, txDrvIxWfm, txDrvQxwfm, TxMzExr, TxVpi, V1, V
 txOptSigY = oeModIqNested(txLaser, txDrvIyWfm, txDrvQyWfm, TxMzExr, TxVpi, V1, V2, V3);
 
 
-if doPlot
+if ctrlParam.doPlot
     if exist('FIG_TXEYE','var')
         plotEyeDiagram(FIG_TXEYE,txOptSigX, baudrate, samplingFs, 'optical');
     else
@@ -418,7 +417,7 @@ end
 
 %% Fiber channel
 % simulating the real fiber
-if ~doRndPMD % if random birefrigence is switched off, use simple model
+if ~ctrlParam.doRndPMD % if random birefrigence is switched off, use simple model
     
     % convert osnr to snr per sample
     SNR = osnr2snr(OSNR, baudrate, samplesPerSym, 'complex');
@@ -490,7 +489,7 @@ end
 rxOptSigX = tmpOptSigX;
 rxOptSigY = tmpOptSigY;
 
-if doPlot
+if ctrlParam.doPlot
     % plot spectrum before and after fiber
 end
 
@@ -659,10 +658,10 @@ switch DETECTION_MODE
             pd_yq = V7;
         end
         % low-pass filtering
-        pd_xi = real(ifft(fft(pd_xi).* rxBesselFilterH));
-        pd_xq = real(ifft(fft(pd_xq).* rxBesselFilterH));
-        pd_yi = real(ifft(fft(pd_yi).* rxBesselFilterH));
-        pd_yq = real(ifft(fft(pd_yq).* rxBesselFilterH));
+        pd_xi = real(ifft(fft(pd_xi).* rxPulseShapeFilter.freqRespBessel));
+        pd_xq = real(ifft(fft(pd_xq).* rxPulseShapeFilter.freqRespBessel));
+        pd_yi = real(ifft(fft(pd_yi).* rxPulseShapeFilter.freqRespBessel));
+        pd_yq = real(ifft(fft(pd_yq).* rxPulseShapeFilter.freqRespBessel));
         
     case 'HET'
         % square law detection
@@ -712,13 +711,13 @@ switch DETECTION_MODE
             pd_yi			= V3;
         end
         % low-pass filtering
-        pd_xi           = real(ifft(fft(pd_xi).* rxBesselFilterH));
-        pd_yi           = real(ifft(fft(pd_yi).* rxBesselFilterH));
+        pd_xi           = real(ifft(fft(pd_xi).* rxPulseShapeFilter.freqRespBessel));
+        pd_yi           = real(ifft(fft(pd_yi).* rxPulseShapeFilter.freqRespBessel));
     otherwise
         error(EID,'detection mode not supported !!');
 end
 
-if doPlot
+if ctrlParam.doPlot
     if exist('FIG_EYE','var')
         plotEyeDiagram(FIG_EYE,pd_xi, baudrate, samplingFs, 'electrical');
     else
@@ -757,7 +756,7 @@ end
 
 % add timing jitter here
 
-if doPlot
+if ctrlParam.doPlot
     figure(FIG_AFTERADC); plot(adc1(1:2:end),adc2(1:2:end),'.',adc1(2:2:end),adc2(2:2:end),'g.'); grid on;
     title('Signal after ADC');
 end
