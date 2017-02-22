@@ -20,14 +20,25 @@ close all
 LIGHT_SPEED             = 299792458;
 BOLTZMAN                = 1.381e-23;
 ELECTRON                = 1.602e-19;
+
 FRAME_WINDOW            = 3;
 TEMPERATURE             = 300;
-PD_LOAD_RESISTANCE      = 5000; % TIA in PD
-NOISE_REFERENCE_BAND    = 12.5e9; % for OSNR definition
-DETECTION_MODE          = 'HOM'; % HOM or HET
+
+% TIA in PD
+PD_LOAD_RESISTANCE      = 5000; 
+
+% for OSNR definition
+NOISE_REFERENCE_BAND    = 12.5e9; 
+
+% HOM or HET
+DETECTION_MODE          = 'HOM'; 
+
 EID                     = 'goErr';
+
 CENTER_FREQUENCY        = 193.1e12;
+
 CENTER_WAVELENGTH       = LIGHT_SPEED/CENTER_FREQUENCY;
+
 LOG                     = 0;
 FIG_TXPN                = 1;
 FIG_TXLASER             = 2;
@@ -106,42 +117,83 @@ Txsamplerate        = samplingFs;
 
 txLaser.centerFreq = CENTER_FREQUENCY;
 txLaser.centerLambda = LIGHT_SPEED / txLaser.centerFreq;
+
 txLaser.linewidth = LASER_LINEWIDTH;
 txLaser.phaseNoiseVar = 2*pi * txLaser.linewidth / samplingFs;
+
 txLaser.azimuth = 0;
 txLaser.ellipticity = 0;
-txLaser.power = 1e-3; % [W]
-txLaser.RIN = -130; % dBc/Hz
 
-modulator.Vpi = 3; % [V]
-modulator.extRatio = 35; % [dB]
-modulator.efficiency            = 0.55; % modulation efficiency
+% [W]
+txLaser.power = 1e-3; 
+
+% dBc/Hz
+txLaser.RIN = -130; 
+
+% [V]
+modulator.Vpi = 3; 
+
+% [dB]
+modulator.extRatio = 35; 
+
+% modulation efficiency
+modulator.efficiency = 0.55; 
 
 transmtter.orderLPF = 4;
-transmtter.bandwidth = 0.75 * baudrate; % [Hz]
+
+% [Hz]
+transmtter.bandwidth = 0.75 * baudrate; 
+
 transmtter.pilotX = [];
 transmtter.pilotY = [];
 
 fiber.n2 = 2.6e-20;
-fiber.coreArea = 80e-12; % [m^2]
-% fiber.initAngle = 0; % [degree]
-fiber.lossFast = 0.2; % [dB/km]
+
+% [m^2]
+fiber.coreArea = 80e-12; 
+
+% degree
+fiber.initPolAngle = 0; 
+
+% rad/s
+fiber.rotSpeed = 30e3; 
+
+% [dB/km]
+fiber.lossFast = 0.2; 
 fiber.lossSlow = 0.2;
-fiber.spanLength = 80e3; % [m]
+
+% [m]
+fiber.spanLength = 80e3; 
+
 fiber.spanNum = 2;
-chn_stepLength = 1e3; % [m]
-chn_corrLength = 100; % [m]
-chn_dispD = 17e-6; % [s/m]
-chn_dispS = 0.08e3; % [s/m^2]
-chn_fullPMD = 0;
-chn_PMDparam = 0.5e-12/31.623;
-chn_ASEseed = 0;
+
+% [m]
+fiber.stepLength = 1e3; 
+
+% [m]
+fiber.corrLength = 100; 
+
+% [s/m]
+fiber.dispParamD = 17e-6; 
+
+% [s/m^2]
+fiber.dispParamS = 0.08e3; 
+
+fiber.doFullPMD = 0;
+
+fiber.pmdParam = 0.5e-12 / 31.623;
+
+% random number seed
+fiber.noiseSeed = 0;
+
 optFilterOrder = 4;
 optFilterBw = 40e9;
-smfPolarIniAngle = 0;
-smfPolarRotSpeed = 30e3; % rad/s
-lnk_DL = chn_dispD*fiber.spanLength*fiber.spanNum;
-lnk_SL = chn_dispS*fiber.spanLength*fiber.spanNum;
+
+% accumulated dispersion ps/nm
+fiber.DL = fiber.dispParamD * fiber.spanLength * fiber.spanNum;
+
+% accumulated dispersion slop
+fiber.SL = fiber.dispParamS * fiber.spanLength * fiber.spanNum;
 
 Rxcenterfreq        = CENTER_FREQUENCY;
 RxcenterWave        = LIGHT_SPEED/Rxcenterfreq;
@@ -239,8 +291,8 @@ dspParam.doCPE				= 1;
 dspParam.doFOE				= 0;
 dspParam.doFEC				= 0;
 dspParam.doDownSampling = 1;
-dspParam.DL = lnk_DL;
-dspParam.SL = lnk_SL;
+dspParam.DL = fiber.DL;
+dspParam.SL = fiber.SL;
 dspParam.lambda = CENTER_WAVELENGTH;
 dspParam.lambda0 = CENTER_WAVELENGTH;
 dspParam.lpfBW = 0;
@@ -445,9 +497,9 @@ if ~ctrlParam.doRndPMD % if random birefrigence is switched off, use simple mode
     txOptSigY = txOptSigY + buffer.channelNoiseY(:);
     
     % fiber
-    lk_rotjump = mod(smfPolarRotSpeed * timeVectorAbs, 2*pi);
-    lk_theta = smfPolarIniAngle + lk_rotjump;
-%     smfPolarIniAngle = lk_theta(numSamples);
+    lk_rotjump = mod(fiber.rotSpeed * timeVectorAbs, 2*pi);
+    lk_theta = fiber.initPolAngle + lk_rotjump;
+%     fiber.initPolAngle = lk_theta(numSamples);
     
     if sysParam.addPolarRot % rotate device only if polarization rotation is on
         tmpOptSigX = txOptSigX.*cos(lk_theta) - txOptSigY.*sin(lk_theta);
@@ -458,7 +510,7 @@ if ~ctrlParam.doRndPMD % if random birefrigence is switched off, use simple mode
     end
     
     if sysParam.addCD        
-        [HCD] = calcDispResponse(numSamples, samplingFs, centerWave, centerWave, lnk_DL, lnk_SL);
+        [HCD] = calcDispResponse(numSamples, samplingFs, centerWave, centerWave, fiber.DL, fiber.SL);
         tmpOptSigX = ifft(fft(tmpOptSigX) .* HCD);
         tmpOptSigY = ifft(fft(tmpOptSigY) .* HCD);
     end
@@ -478,7 +530,7 @@ if ~ctrlParam.doRndPMD % if random birefrigence is switched off, use simple mode
         tmpOptSigY = tmpOptSigX.*sin(lk_theta) + tmpOptSigY.*cos(lk_theta);
         % update absolute time
         timeVectorAbs = ((0:numSamples-1)' + samplesPerFrame) / samplingFs;
-        lk_rotjump = mod(smfPolarRotSpeed * timeVectorAbs, 2*pi);
+        lk_rotjump = mod(fiber.rotSpeed * timeVectorAbs, 2*pi);
     end
     
 else % if random birefrigence is on, use SSF model
