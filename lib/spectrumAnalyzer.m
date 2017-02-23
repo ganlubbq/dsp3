@@ -33,7 +33,7 @@ freqResolution = (max(freqVect) - min(freqVect)) / (nSamples - 1);
 % power in one freq slot
 PSD = abs(fft(x)) .^ 2 / (nSamples*nSamples);
 
-figure(); grid on
+figure(99); grid on; hold on
 plot(fftshift(freqVect), 10*log10(fftshift(PSD))); 
 
 xlim([min(freqVect), max(freqVect)]);
@@ -43,7 +43,7 @@ xlim([min(freqVect), max(freqVect)]);
 
 xlabel('Frequency (Hz)'); 
 ylabel('PSD (dB)');
-legend(sprintf('Frequency Resolution %.2f MHz', freqResolution/1e6));
+title(sprintf('Frequency Resolution %.2f MHz', freqResolution/1e6));
 
 return
 
