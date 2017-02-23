@@ -3,11 +3,12 @@
 % in Matlab, the power integrated in frequency domain via fft should be
 % scaled by 1/N
 %
-%   power_in_time = sum(abs(fft(signal)).^2) / N = power_in_frequency
+%   power_in_time = sum(abs(signal).^2) / N = power_in_frequency =
+%   sum(abs(fft(signal)).^2) / N^2
 %
 % Therefore, the power density displayed on spectrum analyzer should be
 %
-%   psd_on_sa = abs(fft(signal)).^2 / N
+%   psd_on_sa = abs(fft(signal)).^2 / N^2
 % 
 % so that the integration of it would be the total power
 %
@@ -30,7 +31,7 @@ end
 freqResolution = (max(freqVect) - min(freqVect)) / (nSamples - 1);
 
 % power in one freq slot
-PSD = abs(fft(x)) .^ 2 / nSamples;
+PSD = abs(fft(x)) .^ 2 / (nSamples*nSamples);
 
 figure(); grid on
 plot(fftshift(freqVect), 10*log10(fftshift(PSD))); 
