@@ -16,7 +16,7 @@ function vM = go(vSet)
 
 close all
 
-%% Constant
+%% Constants
 LIGHT_SPEED             = 299792458;
 BOLTZMAN                = 1.381e-23;
 ELECTRON                = 1.602e-19;
@@ -46,6 +46,21 @@ FIG_DRVEYE              = 3;
 FIG_RECEIVED            = 4;
 FIG_AFTERADC            = 5;
 
+verbose = 1;
+
+%% Log file
+if LOG
+    logFile = fopen('log','a');
+    fprintf(logFile,'-------------------------------------');
+    fprintf(logFile,'\n');
+    fprintf(logFile,'Time now is %s\n',datestr(now));
+    if exist('vSet','var')
+        fprintf(logFile,'Caller is %s\n', vSet.caller);
+    end
+else
+    logFile = 1;
+end
+
 %% Switches
 ctrlParam.doPilot       = 0;
 ctrlParam.doNFC         = 0;
@@ -55,10 +70,23 @@ ctrlParam.doRndPMD      = 0;
 ctrlParam.doMzmComp     = 1;
 ctrlParam.doCoherent    = 1;
 ctrlParam.doDSP         = 1;
-ctrlParam.doBalance     = 1;
 ctrlParam.doPlot        = 0;
-ctrlParam.verbose       = 1;
 
+% Controller
+ctrlParam.addCD              = 0;
+ctrlParam.addPMD             = 0;
+ctrlParam.addLaserRIN        = 0;
+ctrlParam.addLaserPN         = 0;
+ctrlParam.addPolarRot        = 0;
+ctrlParam.addThermNoise      = 0;
+ctrlParam.addShotNoise       = 0;
+ctrlParam.addAdcClockJitter  = 0;
+ctrlParam.addFreqOffset      = 0;
+ctrlParam.doBalanced         = 1;
+ctrlParam.addFreqOffset      = 0;
+
+
+%%
 if nargin < 1 
     MAX_RUN_NUMBER          = 1000;
     HYBRID_90_PHASESHIFT    = 90; % degree
@@ -85,7 +113,15 @@ else
     modFormat               = vSet.modFormat;
 end
 
-%[simulation]
+if verbose
+    fprintf(logFile, '* modulation format is %s \n', modFormat);
+    fprintf(logFile, '* pulse-shaping filter type is %s \n', psFiltType);
+    fprintf(logFile, '* detection mode is %s \n', DETECTION_MODE);
+end
+
+
+
+%% Global parameters
 samplingFs          = 8 * baudrate;
 timewindow          = 512 / baudrate;
 symbolsPerFrame     = timewindow * baudrate;
@@ -97,23 +133,15 @@ timeVector          = (0:numSamples-1)' / samplingFs;
 freqVector          = getFFTGrid(numSamples, samplingFs);
 ALPHABET_SIZE       = 2^bitpersym;
 vM.StartTime        = datestr(now);
-timeVectorAbs       = timeVector; % initialize absolute time
 
-if LOG
-    logFile = fopen('log','a');
-    fprintf(logFile,'-------------------------------------');
-    fprintf(logFile,'\n');
-    fprintf(logFile,'Time now is %s\n',datestr(now));
-    if exist('vSet','var')
-        fprintf(logFile,'Caller is %s\n', vSet.caller);
-    end
-else
-    logFile = 1;
-end
+% initialize absolute time
+timeVectorAbs       = timeVector; 
 
 
-%% Project setting
-Txsamplerate        = samplingFs;
+
+
+
+%% Components
 
 txLaser.centerFreq = CENTER_FREQUENCY;
 txLaser.centerLambda = LIGHT_SPEED / txLaser.centerFreq;
@@ -134,12 +162,12 @@ txLaser.RIN = -130;
 modulator.Vpi = 3; 
 
 % [dB]
-modulator.extRatio = 35; 
+modulator.extRatio = 350; 
 
 % modulation efficiency
 modulator.efficiency = 0.55; 
 
-transmtter.orderLPF = 4;
+transmtter.lpfOrder = 4;
 
 % [Hz]
 transmtter.bandwidth = 0.75 * baudrate; 
@@ -186,59 +214,72 @@ fiber.pmdParam = 0.5e-12 / 31.623;
 % random number seed
 fiber.noiseSeed = 0;
 
-optFilterOrder = 4;
-optFilterBw = 40e9;
-
 % accumulated dispersion ps/nm
 fiber.DL = fiber.dispParamD * fiber.spanLength * fiber.spanNum;
 
 % accumulated dispersion slop
 fiber.SL = fiber.dispParamS * fiber.spanLength * fiber.spanNum;
 
-Rxcenterfreq        = CENTER_FREQUENCY;
-RxcenterWave        = LIGHT_SPEED/Rxcenterfreq;
-RxlaserSeed         = 0;
-Rxlinewidth         = LASER_LINEWIDTH;
-Rxsamplerate        = samplingFs;
-Rxpnvar             = 2*pi*Rxlinewidth/Rxsamplerate;
-rxLpfOrder          = 5;
-rxLpfBw             = 0.75*baudrate;
-RxLaserAzi          = 45;
-RxLaserEll          = 0;
-rxLaserPow          = 10e-3;
-rxLaserRIN          = -130; % dB/Hz
-rxPbcPowSpltRatio   = 0.5; % power split ratio of PBC
-rxPbcPhaseRetard    = 0; % phase retardation of PBC
-rxPdR               = 1.0;
-rxPdDark            = 10E-9;
+optFilterOrder = 4;
+optFilterBw = 40e9;
 
-pd_thmvar   = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * (0.5 * samplingFs);
+receiver.centerFreq = CENTER_FREQUENCY;
+receiver.lpfOrder = 5;
+receiver.bandwidth = 0.75*baudrate;
+
+rxLaser.centerLambda = LIGHT_SPEED / receiver.centerFreq;
+rxLaser.noiseSeed = 0;
+rxLaser.linewidth = LASER_LINEWIDTH;
+rxLaser.phaseNoiseVar = 2 * pi * rxLaser.linewidth / samplingFs;
+rxLaser.azimuth = 45;
+rxLaser.ellipticity = 0;
+rxLaser.power = 10e-3;
+
+% dBc/Hz, one-sided
+rxLaser.psdRIN = -130; 
+
+% power split ratio of PBC
+receiver.pbcPowerSplitRatio   = 0.5; 
+
+% phase retardation of PBC
+receiver.pbcPhaseRetard    = 0; 
+
+receiver.detectorResponsivity = 1.0;
+receiver.detectorDarkCurrent = 0E-9;
+
+% one-sided
+receiver.psdThermal = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * (0.5 * samplingFs);
 
 
 
-
-% preparing filter responses
+%% Preparing filter responses
 txPulseShapeFilter.RollOffFactor = 0.35;
 txPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 0);
 txPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 1);
-txPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, transmtter.orderLPF, transmtter.bandwidth);
-txPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
-txPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, transmtter.orderLPF, transmtter.bandwidth);
 
-rxPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, rxLpfOrder, rxLpfBw);
+txPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, transmtter.lpfOrder, transmtter.bandwidth);
+txPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
+txPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, transmtter.lpfOrder, transmtter.bandwidth);
+
+
+rxPulseShapeFilter.RollOffFactor = 0.35;
+rxPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, rxPulseShapeFilter.RollOffFactor, 0);
+rxPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, rxPulseShapeFilter.RollOffFactor, 1);
+
+rxPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, receiver.lpfOrder, receiver.bandwidth);
 rxPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
-rxPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, rxLpfOrder, rxLpfBw);
+rxPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, receiver.lpfOrder, receiver.bandwidth);
 
 optGaussianFilter = calcOptGaussFlt(numSamples, samplingFs, 0, optFilterOrder, optFilterBw);
 
 
-% initialize buffer
+%% Initialize buffer
 buffer.txBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.txBitsY = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.rxBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.rxBitsY = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.txPhaseNoise = genLaserPhaseNoise(numSamples, txLaser.phaseNoiseVar, 0);
-buffer.rxPhaseNoise = genLaserPhaseNoise(numSamples, Rxpnvar, 0);
+buffer.rxPhaseNoise = genLaserPhaseNoise(numSamples, rxLaser.phaseNoiseVar, 0);
 buffer.txLaserRIN   = zeros(1,numSamples);
 buffer.rxLaserRIN   = zeros(1,numSamples);
 buffer.channelNoiseX  = zeros(1,numSamples);
@@ -253,7 +294,7 @@ buffer.shotNsIy     = zeros(1,numSamples);
 buffer.shotNsQy     = zeros(1,numSamples);
 
 
-% clear memory
+%% Clear memory
 memory1				= [];
 memory2				= [];
 memory3				= [];
@@ -261,23 +302,13 @@ memory4				= [];
 
 dspMemCount		= 0;
 
-% Controller
-sysParam.addCD              = 0;
-sysParam.addPMD             = 0;
-sysParam.addLaserRIN        = 0;
-sysParam.addLaserPN         = 0;
-sysParam.addPolarRot        = 0;
-sysParam.addThermNoise      = 0;
-sysParam.addShotNoise       = 0;
-sysParam.addAdcClockJitter  = 0;
-sysParam.addFreqOffset      = 0;
-sysParam.doBalanced         = 1;
-sysParam.addFreqOffset      = 0;
 
-% DSP
+
+%% DSP
 dspParam.Rs					= 28e9;
 dspParam.mn					= 4;
 dspParam.adcFs				= 56e9;
+
 dspParam.showEye			= 0;
 dspParam.doFrontEndComp		= 0;
 dspParam.doDigitalLPF		= 0;
@@ -287,23 +318,29 @@ dspParam.doFramer			= 0;
 dspParam.doTraining			= 0;
 dspParam.doMIMO				= 0;
 dspParam.doTPE				= 0;
-dspParam.doCPE				= 1;
+dspParam.doCPE				= 0;
+dspParam.doLmsAfterCPE      = 0;
 dspParam.doFOE				= 0;
 dspParam.doFEC				= 0;
-dspParam.doDownSampling = 1;
+dspParam.doDownSampling     = 1;
+
 dspParam.DL = fiber.DL;
 dspParam.SL = fiber.SL;
 dspParam.lambda = CENTER_WAVELENGTH;
 dspParam.lambda0 = CENTER_WAVELENGTH;
+
 dspParam.lpfBW = 0;
+
 dspParam.mimoStep = 1e-3;
 dspParam.mimoTapNum = 7; %7 or 13
 dspParam.mimoErrId = 0;
 dspParam.mimoIteration = 10;
-dspParam.doLmsAfterCPE = 0;
+
+
 dspParam.lmsGainAfterCPE = 1e-3;
 dspParam.lmsTapsAfterCPE = 125;
 dspParam.lmsIterAfterCPE = 4;
+
 dspParam.cpeBlockSize = 16;
 dspParam.pllMu1 = 1e-3;
 dspParam.pllMu2 = 1e-6;
@@ -313,6 +350,7 @@ dspParam.cpeMlIter = 1;
 dspParam.vvpeAvgMode = 1; %0 for block 1 for sliding window
 dspParam.cpeBPSnTestPhase = 10;
 dspParam.cpeAlgSelect = 1; %1 for bps 2 for vvpe
+
 refBitsOfflineX		= [];
 refBitsOfflineY		= [];
 
@@ -368,14 +406,14 @@ if ctrlParam.doPlot
 end
 
 % laser on
-if sysParam.addLaserRIN
-    if sysParam.addLaserPN
+if ctrlParam.addLaserRIN
+    if ctrlParam.addLaserPN
         txLaser.wfm = sqrt(txLaser.power + buffer.txLaserRIN) .* exp(1j * buffer.txPhaseNoise);
     else
         txLaser.wfm = sqrt(txLaser.power + buffer.txLaserRIN);
     end
 else
-    if sysParam.addLaserPN
+    if ctrlParam.addLaserPN
         txLaser.wfm = sqrt(txLaser.power) .*  exp(1j * buffer.txPhaseNoise);
     else
         txLaser.wfm = sqrt(txLaser.power) * ones(1,numSamples);
@@ -422,16 +460,16 @@ txDrvQyUps = upSampInsertZeros(txDrvQy, samplesPerSym);
 
 
 % bessel filtering
-txDrvIxWfm = real(ifft(fft(txDrvIxUps) .* txPulseShapeFilter.freqRespRC));
-txDrvQxwfm = real(ifft(fft(txDrvQxUps) .* txPulseShapeFilter.freqRespRC));
-txDrvIyWfm = real(ifft(fft(txDrvIyUps) .* txPulseShapeFilter.freqRespRC));
-txDrvQyWfm = real(ifft(fft(txDrvQyUps) .* txPulseShapeFilter.freqRespRC));
+txDrvIxWfm = real(ifft(fft(txDrvIxUps) .* txPulseShapeFilter.freqRespRRC));
+txDrvQxwfm = real(ifft(fft(txDrvQxUps) .* txPulseShapeFilter.freqRespRRC));
+txDrvIyWfm = real(ifft(fft(txDrvIyUps) .* txPulseShapeFilter.freqRespRRC));
+txDrvQyWfm = real(ifft(fft(txDrvQyUps) .* txPulseShapeFilter.freqRespRRC));
 
 if ctrlParam.doPlot
     if exist('FIG_DRVEYE','var')
-        plotEyeDiagram(FIG_DRVEYE,txDrvIxWfm, baudrate, samplingFs, 'electrical');
+        plotEyeDiagram(txDrvIxWfm, 2*samplingFs/baudrate, 'e');
     else
-        FIG_DRVEYE = plotEyeDiagram([],txDrvIxWfm, baudrate, samplingFs, 'electrical');
+        FIG_DRVEYE = plotEyeDiagram(txDrvIxWfm, 2*samplingFs/baudrate, 'e');
     end
     title('Electrical dirver signal');
 end
@@ -458,9 +496,9 @@ txOptSigY = oeModIqNested(txLaser.wfm, txDrvIyWfm, txDrvQyWfm, modulator.extRati
 
 if ctrlParam.doPlot
     if exist('FIG_TXEYE','var')
-        plotEyeDiagram(FIG_TXEYE,txOptSigX, baudrate, samplingFs, 'optical');
+        plotEyeDiagram(txOptSigX, 2*samplingFs/baudrate, 'o');
     else
-        FIG_TXEYE = plotEyeDiagram([],txOptSigX, baudrate, samplingFs, 'optical');
+        FIG_TXEYE = plotEyeDiagram(txOptSigX, 2*samplingFs/baudrate, 'o');
     end
     title('Optical eye after modulator');
 end
@@ -501,7 +539,7 @@ if ~ctrlParam.doRndPMD % if random birefrigence is switched off, use simple mode
     lk_theta = fiber.initPolAngle + lk_rotjump;
 %     fiber.initPolAngle = lk_theta(numSamples);
     
-    if sysParam.addPolarRot % rotate device only if polarization rotation is on
+    if ctrlParam.addPolarRot % rotate device only if polarization rotation is on
         tmpOptSigX = txOptSigX.*cos(lk_theta) - txOptSigY.*sin(lk_theta);
         tmpOptSigY = txOptSigX.*sin(lk_theta) + txOptSigY.*cos(lk_theta);
     else
@@ -509,23 +547,23 @@ if ~ctrlParam.doRndPMD % if random birefrigence is switched off, use simple mode
         tmpOptSigY = txOptSigY;
     end
     
-    if sysParam.addCD        
+    if ctrlParam.addCD        
         [HCD] = calcDispResponse(numSamples, samplingFs, centerWave, centerWave, fiber.DL, fiber.SL);
         tmpOptSigX = ifft(fft(tmpOptSigX) .* HCD);
         tmpOptSigY = ifft(fft(tmpOptSigY) .* HCD);
     end
     
-    if sysParam.addPMD
+    if ctrlParam.addPMD
         tmpOptSigX = ifft(fft(tmpOptSigX) .* exp(-1j*2*pi*freqVector*(+lk_DGD/2)).*exp(-1j*2*pi*uv_fc*(+lk_DGD/2)));
         tmpOptSigY = ifft(fft(tmpOptSigY) .* exp(-1j*2*pi*freqVector*(-lk_DGD/2)).*exp(-1j*2*pi*uv_fc*(-lk_DGD/2)));
     end
     
-    if sysParam.addPolarRot % rotate back only if polarization rotation is on 
+    if ctrlParam.addPolarRot % rotate back only if polarization rotation is on 
         tmpOptSigX = tmpOptSigX.*cos(-lk_theta) - tmpOptSigY.*sin(-lk_theta);
         tmpOptSigY = tmpOptSigX.*sin(-lk_theta) + tmpOptSigY.*cos(-lk_theta);
     end
     
-    if sysParam.addPolarRot % add endless rotation
+    if ctrlParam.addPolarRot % add endless rotation
         tmpOptSigX = tmpOptSigX.*cos(lk_theta) - tmpOptSigY.*sin(lk_theta);
         tmpOptSigY = tmpOptSigX.*sin(lk_theta) + tmpOptSigY.*cos(lk_theta);
         % update absolute time
@@ -547,44 +585,46 @@ rxOptSigY = tmpOptSigY;
 
 if ctrlParam.doPlot
     % plot spectrum before and after fiber
+    spectrumAnalyzer(txOptSigX, freqVector);
+    spectrumAnalyzer(rxOptSigX, freqVector);
 end
 
 
 %% RX laser
 % polarization control
-loJonesVector = calcJonesVector(RxLaserAzi, RxLaserEll);
+loJonesVector = calcJonesVector(rxLaser.azimuth, rxLaser.ellipticity);
 
 % generate new phase noise for new frame
-tmpPN = genLaserPhaseNoise(samplesPerFrame, Rxpnvar, buffer.rxPhaseNoise(end));
+tmpPN = genLaserPhaseNoise(samplesPerFrame, rxLaser.phaseNoiseVar, buffer.rxPhaseNoise(end));
 
 % fifo
 buffer.rxPhaseNoise = fifoBuffer(buffer.rxPhaseNoise, tmpPN);
 
 % buffer laser rin
-tmpRIN = genWGN(1,samplesPerFrame,idbw(rxLaserRIN)*(rxLaserPow^2)*(samplingFs/2),'linear','real');
+tmpRIN = genWGN(1,samplesPerFrame,idbw(rxLaser.psdRIN)*(rxLaser.power^2)*(samplingFs/2),'linear','real');
 buffer.rxLaserRIN = fifoBuffer(buffer.rxLaserRIN, tmpRIN);
 
 % laser on
-if sysParam.addLaserRIN
-    if sysParam.addLaserPN
-        rxLaser = sqrt(rxLaserPow + buffer.rxLaserRIN) .* exp(1j*buffer.rxPhaseNoise);
+if ctrlParam.addLaserRIN
+    if ctrlParam.addLaserPN
+        rxLaser.wfm = sqrt(rxLaser.power + buffer.rxLaserRIN) .* exp(1j*buffer.rxPhaseNoise);
     else
-        rxLaser = sqrt(rxLaserPow + buffer.rxLaserRIN);
+        rxLaser.wfm = sqrt(rxLaser.power + buffer.rxLaserRIN);
     end
 else
-    if sysParam.addLaserPN
-        rxLaser = sqrt(rxLaserPow) .* exp(1j*buffer.rxPhaseNoise);
+    if ctrlParam.addLaserPN
+        rxLaser.wfm = sqrt(rxLaser.power) .* exp(1j*buffer.rxPhaseNoise);
     else
-        rxLaser = sqrt(rxLaserPow) * ones(1,length(buffer.rxLaserRIN));
+        rxLaser.wfm = sqrt(rxLaser.power) * ones(1,length(buffer.rxLaserRIN));
     end
 end
 
 % control the polarization
-rxLaser = loJonesVector * sqrt(abs(rxLaser).^2) .* [sign(rxLaser);sign(rxLaser)];
+rxLaser.wfm = loJonesVector * sqrt(abs(rxLaser.wfm).^2) .* [sign(rxLaser.wfm);sign(rxLaser.wfm)];
 
 % PBS / PBC
-loLaserPx = sqrt(rxPbcPowSpltRatio) * exp(-1j*rxPbcPhaseRetard) * rxLaser(1,:).';
-loLaserPy = sqrt(1-rxPbcPowSpltRatio) * rxLaser(2,:).';
+loLaserPx = sqrt(receiver.pbcPowerSplitRatio) * exp(-1j*receiver.pbcPhaseRetard) * rxLaser.wfm(1,:).';
+loLaserPy = sqrt(1-receiver.pbcPowerSplitRatio) * rxLaser.wfm(2,:).';
 
 
 %% Hybrid
@@ -592,8 +632,8 @@ hybrid90 = deg2rad(HYBRID_90_PHASESHIFT);
 
 switch DETECTION_MODE
     case 'HOM'
-        % freq_offset     = Rxcenterfreq - txLaser.centerFreq;
-        if sysParam.addFreqOffset
+        % freq_offset     = receiver.centerFreq - txLaser.centerFreq;
+        if ctrlParam.addFreqOffset
             xRealP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPx;
             xRealN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPx;
             xImagP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  exp(1j*hybrid90) .*loLaserPx;
@@ -613,7 +653,7 @@ switch DETECTION_MODE
             yImagN = rxOptSigY - exp(1j*hybrid90) .*loLaserPy;
         end
     case 'HET'
-        if sysParam.addFreqOffset
+        if ctrlParam.addFreqOffset
             xHetP = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPx;
             xHetN = rxOptSigX + exp(1j*2*pi*freqOffset*timeVector) .* -loLaserPx;
             yHetP = rxOptSigY + exp(1j*2*pi*freqOffset*timeVector) .*  loLaserPy;
@@ -631,29 +671,29 @@ end
 
 %% Photo detector
 % dark current
-IpdDark = rxPdDark;
+IpdDark = receiver.detectorDarkCurrent;
 
 switch DETECTION_MODE
     case 'HOM'
         % square law detection
-        IpdXrealP = rxPdR .* abs(xRealP).^2;
-        IpdXrealN = rxPdR .* abs(xRealN).^2;
-        IpdXimagP = rxPdR .* abs(xImagP).^2;
-        IpdXimagN = rxPdR .* abs(xImagN).^2;
-        IpdYrealP = rxPdR .* abs(yRealP).^2;
-        IpdYrealN = rxPdR .* abs(yRealN).^2;
-        IpdYimagP = rxPdR .* abs(yImagP).^2;
-        IpdYimagN = rxPdR .* abs(yImagN).^2;
+        IpdXrealP = receiver.detectorResponsivity .* abs(xRealP).^2;
+        IpdXrealN = receiver.detectorResponsivity .* abs(xRealN).^2;
+        IpdXimagP = receiver.detectorResponsivity .* abs(xImagP).^2;
+        IpdXimagN = receiver.detectorResponsivity .* abs(xImagN).^2;
+        IpdYrealP = receiver.detectorResponsivity .* abs(yRealP).^2;
+        IpdYrealN = receiver.detectorResponsivity .* abs(yRealN).^2;
+        IpdYimagP = receiver.detectorResponsivity .* abs(yImagP).^2;
+        IpdYimagN = receiver.detectorResponsivity .* abs(yImagN).^2;
         
-        if sysParam.addThermNoise
-            IpdThermal1 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
-            IpdThermal2 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
-            IpdThermal3 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
-            IpdThermal4 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
-            IpdThermal5 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
-            IpdThermal6 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
-            IpdThermal7 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
-            IpdThermal8 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), pd_thmvar,'linear','real');
+        if ctrlParam.addThermNoise
+            IpdThermal1 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), receiver.psdThermal,'linear','real');
+            IpdThermal2 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), receiver.psdThermal,'linear','real');
+            IpdThermal3 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), receiver.psdThermal,'linear','real');
+            IpdThermal4 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), receiver.psdThermal,'linear','real');
+            IpdThermal5 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), receiver.psdThermal,'linear','real');
+            IpdThermal6 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), receiver.psdThermal,'linear','real');
+            IpdThermal7 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), receiver.psdThermal,'linear','real');
+            IpdThermal8 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2), receiver.psdThermal,'linear','real');
         else
             IpdThermal1 = 0;
             IpdThermal2 = 0;
@@ -665,7 +705,7 @@ switch DETECTION_MODE
             IpdThermal8 = 0;
         end
         
-        if sysParam.addShotNoise
+        if ctrlParam.addShotNoise
             pd_shtvar1   = 2*ELECTRON*(calcrms(xRealP)^2)*(samplingFs/2); % assuming responsitivity is 1
             pd_shtvar2   = 2*ELECTRON*(calcrms(xRealN)^2)*(samplingFs/2);
             pd_shtvar3   = 2*ELECTRON*(calcrms(xImagP)^2)*(samplingFs/2);
@@ -702,7 +742,7 @@ switch DETECTION_MODE
         V7 = IpdYimagP + IpdDark + IpdThermal7 + IpdShot7;
         V8 = IpdYimagN + IpdDark + IpdThermal8 + IpdShot8;
         
-        if sysParam.doBalanced % balanced detection
+        if ctrlParam.doBalanced % balanced detection
             pd_xi = V1 - V2;
             pd_xq = V3 - V4;
             pd_yi = V5 - V6;
@@ -714,23 +754,23 @@ switch DETECTION_MODE
             pd_yq = V7;
         end
         % low-pass filtering
-        pd_xi = real(ifft(fft(pd_xi).* rxPulseShapeFilter.freqRespBessel));
-        pd_xq = real(ifft(fft(pd_xq).* rxPulseShapeFilter.freqRespBessel));
-        pd_yi = real(ifft(fft(pd_yi).* rxPulseShapeFilter.freqRespBessel));
-        pd_yq = real(ifft(fft(pd_yq).* rxPulseShapeFilter.freqRespBessel));
+        pd_xi = real(ifft(fft(pd_xi).* rxPulseShapeFilter.freqRespRRC));
+        pd_xq = real(ifft(fft(pd_xq).* rxPulseShapeFilter.freqRespRRC));
+        pd_yi = real(ifft(fft(pd_yi).* rxPulseShapeFilter.freqRespRRC));
+        pd_yq = real(ifft(fft(pd_yq).* rxPulseShapeFilter.freqRespRRC));
         
     case 'HET'
         % square law detection
-        IpdXrealP = rxPdR .* abs(xHetP).^2;
-        IpdXrealN = rxPdR .* abs(xHetN).^2;
-        IpdYrealP = rxPdR .* abs(yHetP).^2;
-        IpdYrealN = rxPdR .* abs(yHetN).^2;
-        if sysParam.addThermNoise
-            pd_thmvar = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * samplingFs;
-            IpdThermal1 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal2 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal3 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
-            IpdThermal4 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_thmvar,'linear','real');
+        IpdXrealP = receiver.detectorResponsivity .* abs(xHetP).^2;
+        IpdXrealN = receiver.detectorResponsivity .* abs(xHetN).^2;
+        IpdYrealP = receiver.detectorResponsivity .* abs(yHetP).^2;
+        IpdYrealN = receiver.detectorResponsivity .* abs(yHetN).^2;
+        if ctrlParam.addThermNoise
+            receiver.psdThermal = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * samplingFs;
+            IpdThermal1 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),receiver.psdThermal,'linear','real');
+            IpdThermal2 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),receiver.psdThermal,'linear','real');
+            IpdThermal3 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),receiver.psdThermal,'linear','real');
+            IpdThermal4 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),receiver.psdThermal,'linear','real');
         else
             IpdThermal1      = 0;
             IpdThermal2      = 0;
@@ -738,7 +778,7 @@ switch DETECTION_MODE
             IpdThermal4      = 0;
         end
         
-        if sysParam.addShotNoise
+        if ctrlParam.addShotNoise
             pd_shtvar1   = 2*ELECTRON*(calcrms(xHetP)^2)*samplingFs; % assuming responsitivity is 1
             pd_shtvar2   = 2*ELECTRON*(calcrms(xHetN)^2)*samplingFs;
             pd_shtvar3   = 2*ELECTRON*(calcrms(yHetP)^2)*samplingFs;
@@ -759,7 +799,7 @@ switch DETECTION_MODE
         V3      = IpdYrealP + IpdDark + IpdThermal3 + IpdShot3;
         V4      = IpdYrealN + IpdDark + IpdThermal4 + IpdShot4;
         
-        if sysParam.doBalanced % balanced detection
+        if ctrlParam.doBalanced % balanced detection
             pd_xi			= V1 - V2;
             pd_yi			= V3 - V4;
         else
@@ -858,7 +898,7 @@ if DSP_MODE == 1
 	bit1 = slicerGrayQam(de_x,ALPHABET_SIZE);
 	bit2 = slicerGrayQam(de_y,ALPHABET_SIZE);
 	
-	biterr = nnz(bit1(:,1:symbolsPerFrame)-refBitsX)+nnz(bit2(:,1:symbolsPerFrame)-refBitsY);
+	biterr = nnz(bit1(:,1:symbolsPerFrame)-refBitsX) + nnz(bit2(:,1:symbolsPerFrame)-refBitsY);
 	
 	fprintf('run # %d\t error count # %d\n',RUN,biterr);
 end
