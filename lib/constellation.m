@@ -2,6 +2,9 @@ function c = constellation(mn)
 %CONSTELLATION Give the canonical form of uncoded constellations for mn-QAM
 % The integer index is from topleft to bottomright by columns
 
+% % reference
+% h = modem.qammod('M',mn);
+% cr = h.Constellation;
 
 switch mn
     
@@ -19,6 +22,9 @@ switch mn
         cq = [3 1 -1 -3 3 1 -1 -3 3 1 -1 -3 3 1 -1 -3];
         c = ci + 1j*cq;
         
+    case 32
+        c = [-3 + 5i,-1 + 5i,-1 - 5i,-3 - 5i,-5 + 3i,-5 + 1i,-5 - 1i,-5 - 3i,-3 + 3i,-3 + 1i,-3 - 1i,-3 - 3i,-1 + 3i,-1 + 1i,-1 - 1i,-1 - 3i,1 + 3i,1 + 1i,1 - 1i,1 - 3i,3 + 3i,3 + 1i,3 - 1i,3 - 3i,5 + 3i,5 + 1i,5 - 1i,5 - 3i,3 + 5i,1 + 5i,1 - 5i,3 - 5i];
+    
     case 64
         ci = [-7*ones(1,8) -5*ones(1,8) -3*ones(1,8) -1*ones(1,8) ones(1,8) 3*ones(1,8) 5*ones(1,8) 7*ones(1,8)];
         temp = [7 5 3 1 -1 -3 -5 -7];
