@@ -9,8 +9,10 @@
 
 clear
 clc
+
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',199));
 % RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
+
 bitpersym = 2;
 mn = 2^bitpersym;
 
@@ -32,14 +34,14 @@ for pp = 1:length(snr)
 	
 	for kk = 1:mn
 		for ii = 1:mn
-			tmp(ii,:) = exp(-(abs(a(kk)+z-a(ii)).^2-abs(z).^2)/10^(th2/10));
+			tmp(ii,:) = exp(-(abs(a(kk) + z - a(ii)).^2 - abs(z).^2) / 10^(th2/10));
 		end
 		ss(kk,:) = log2(sum(tmp));
 	end
 	
 	c2 = sum(mean(ss,2));
 	
-	cc(pp) = log2(mn)-c2/mn;
+	cc(pp) = log2(mn) - c2/mn;
 	
 end
 
@@ -66,14 +68,14 @@ for pp = 1:length(snr)
 	
 	for kk = 1:mn
 		for ii = 1:mn
-			tmp(ii,:) = exp(-(abs(a(kk)+z-a(ii)).^2-abs(z).^2)/10^(th2/10));
+			tmp(ii,:) = exp(-(abs(a(kk) + z - a(ii)).^2 - abs(z).^2) / 10^(th2/10));
 		end
 		ss(kk,:) = log2(sum(tmp));
 	end
 	
 	c2 = sum(mean(ss,2));
 	
-	cc(pp) = log2(mn)-c2/mn;
+	cc(pp) = log2(mn) - c2/mn;
 	
 end
 
@@ -99,14 +101,14 @@ for pp = 1:length(snr)
 	
 	for kk = 1:mn
 		for ii = 1:mn
-			tmp(ii,:) = exp(-(abs(a(kk)+z-a(ii)).^2-abs(z).^2)/10^(th2/10));
+			tmp(ii,:) = exp(-(abs(a(kk) + z - a(ii)).^2 - abs(z).^2) / 10^(th2/10));
 		end
 		ss(kk,:) = log2(sum(tmp));
 	end
 	
 	c2 = sum(mean(ss,2));
 	
-	cc(pp) = log2(mn)-c2/mn;
+	cc(pp) = log2(mn) - c2/mn;
 	
 end
 
@@ -132,14 +134,14 @@ for pp = 1:length(snr)
 	
 	for kk = 1:mn
 		for ii = 1:mn
-			tmp(ii,:) = exp(-(abs(a(kk)+z-a(ii)).^2-abs(z).^2)/10^(th2/10));
+			tmp(ii,:) = exp(-(abs(a(kk) + z - a(ii)).^2 - abs(z).^2) / 10^(th2/10));
 		end
 		ss(kk,:) = log2(sum(tmp));
 	end
 	
 	c2 = sum(mean(ss,2));
 	
-	cc(pp) = log2(mn)-c2/mn;
+	cc(pp) = log2(mn) - c2/mn;
 	
 end
 
@@ -165,22 +167,21 @@ for pp = 1:length(snr)
 	
 	for kk = 1:mn
 		for ii = 1:mn
-			tmp(ii,:) = exp(-(abs(a(kk)+z-a(ii)).^2-abs(z).^2)/10^(th2/10));
+			tmp(ii,:) = exp(-(abs(a(kk) + z - a(ii)).^2 - abs(z).^2) / 10^(th2/10));
 		end
 		ss(kk,:) = log2(sum(tmp));
 	end
 	
 	c2 = sum(mean(ss,2));
 	
-	cc(pp) = log2(mn)-c2/mn;
+	cc(pp) = log2(mn) - c2/mn;
 	
 end
 
 %% Limit for complex modulation
-lcc = log2(1+idbw(snr));
+lcc = log2(1 + idbw(snr));
 
 h1 = figure(1); plot(snr,cc,'r.-'); plot(snr,lcc,'k-'); grid on; ylim([1,10]);
 hold off
 xlabel('SNR (dB)'); ylabel('Capacity (bit/symbol)'); legend('QPSK','8-QAM','16-QAM','32-QAM','64-QAM');
-
 

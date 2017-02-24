@@ -10,7 +10,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 default
+% Copyright 2015 DEFAULT
 
 function phase_noise = genLaserPhaseNoise(nSample,pnvar,p0)
 
@@ -20,9 +20,9 @@ tmp = randn(1,nSample);
 tmp = tmp - mean(tmp);
 
 % normalize
-tmp = tmp./calcrms(tmp);
+tmp = tmp ./ calcrms(tmp);
 
-phase_noise = p0 + cumsum(tmp.*sqrt(pnvar));
+phase_noise = p0 + cumsum(tmp .* sqrt(pnvar));
 
 return
 

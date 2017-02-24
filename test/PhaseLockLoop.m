@@ -21,13 +21,12 @@ tvec = 0:(1/fs):20;
 
 % single frequency with phase error
 x = exp(1j*(2*pi*frequency*tvec+pi*2.01/4));
-n = genWGN(size(x,1),size(x,2),0.01,'linear','complex');
-% x = x+n;
+n = genWGN(size(x,1),size(x,2),0.001,'linear','complex');
+x = x + n;
 
 % reference frequency with offset
 cfo = 0.5;
 ref = exp(1j*(2*pi*(frequency+cfo)*tvec));
-
 
 %% Solving the nonlinear LS function with gradient descent method
 % Using least squares equalization model, i.e., J = |x*exp(-j*phi)-ref|^2
@@ -42,16 +41,20 @@ phi(1) = 0;  % phase estimation
 nco(1) = 0;
 for k = 2:length(x)
     % output
-    s(k) = x(k).*exp(-1j*phi(k-1));
+    s(k) = x(k) .* exp(-1i * phi(k-1));
+    
     % stochastic gradient; PED with s-curve, equivalent to sin(angle())
-    grad(k) = -imag(s(k).*conj(ref(k)));
+    grad(k) = -imag(s(k) .* conj(ref(k)));
+    
     % err integration
     nco(k) = nco(k-1) + grad(k);
+    
     % update filter coeff. along opposite direction of gradient, equivalent
     % to a low-pass filter
     phi(k) = phi(k-1) - mu1*grad(k) - mu2*nco(k);
+    
     % squared error
-    J(k) = abs(s(k)-ref(k)).^2;
+    J(k) = abs(s(k) - ref(k)).^2;
 end
 
 h1 = figure; title('gradient decent');
@@ -64,7 +67,6 @@ subplot(2,2,3); plot(tvec,phi); grid on
 % Squares
 subplot(2,2,4); plot(tvec,dbw(J)); grid on; ylim([-100 20])
 
-
 %% Solving transformed linear LS function with gradient descent method
 % Using least squares data model, i.e., J = |ref*theta-x|^2, i.e., viewing
 % theta=exp(i*phi) as the unknown parameter. However, this simple
@@ -74,7 +76,7 @@ subplot(2,2,4); plot(tvec,dbw(J)); grid on; ylim([-100 20])
 
 %% Solving the nonlinear LS function with Newton-Raphson method
 % Using least squares equalization model, i.e., J = |x*exp(-j*phi)-ref|^2
-s=[];
+s = [];
 phi = [];
 grad = [];
 % initialize stochastic Newton-Raphson algorithm, the NR algorithm suffers
@@ -86,17 +88,22 @@ phi(1) = 0;
 nco(1) = 0;
 for k = 2:length(x)
     % output
-    s(k) = x(k).*exp(-1j*phi(k-1));
+    s(k) = x(k) .* exp(-1i * phi(k-1));
+    
     % stochastic gradient
-    grad(k) = -imag(s(k).*conj(ref(k)));
+    grad(k) = -imag(s(k) .* conj(ref(k)));
+    
     % stochastic hessian (BE CAREFUL when hessian is small!!!)
-    hess(k) = real(s(k).*conj(ref(k)));
+    hess(k) = real(s(k) .* conj(ref(k)));
+    
     % err integration
-    nco(k) = nco(k-1) + grad(k)/hess(k);
+    nco(k) = nco(k-1) + grad(k) / hess(k);
+    
     % solving the next root of linearization model
     phi(k) = phi(k-1) - mu1*grad(k)/hess(k) - mu2*nco(k);
+    
     % squared error
-    J(k) = abs(s(k)-ref(k)).^2;
+    J(k) = abs(s(k) - ref(k)).^2;
 end
 
 h2 = figure; title('Newton-Raphson');
@@ -114,5 +121,3 @@ subplot(2,2,4); plot(tvec,dbw(J)); grid on; ylim([-100 20])
 
 mngFigureWindow(h1,h2);
 
-
-% EOF

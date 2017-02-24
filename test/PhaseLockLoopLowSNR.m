@@ -17,7 +17,6 @@ symlen = 2^16;
 a = constellation(mn);
 sp = sum(abs(a).^2) / mn;
 
-
 %% Low SNR range
 snr = -10:0;
 
@@ -29,16 +28,19 @@ symRef = symTx;
 % define phase noies
 txLaserPnVar = 2*pi*20e3/2e9;
 phaseNoise = genLaserPhaseNoise(symlen, txLaserPnVar, pi/6);
-% phaseNoise = 0; % debug, one could also test fixed phase error
+phaseNoise = phaseNoise(:);
+
+% debug, one could also test fixed phase error
+% phaseNoise = 0; 
 
 % add phase noise
-symTx = symTx .* exp(1j*phaseNoise);
+symTx = symTx .* exp(1i * phaseNoise);
 
 for ii = 1:length(snr)
     
     % add noise
     sigma2 = 10*log10(sp) - snr(ii);
-    symTxPn = symTx + genWGN(1,symlen,sigma2,'dbw','complex');
+    symTxPn = symTx + genWGN(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
     
     muV = 10.^(-3.5:0.1:-0.5);
     
@@ -50,18 +52,21 @@ for ii = 1:length(snr)
         phi(1) = 0;
         for k = 2:length(symTxPn)
             % output
-            symRec(k) = symTxPn(k) .* exp(-1j*phi(k-1));
+            symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
+            
             % stochastic gradient, also a PED with a typical S-curve
             grad(k) = -imag(symRec(k) .* conj(symRef(k)));
+            
             % update filter coeff. along opposite direction of gradient
             phi(k) = phi(k-1) - mu*grad(k);
+            
             % squared error
             J(k) = abs(symRec(k) - symRef(k)).^2;
         end
         symRx = normalizeQam(symRec, mn);
         bitrx = slicerGrayQam(symRx, mn);
         ber(jj,ii) = nnz(bitTx-bitrx) / (symlen*2);
-        varEstErrL(jj,ii) = calcrms(phaseNoise - phi)^2;
+        varEstErrL(jj,ii) = calcrms(phaseNoise - phi(:))^2;
     end
 end
 

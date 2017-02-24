@@ -1,10 +1,11 @@
 %% TEST SCRIPT FOR TESTING VARIOUS TYPES OF PULSE-SHAPING FILTERING
 % Compare raised cosine pulse-shaping filter in both frequency and time
 % domain
+
 %%
 clear
 
-nSymbol = 2^16;
+nSymbol = 2^10;
 
 % NUMBER OF BIT PER SYMBOL
 k = 2;
@@ -15,11 +16,11 @@ refbit = randi([0 1],k,nSymbol);
 sym = symbolizerGrayQam(refbit);
 
 % symbol power
-signal_power = sum(abs(sym).^2)/nSymbol
+signal_power = sum(abs(sym).^2) / nSymbol
 
-sps = 16;
+sps = 64;
 
-nSamples = sps*nSymbol;
+nSamples = sps * nSymbol;
 
 %% Upsampling
 if ~iscolumn(sym)
@@ -38,18 +39,18 @@ H = calcRCFreqResponse(nSamples, Fs, Rs, alpha, mode);
 sym_upsampled_i = real(ifft(fft(real(sym_upsampled)) .* H));
 sym_upsampled_q = real(ifft(fft(imag(sym_upsampled)) .* H));
 
-sym_filtered = sym_upsampled_i + 1j*sym_upsampled_q;
+sym_filtered = sym_upsampled_i + 1i*sym_upsampled_q;
 
 % display signal power after pulse shaping
 signal_power_rcos_freq = sum(abs(sym_filtered).^2) / nSamples
 
-h1 = plotEyeDiagram(sym_filtered(1:8192),2*sps,'e');
+h1 = plotEyeDiagram(sym_filtered(1:end), 2*sps, 'e');
 
 %% design a rcos digital filter
 span = 10;
 shape = 'normal';
 h = rcosdesign(alpha,span,sps,shape);
-delay = span*sps/2;
+delay = span * sps / 2;
 
 if ~iscolumn(sym)
     sym = sym.';
@@ -63,17 +64,15 @@ sym_upsampled_q = upfirdn(imag(sym), h, sps);
 % sym_upsampled_i = firfilt(real(sym_upsampled), h, 'overlap-save','same');
 % sym_upsampled_q = firfilt(imag(sym_upsampled), h, 'overlap-save','same');
 
-sym_filtered = sym_upsampled_i + 1j*sym_upsampled_q;
+sym_filtered = sym_upsampled_i + 1i*sym_upsampled_q;
 
 % display signal power after pulse shaping
-signal_power_rcos_time = sum(abs(sym_filtered).^2)/nSamples
+signal_power_rcos_time = sum(abs(sym_filtered).^2) / nSamples
 
 if ~iscolumn(sym_filtered)
     sym_filtered = sym_filtered.';
 end
-h2 = plotEyeDiagram(sym_filtered((1:8192)+delay),2*sps,'e');
+h2 = plotEyeDiagram(sym_filtered((1:end-2*delay)+delay), 2*sps, 'e');
 
 mngFigureWindow(h1,h2);
-
-%%
 

@@ -12,7 +12,6 @@ symlen = 2^16;
 % input power
 sp = 2;
 
-
 %% High SNR Phase-locked loop
 snr = 0:10;
 
@@ -22,14 +21,18 @@ symRef = symTx;
 % define phase noies
 txLaserPnVar = 2*pi*10e3/2e9;
 phaseNoise = genLaserPhaseNoise(symlen,txLaserPnVar,pi/6);
-% phaseNoise = 0; % debug, one could also test fixed phase error
+phaseNoise = phaseNoise(:);
 
-symTx = symTx .* exp( 1j * phaseNoise);
+% debug, one could also test fixed phase error
+% phaseNoise = 0; 
+
+symTx = symTx .* exp(1i * phaseNoise);
 
 for ii = 1:length(snr)
     th2 = 10*log10(sp) - snr(ii);
-    z = wgn(1,symlen,th2,'dbw','complex');
+    z = wgn(size(symTx,1), size(symTx,2), th2, 'dbw', 'complex');
     symTxPn = symTx + z;
+    
     % initialize stochastic gradient descent algorithm, implemented as a
     % phase-lock loop
     mu = 0.01;
@@ -37,20 +40,23 @@ for ii = 1:length(snr)
     phi(1) = 0;
     for k = 2:length(symTxPn)
         % output
-        symRec(k) = symTxPn(k).*exp(-1j*phi(k-1));
+        symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
+        
         % stochastic gradient, also a PED with a typical S-curve
-        grad(k) = -imag(symRec(k).*conj(symRef(k)));
+        grad(k) = -imag(symRec(k) .* conj(symRef(k)));
+        
         % update filter coeff. along opposite direction of gradient
         phi(k) = phi(k-1) - mu*grad(k);
+        
         % squared error
-        J(k) = abs(symRec(k)-symTx(k)).^2;
+        J(k) = abs(symRec(k) - symTx(k)).^2;
     end
     symrx = normalizeQam(symRec,mn);
     bitrx = slicerGrayQam(symrx,mn);
     ber(ii) = nnz(bitTx-bitrx)/(symlen*2);
 end
 
-varEstErrH = calcrms(phaseNoise-phi)^2
+varEstErrH = calcrms(phaseNoise - phi(:))^2
 
 bert = T_BER_SNR_mQAM(idbw(snr),mn);
 h1=figure; plot(snr,bert,snr,ber); grid on
@@ -65,8 +71,9 @@ snr = -10:0;
 
 for ii = 1:length(snr)
     th2 = 10*log10(sp) - snr(ii);
-    z = wgn(1,symlen,th2,'dbw','complex');
+    z = wgn(size(symTx,1), size(symTx,2), th2, 'dbw', 'complex');
     symTxPn = symTx + z;
+    
     % initialize stochastic gradient descent algorithm, implemented as a
     % phase-lock loop
     mu = 0.001;
@@ -74,20 +81,23 @@ for ii = 1:length(snr)
     phi(1) = 0;
     for k = 2:length(symTxPn)
         % output
-        symRec(k) = symTxPn(k).*exp(-1j*phi(k-1));
+        symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
+        
         % stochastic gradient, also a PED with a typical S-curve
-        grad(k) = -imag(symRec(k).*conj(symRef(k)));
+        grad(k) = -imag(symRec(k) .* conj(symRef(k)));
+        
         % update filter coeff. along opposite direction of gradient
         phi(k) = phi(k-1) - mu*grad(k);
+        
         % squared error
-        J(k) = abs(symRec(k)-symTx(k)).^2;
+        J(k) = abs(symRec(k) - symTx(k)).^2;
     end
     symrx = normalizeQam(symRec,mn);
     bitrx = slicerGrayQam(symrx,mn);
     ber(ii) = nnz(bitTx-bitrx)/(symlen*2);
 end
 
-varEstErrL = calcrms(phaseNoise-phi)^2
+varEstErrL = calcrms(phaseNoise - phi(:))^2
 
 bert = T_BER_SNR_mQAM(idbw(snr),mn);
 h1=figure; plot(snr,bert,snr,ber); grid on
@@ -97,6 +107,3 @@ h2=figure; plot(1:symlen,phaseNoise,'LineWidth',2); hold on
 
 mngFigureWindow(h1,h2);
 
-
-
-% EOF

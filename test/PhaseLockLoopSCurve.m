@@ -1,5 +1,7 @@
 %% TEST SCRIPT FOR PHASE-LOCKED LOOP S-CURVE
-%Observe the PLL S-Curve under different SNR
+% Observe the PLL S-Curve under different SNR. The instanstanuous gradient
+% gets noisier for lower SNR and requires smaller stepsize (smaller loop
+% filter bandwidth) to lower the steady state error
 %
 %% QPSK WITH TIME VARYING PHASE ERROR
 clear
@@ -18,7 +20,6 @@ bitTx = randi([0 1],bitpersym,symlen);
 symTx = symbolizerGrayQam(bitTx);
 symRef = symTx;
 
-
 %% Observe averaged Phase-locked loop S-curve for various SNR
 snr = -20:20;
 
@@ -29,15 +30,14 @@ for ii = 1:length(snr)
     
     % generate wgn
     sigma2 = 10*log10(sp) - snr(ii);
-    z = wgn(1,symlen,sigma2,'dbw','complex');
+    z = wgn(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
     
     for k = 1:length(phaseNoise)
-        
         % data model
-        symTxPn = symTx.*exp(1j*phaseNoise(k))+z;
+        symTxPn = symTx .* exp(1i * phaseNoise(k)) + z;
         
         % average over random data; normalized wrt the signal power
-        sc(k,ii) = (1/sp)*mean(imag(symTxPn.*conj(symRef)));
+        sc(k,ii) = (1/sp) * mean(imag(symTxPn .* conj(symRef)));
     end
 end
 
@@ -55,25 +55,20 @@ for ii = 1:10
     tmp = round(rand()*symlen);
     
     sigma2 = 10*log10(sp) - snr;
-    z = wgn(1,symlen,sigma2,'dbw','complex');
+    z = wgn(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
     
     for k = 1:length(phaseNoise)
         
         % data model
-        symTxPn = symTx.*exp(1j*phaseNoise(k))+z;
+        symTxPn = symTx .* exp(1i * phaseNoise(k)) + z;
         
         % use latest data only; normalized wrt the signal power
-        sc(k,ii) = (1/sp)*(imag(symTxPn(tmp).*conj(symRef(tmp))));
+        sc(k,ii) = (1/sp) * (imag(symTxPn(tmp) .* conj(symRef(tmp))));
     end
 end
 
 h2=figure; plot(phaseNoise,sc); grid on; xlim([-pi pi]);
 xlabel('Phase Error'); ylabel('PED');
 
-% the instanstanuous gradient gets noisier for lower snr and requires
-% smaller stepsize (smaller loop filter bandwidth) to lower the steady
-% state error
 mngFigureWindow(h1,h2);
 
-
-% EOF

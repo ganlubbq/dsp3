@@ -18,31 +18,32 @@ bitpersym = 2;
 
 symlen = 2^16;
 tvec = 0 : (1/2e9) : ((symlen-1) * (1/2e9));
+tvec = tvec(:);
 
 % input power
 a = constellation(2^bitpersym);
 sp = sum(abs(a).^2) / (2^bitpersym);
 
-% _TWO DIMENSION COMPLEX GAUSSIAN NOISE_
-snr = 13;
-sigma2 = 10*log10(sp) - snr;
-z = wgn(1,symlen,sigma2,'dbw','complex');
-
 % modulation
 bitTx = randi([0 1],bitpersym,symlen);
 symTx = symbolizerGrayQam(bitTx);
 
+% _TWO DIMENSION COMPLEX GAUSSIAN NOISE_
+snr = 17;
+sigma2 = 10*log10(sp) - snr;
+z = wgn(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
+
 % define phase noies
-txLaserPnVar = 2*pi*10e3/2e9;
-phaseNoise = genLaserPhaseNoise(symlen,txLaserPnVar,pi/6);
+txLaserPnVar = 2 * pi * 10e3 / 2e9;
+phaseNoise = genLaserPhaseNoise(symlen, txLaserPnVar, pi/6);
+phaseNoise = phaseNoise(:);
 
 % add phase noise with cfo
 cfo = 20e6;
-symTxPn = symTx .* exp(1j*phaseNoise) .* exp(1j*2*pi*cfo*tvec);
+symTxPn = symTx .* exp(1i*phaseNoise) .* exp(1i*2*pi*cfo*tvec);
 
 % add white gaussian noise
 symTxPn = symTxPn + z;
-
 
 %% Solving the nonlinear LS function with gradient descent method
 % Using least squares equalization model, i.e., J = |x*exp(-j*phi)-ref|^2
@@ -56,13 +57,17 @@ phi(1) = 0;
 nco(1) = 0;
 for k = 2:length(symTxPn)
     % output
-    symRec(k) = symTxPn(k) .* exp(-1j * phi(k-1));
+    symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
+    
     % stochastic gradient, also a PED with a typical S-curve
     grad(k) = -imag(symRec(k) .* conj(symTx(k)));
-     % err integration
+    
+    % err integration
     nco(k) = nco(k-1) + grad(k);
+    
     % update filter coeff. along opposite direction of gradient
     phi(k) = phi(k-1) - mu1*grad(k) - mu2*nco(k);
+    
     % squared error
     J(k) = abs(symRec(k) - symTx(k)).^2;
 end
@@ -75,6 +80,3 @@ subplot(222); plot(symRec,'.'); grid on; axis([-2.5 2.5 -2.5 2.5]);
 subplot(223); plot(tvec,phi,tvec,truePhase,'r'); grid on
 subplot(224); plot(dbw(J)); grid on; xlim([0 symlen]); ylim([-100 20])
 
-
-
-% EOF
