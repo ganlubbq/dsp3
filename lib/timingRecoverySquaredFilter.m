@@ -1,4 +1,5 @@
-% DESCRIPTION
+function [y,phEst] = timingRecoverySquaredFilter(x, symrate, sps, bs, decflag)
+% square timing recovery, 4 samples/symbol in, 2 sps out
 % 
 % Example: 
 % 
@@ -10,11 +11,7 @@
 % 
 % See Also: 
 % 
-% Copyright default
-
-function [y,phEst] = square_filterTPE(x,symrate,sps,bs,decflag)
-%square timing recovery, 4 samples/symbol in, 2 sps out
-%
+% Copyright 2014
 
 if nargin < 5
     decflag = 0;
@@ -132,4 +129,3 @@ if decflag
 end
 
 return
-

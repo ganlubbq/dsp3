@@ -1,4 +1,5 @@
-% DESCRIPTION
+function [symRtm, phEst]= timingRecoveryGardnerPLL(symIn, sps, gain, int_method)
+% timingRecoveryGardnerPLL
 % 
 % Example: 
 % 
@@ -12,10 +13,9 @@
 % 
 % Copyright 2015 Default
 
-function [symRtm, phEst]= GardnerPLL(symIn, sps, gain, int_method)
-
 % Normalized symbol period
 T  = 1;
+
 % Half a symbol period
 Ts = 0.5;
 N = sps;
@@ -29,7 +29,8 @@ if m,  symIn = [symIn; zeros(N-m, Ncol)];  end
 
 numSym = length(symIn) / N;
 
-numBuf = (numSym + 3) * N;   % +3 symbols overlap
+% +3 symbols overlap
+numBuf = (numSym + 3) * N;   
 
 % initializing
 buffer = zeros(numBuf,1);
@@ -74,11 +75,14 @@ for jj = 1 : Ncol
             tau(k+2) = tau(k+1) + gain * eK;
             
             if abs(tau(k+2)) > Ts
-                tau(k+2) = rem(tau(k+2) + Ts, T); % [-T, T], due to fmod */
+                % [-T, T], due to fmod()
+                tau(k+2) = rem(tau(k+2) + Ts, T); 
                 if tau(k+2) < 0
-                    tau(k+2) = tau(k+2)+ T;   % [0, T] */
+                    % [0, T] 
+                    tau(k+2) = tau(k+2)+ T;  
                 end
-                tau(k+2) = tau(k+2)-Ts;       % [-T/2, T/2] */
+                % [-T/2, T/2] */
+                tau(k+2) = tau(k+2)-Ts;       
             end
         end
         
@@ -154,7 +158,7 @@ return
 function y = linearInterp(buffer, dn, fltIdx)
 a = real(buffer(dn)) + (fltIdx - floor(fltIdx)) * (real(buffer(dn+1)) - real(buffer(dn)));
 b = imag(buffer(dn)) + (fltIdx - floor(fltIdx)) * (imag(buffer(dn+1)) - imag(buffer(dn)));
-y = a + 1j*b;
+y = a + 1i*b;
 return
 
 % parabolic interpolation using 4 samples
@@ -167,7 +171,5 @@ C_1 = -1*a*u*u + (a+1)*u;
 C_2 = a*u*u - a*u;
 a = C1 *real(buffer(dn-1)) + C0 * real(buffer(dn)) + C_1*real(buffer(dn+1)) + C_2*real(buffer(dn+2));
 b = C1 *imag(buffer(dn-1)) + C0 * imag(buffer(dn)) + C_1*imag(buffer(dn+1)) + C_2*imag(buffer(dn+2));
-y = a + 1j*b;
+y = a + 1i*b;
 return
-
-

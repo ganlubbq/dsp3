@@ -1,3 +1,4 @@
+function dB_osnr = R_BER_mQAM(ber,M,Rs)
 %R_BER Required OSNR for Gray coded square M-QAM with ber of ber
 % 
 % Example: osnr = R_BER_mQAM(ber,M,Rs)
@@ -10,9 +11,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2011 default
-
-function dB_osnr = R_BER_mQAM(ber,M,Rs)
+% Copyright 2011
 
 scale_factor    = sqrt(1/(2/3*(M-1)));
 k               = log2(M);
@@ -31,9 +30,8 @@ t_ser           = 2 * (1-1/sqrt(M)) * erfc( scale_factor * sqrt(EsNo) ) - ...
              
 t_ber           = t_ser / k;
 
-[~,idx]         = min(abs(t_ber-ber));
+[~,idx]         = min(abs(t_ber - ber));
 
 dB_osnr         = osnr_v(idx);
 
 return
-

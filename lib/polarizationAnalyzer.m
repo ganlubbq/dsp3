@@ -1,18 +1,18 @@
-function [h] = polarizationAnalyzer(ex,ey,varargin)
 % Polarization analyzer plot SOP as a function of frequency on a Poincare
 % sphere. At any single frequency, the signal is completely polarized.
 % 
 % Example: [h] = polarization_analyzer(ex,ey,varargin)
 % 
 % Input: 
-%       ex      - must be in row
-%       ey      - must be in row
+%       ex - must be in row
+%       ey - must be in row
 % 
 % Reference: 
 % 
 % Note: Input field can be either time or freq domain
 % 
-% See Also: 
+% See Also: spectrumAnalyzer
+function [h] = polarizationAnalyzer(ex,ey,varargin)
 
 s = j2s(ex,ey);
 
@@ -21,7 +21,6 @@ plot3(s(1,:),s(2,:),s(3,:),varargin{:});
 
 return
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function s_out = j2s(ex,ey)
 % Transfer Jones vector to normalized Stokes vector
 
@@ -47,7 +46,6 @@ s_out = [s_out(1,:)./s0;s_out(2,:)./s0;s_out(3,:)./s0];
 
 return
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function h = poincare_sphere()
 % Plot a Poincar sphere
 
@@ -96,4 +94,3 @@ text(0,2.1,0,'S_2','FontWeight','b','FontSize',14)
 text(0,0,1.6,'S_3','FontWeight','b','FontSize',14)
 
 return
-

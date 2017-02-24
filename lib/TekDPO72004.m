@@ -10,6 +10,7 @@ function [varargout] = TekDPO72004(h,cmdStr,parmCell)
 % Note: 
 % 
 % See Also: 
+
 switch cmdStr
     
 	case 'start'
@@ -64,4 +65,3 @@ switch cmdStr
 end
 
 return
-

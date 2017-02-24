@@ -1,3 +1,4 @@
+function data = scope(Scope)
 % DESCRIPTION
 % 
 % Example: 
@@ -12,9 +13,7 @@
 % 
 % Copyright 2015 default
 
-function data = scope(Scope)
-
-% Scope IP address such as 'TCPIP::10.71.103.173::INSTR'
+%% Scope IP address such as 'TCPIP::10.71.103.173::INSTR'
 rsrcName        = Scope.rsrcName;
 vendor          = Scope.vendor;
 InBuffersize    = Scope.InBuffersize;
@@ -169,4 +168,3 @@ flushoutput(Obj);
 delete(Obj);
 
 return
-

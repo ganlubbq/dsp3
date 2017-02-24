@@ -1,3 +1,4 @@
+function output = upSampHold(input, sps)
 % Upsampling signal by holding the symbol value
 % 
 % Example: 
@@ -10,9 +11,7 @@
 % 
 % See Also: upSampInsertZeros
 % 
-% Copyright DEFAULT
-
-function output = upSampHold(input, sps)
+% Copyright 2016
 
 if ~iscolumn(input)
     error('the first input has to be a column vector');

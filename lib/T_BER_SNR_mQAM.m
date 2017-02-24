@@ -28,13 +28,11 @@ t_ser           = 2 * (1-1/sqrt(M)) * erfc( scale_factor * sqrt(EsNo) ) - ...
                  (1-2/sqrt(M)+1/M) * (erfc(scale_factor * sqrt(EsNo))).^2;
              
 if M == 2
-    ber = 0.5*erfc(sqrt(EsNo));
-elseif M==4
-    ber = 1-sqrt(1-t_ser);
+    ber = 0.5 * erfc(sqrt(EsNo));
+elseif M == 4
+    ber = 1 - sqrt(1 - t_ser);
 else % todo
     ber = t_ser / k;
 end
 
 return
-
-

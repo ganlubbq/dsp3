@@ -11,7 +11,6 @@ function photocurrent = photoDetectorBN(Ep, En, Rp, Rn)
 % 
 % See Also: photoDetectorSE
 
-photocurrent = Rp.*abs(Ep).^2 - Rn.*abs(En).^2;
+photocurrent = Rp .* abs(Ep).^2 - Rn .* abs(En).^2;
 
 return
-

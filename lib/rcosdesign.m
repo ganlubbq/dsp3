@@ -89,4 +89,5 @@ end
 
 % Normalize filter energy
 b = b / sqrt(sum(b.^2));
-end
+
+return

@@ -1,3 +1,4 @@
+function [PSD, freqVect] = spectrumAnalyzer(x, freqVect)
 % According to parseval's theorem, the signal power in time domain equals
 % the signal power in frequency domain. However, due to normalization used
 % in Matlab, the power integrated in frequency domain via fft should be
@@ -18,8 +19,6 @@
 % spectrum analyzer, varying with the frequency resolution
 %
 % Copyright DEFAULT
-%
-function [PSD, freqVect] = spectrumAnalyzer(x, freqVect)
 
 if nargin < 2
 	nSamples = length(x);
@@ -46,4 +45,3 @@ ylabel('PSD (dB)');
 title(sprintf('Frequency Resolution %.2f MHz', freqResolution/1e6));
 
 return
-

@@ -1,4 +1,3 @@
-function snr = osnr2snr(osnr,rs,sps,dmod)
 %OSNR2SNR Convert OSNR in 0.1nm (12.5GHz) in dB to SNR in dB
 % 
 % Example: snr = osnr2snr(osnr,rs,sps,dmod)
@@ -8,7 +7,7 @@ function snr = osnr2snr(osnr,rs,sps,dmod)
 %       rs       - symbol rate
 %       sps      - sample per symbol
 %       dmod     - data mode, complex or real
-% 
+function snr = osnr2snr(osnr, rs, sps, dmod)
 
 switch lower(dmod)
     case 'complex'
@@ -21,4 +20,3 @@ switch lower(dmod)
 end
 
 return
-

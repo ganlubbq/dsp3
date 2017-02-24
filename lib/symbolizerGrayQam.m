@@ -1,3 +1,4 @@
+function sym = symbolizerGrayQam(bit)
 % Convert bits in rows to square mQAM symbols according to gray mapping.
 % The decimal order of uncoded symbol in contellation is from topleft to
 % bottomright by columns
@@ -12,9 +13,9 @@
 % Note: Gray mapping only
 % 
 % See Also: 
-function sym = symbolizerGrayQam(bit)
+
 % size of alphabet
-M = 2^size(bit,1);
+M = 2 ^ size(bit,1);
 
 nSample = size(bit,2);
 
@@ -57,4 +58,3 @@ switch mn
 end
 
 return
-

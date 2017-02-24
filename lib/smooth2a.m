@@ -1,4 +1,3 @@
-function matrixOut = smooth2a(matrixIn,Nr,Nc)
 % Smooths 2D array data.  Ignores NaN's.
 %
 %function matrixOut = smooth2a(matrixIn,Nr,Nc)
@@ -32,6 +31,7 @@ function matrixOut = smooth2a(matrixIn,Nr,Nc)
 % 	G?teborg University, Sweden
 % 	E-mail: olof.liungman@oce.gu.se
 
+function matrixOut = smooth2a(matrixIn,Nr,Nc)
 %
 % Initial error statements and definitions
 %
@@ -74,3 +74,5 @@ nrmlize(A) = NaN;
 %
 matrixOut = eL*matrixIn*eR;
 matrixOut = matrixOut./nrmlize;
+
+return

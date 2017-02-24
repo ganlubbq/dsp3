@@ -11,7 +11,6 @@
 % See Also: 
 % 
 % Copyright 2015 Default
-
 function h = plotEyeDiagram(x, period, xMode)
 
 if ~iscolumn(x)
@@ -20,6 +19,7 @@ end
 
 offset = 0;
 
+% fancy one
 % h = commscope.eyediagram(...
 %     'SamplingFrequency', samplingRate, ...
 %     'SamplesPerSymbol', sps * upfactor, ...
@@ -54,4 +54,3 @@ switch xMode
 end
 
 return
-

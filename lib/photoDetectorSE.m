@@ -11,7 +11,6 @@ function photocurrent = photoDetectorSE(Ex, responsivity)
 % 
 % See Also: photoDetectorBN
 
-photocurrent = responsivity.*abs(Ex).^2;
+photocurrent = responsivity .* abs(Ex).^2;
 
 return
-
