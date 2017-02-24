@@ -1,3 +1,4 @@
+function h = plotEyeDiagram(x, period, xMode)
 % DESCRIPTION
 % 
 % Example: h = plotEyeDiagram(x, baudRate, samplingRate, xMode)
@@ -10,8 +11,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Default
-function h = plotEyeDiagram(x, period, xMode)
+% Copyright 2015 
 
 if ~iscolumn(x)
     error('input has to be a column vector');

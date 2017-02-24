@@ -5,4 +5,3 @@ function esno = osnr2esno(osnr,rs)
 esno = osnr - 10*log10(rs/12.5e9);
 
 return
-

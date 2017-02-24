@@ -1,3 +1,4 @@
+function [h] = polarizationAnalyzer(ex,ey,varargin)
 % Polarization analyzer plot SOP as a function of frequency on a Poincare
 % sphere. At any single frequency, the signal is completely polarized.
 % 
@@ -12,7 +13,6 @@
 % Note: Input field can be either time or freq domain
 % 
 % See Also: spectrumAnalyzer
-function [h] = polarizationAnalyzer(ex,ey,varargin)
 
 s = j2s(ex,ey);
 

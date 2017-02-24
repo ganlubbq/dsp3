@@ -14,7 +14,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 default
+% Copyright 2015 
 
 function ydisp = optPowerMeter( x, dbm)
 
@@ -34,4 +34,3 @@ else
 end
 
 return
-

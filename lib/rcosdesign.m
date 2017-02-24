@@ -1,3 +1,4 @@
+function b = rcosdesign(beta, span, sps, shape)
 %RCOSDESIGN Raised cosine FIR filter design
 %   B = rcosdesign(BETA, SPAN, SPS) returns square root raised cosine FIR
 %   filter coefficients, B, with a rolloff factor of BETA. The filter is
@@ -34,8 +35,6 @@
 %   Copyright 2012-2013 The MathWorks, Inc.
 %
 %   Copy to /lib for customized purpose, and remove all the parameter check
-
-function b = rcosdesign(beta, span, sps, shape)
 
 % Design the raised cosine filter
 delay = span*sps/2;
