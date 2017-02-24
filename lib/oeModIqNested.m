@@ -1,3 +1,4 @@
+function oSigMod = oeModIqNested(oSig, eSigI, eSigQ, ERdB, Vpi, V1, V2, V3)
 % Modulate single polarization optical wave using IQ MZM
 % 
 % Example: oSigMod = oeModIqNested(oSig,eSigI,eSigQ,ERdB,Vpi,V1,V2,V3)
@@ -14,8 +15,6 @@
 % See Also: 
 % 
 % Copyright 2015 DEFAULT
-
-function oSigMod = oeModIqNested(oSig, eSigI, eSigQ, ERdB, Vpi, V1, V2, V3)
 
 oSig = oSig(:);
 eSigI = eSigI(:);
@@ -37,4 +36,3 @@ oSigMod2 = oSig ./ sqrt(2) .* (psr1 * exp(1j*phi1) + psr2 * exp(1j*phi2));
 oSigMod = oSigMod1 + exp(1j*V3*pi/Vpi) * oSigMod2;
 
 return
-

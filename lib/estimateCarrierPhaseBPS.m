@@ -34,6 +34,3 @@ theta = unwrap(4 * phi(idx)) / 4;
 theta = theta(:);
 
 return
-
-
-

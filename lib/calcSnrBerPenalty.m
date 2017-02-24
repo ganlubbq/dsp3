@@ -29,4 +29,3 @@ ber2Fine = interp1(SNR,BER2,snrFine(:));
 penalty = snrFine(ndx2) - snrFine(ndx1);
 
 end
-

@@ -1,3 +1,4 @@
+function mngScatterplot(input1, input2, varargin)
 % DESCRIPTION
 % 
 % Example: 
@@ -11,8 +12,6 @@
 % See Also: 
 % 
 % Copyright 2015 default
-
-function mngScatterplot( input1, input2, varargin )
 
 h1 = scatterplot(input1, varargin{:}); grid on
 h2 = scatterplot(input2, varargin{:}); grid on
@@ -33,7 +32,6 @@ pos2 = pos1 + [pos1(3)+15 0 0 0];
 set(h1,'Position',pos1)
 set(h2,'Position',pos2)
 
-drawnow
+drawnow;
 
 return
-

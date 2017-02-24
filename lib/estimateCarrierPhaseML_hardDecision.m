@@ -19,5 +19,3 @@ H = smooth(observations .* conj(signals), blocksize);
 theta = angle(H);
 
 return
-
-

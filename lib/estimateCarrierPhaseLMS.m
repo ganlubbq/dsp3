@@ -47,5 +47,3 @@ for k = 2:length(observations)
 end
 
 return
-
-

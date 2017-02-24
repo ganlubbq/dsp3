@@ -1,3 +1,4 @@
+function freqGrid = getFFTGrid(nSample,fs)
 % Get frequency grid vector for FFT
 % 
 % Example: freqGrid = getFFTGrid(nSample,fs)
@@ -10,12 +11,9 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 default
-
-function freqGrid = getFFTGrid(nSample,fs)
+% Copyright 2015 
 
 % frequency grid in Hz
-freqGrid = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] *fs/nSample;
+freqGrid = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] * fs / nSample;
 
 return
-

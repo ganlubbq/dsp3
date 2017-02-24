@@ -1,6 +1,7 @@
-function [varargout] = getSaveString(Des,patExtdir)
+function [varargout] = getSaveString(Des, patExtdir)
 %GETSAVESTRING Summary of this function goes here
 %   Detailed explanation goes here
+
 if nargin < 2
     patExtdir = '';
 end

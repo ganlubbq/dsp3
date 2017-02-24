@@ -148,8 +148,4 @@ scatterplot(ev(1,:));
 scatterplot(ev(2,:));
 figure; plot(angle(ev(1,:)));
 figure; plot(angle(ev(2,:)));
-
-
 return
-
-

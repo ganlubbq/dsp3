@@ -45,5 +45,3 @@ end
 c = c(:);
 
 return
-
-

@@ -1,3 +1,4 @@
+function y = genWGN(nrow,ncol,p,pmod,dmod)
 % Generate real or complex white Gaussian noise
 % 
 % Example: y = genWGN(nrow,ncol,p,pmod,dmod)
@@ -12,9 +13,7 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 default
-
-function y = genWGN(nrow,ncol,p,pmod,dmod)
+% Copyright 2015 
 
 % default impedance
 imp = 1;
@@ -63,5 +62,3 @@ switch lower(dmod)
 end
 
 return
-
-

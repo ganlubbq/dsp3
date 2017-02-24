@@ -1,3 +1,4 @@
+function [hs, local_max] = hist2(x1,cmap)
 %HIST2 Plot color histogram and meshgrid of 2D complexed signal,
 % return the handle of histogram figure and local peak of it, cmap defines
 % the color map.
@@ -12,11 +13,8 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Dawei Wang 
-% 
-% Email: dawei.zju@gmail.com 
+% Copyright 2015
 
-function [hs local_max] = Hist2(x1,cmap)
 %
 % check the input parameters
 %
@@ -99,4 +97,3 @@ set(hs,'Position',h2_p);
 set(hm,'Position',h3_p);
 
 return
-

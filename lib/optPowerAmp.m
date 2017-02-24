@@ -1,3 +1,4 @@
+function [y] = optPowerAmp(x, gain)
 % DESCRIPTION
 % 
 % Example: 
@@ -10,15 +11,8 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 default
+% Copyright 2015 
 
-function [y] = optPowerAmp( x, power )
-
-y = copy(x);
-
-a = optPowerMeter(x);
-
-y.E = x.E.* sqrt(power/a);
+y = x .* sqrt(gain);
 
 return
-

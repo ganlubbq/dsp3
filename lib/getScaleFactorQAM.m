@@ -1,3 +1,4 @@
+function [ s ] = getScaleFactorQAM( M )
 % Get scale factor for scaling the canonical constellation to max{1,1} form
 % 
 % Example: getScaleFactorQAM( M )
@@ -11,21 +12,18 @@
 % 
 % See Also: getPowerFactorQAM
 % 
-% Copyright 2015 default
+% Copyright 2015 
 
-function [ s ] = getScaleFactorQAM( M )
+s = sqrt(ALPHABET_SIZE) - 1; % for square mQAM
 
-s = sqrt(ALPHABET_SIZE)-1; % for square mQAM
-
-if M==2
+if M == 2
 	s = 1;
-elseif M==8
+elseif M == 8
 	s = 2;
-elseif M==32
+elseif M == 32
 	s = 5;
 else
 	error('unsupported format');
 end
 
 return
-

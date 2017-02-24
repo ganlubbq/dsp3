@@ -9,7 +9,6 @@ function [theta] = estimateCarrierPhaseVV(x, block_size, avg_mode)
 %
 % See also:
 
-
 if ~iscolumn(x)
     warning('first input has to be a column vector'); keyboard;
 end
@@ -49,5 +48,3 @@ if avg_mode == 0
 end
 
 return
-
-

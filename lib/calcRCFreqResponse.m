@@ -1,3 +1,4 @@
+function H = calcRCFreqResponse(nSample, fs, fbaud, alpha, mode)
 % CALCULATE RAISED COSINE DIGITAL FILTER RESPONSE IN FREQUENCY DOMAIN
 % 
 % Example: 
@@ -11,8 +12,6 @@
 % See Also: 
 % 
 % Copyright DEFAULT
-
-function H = calcRCFreqResponse(nSample, fs, fbaud, alpha, mode)
 
 if nargin < 5
     mode = 0;
@@ -53,5 +52,3 @@ end
 H = [H; conj(flipud(H(2:end-1)))];
 
 return
-
-

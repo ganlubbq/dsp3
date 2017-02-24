@@ -1,17 +1,3 @@
-% DESCRIPTION
-% 
-% Example: 
-% 
-% Input: 
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
-% 
-% Copyright 2015 default
-
 function [DateMarker,TimeMarker,strLogTime] = getClock()
 
 c = clock;
@@ -23,4 +9,3 @@ TimeMarker = sprintf('%02.0f%02.0f%02.0f',c(4:6));
 strLogTime = sprintf('%02.0f:%02.0f:%02.0f',c(4:6));
 
 return
-

@@ -26,4 +26,3 @@ end
 estimated = (signals' * signals) \ (signals') * observations;
 
 end
-

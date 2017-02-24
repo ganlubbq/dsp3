@@ -1,18 +1,4 @@
-% DESCRIPTION
-% 
-% Example: 
-% 
-% Input: 
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
-% 
-% Copyright 2015 default
-
-function mf_name = getModemFormat( mn )
+function mf_name = getModemFormat(mn)
 
 switch mn
     case 1
@@ -40,4 +26,3 @@ switch mn
 end
 
 return
-

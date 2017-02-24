@@ -22,4 +22,3 @@ set(h2,'Position',p2)
 drawnow;
 
 return
-

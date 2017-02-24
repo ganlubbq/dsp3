@@ -109,12 +109,9 @@ switch shape
         error('unsupported FIR filter shape!!!');
 end
 
-%
 % figure; hold on; grid on; 
 % plot(yc,'o-'); 
 % plot(y,'gs-'); 
 % legend('linear convolution',sprintf('%s',method)); hold off;
 
 return
-
-

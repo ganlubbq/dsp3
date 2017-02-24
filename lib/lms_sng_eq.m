@@ -1,3 +1,4 @@
+function [yout,mse,deth,h1] = lms_sng_eq( xin,mn,sps,mu,ntaps,iter,h1)
 % Single polarization equalization using lms algorithm with multiple
 % iterations
 % 
@@ -12,7 +13,6 @@
 % See Also: 
 % 
 % Copyright default
-function [yout,mse,deth,h1] = lms_sng_eq( xin,mn,sps,mu,ntaps,iter,h1)
 
 x = normalizeQam(xin, mn);
 
