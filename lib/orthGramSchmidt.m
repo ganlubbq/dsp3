@@ -13,6 +13,14 @@ function [U] = orthGramSchmidt(V)
 % 1st: uk = vk - proj_of_vk_on_u1;
 % 2nd: uk = uk - proj_of_uk_on_u2;
 % ....
+%
+% Example:
+%   Input V = [1 1; 0 1] representing a linear transformation of sheering y
+%   axis and U = orthGramSchmidt(V) outputs orthonormal basis U = [1 0; 0 1]
+%
+% Note that the Gram-Schmitdt process always takes the 1st column of input
+% as a start point to construct an orthonormal basis such that it could
+% result in an rotated orthonormal basis
 
 n = size(V,1);
 k = size(V,2);
