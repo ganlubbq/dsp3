@@ -27,18 +27,18 @@ function bit = slicerGrayQam(sym, M)
 
 % special case of bpsk
 if M == 2
-    bit = real(sym)>0; return
+    bit = real(sym) > 0; return
 end
 
 % number of rows of output bit
 k = log2(M);
 
 % normalize symbols
-sym = normalizeQam(sym,M);
+sym = normalizeQam(sym, M);
 
 % convert symbol to decimal index from topleft to bottomright by columns,
 % i.e. sym->[I,~Q]
-decndx = slicer(sym,M);
+decndx = slicer(sym, M);
 
 % integer mapper of gray coded m-qam
 mapper = mapint(M);
@@ -104,21 +104,21 @@ end
 % convert bit in rows to dec by MSB to LSB order
 twos = 2.^(log2(mn)-1:-1:0);
 twos = repmat(twos,length(x),1);
-ndx = sum(bit.*twos,2)+1;
+ndx = sum(bit.*twos,2) + 1;
 
 return
 
 % return 1 if x>0 and 0 if x<=0
 function s = msign(x)
 
-s = (x>0);
+s = (x > 0);
 
 return
 
 % return 1 if x>0 and -1 if x<=0
 function s = ksign(x)
 
-s = (x>0)*2-1;
+s = (x > 0) * 2 - 1;
 
 return
 

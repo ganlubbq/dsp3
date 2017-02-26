@@ -30,7 +30,7 @@ end
 freqResolution = (max(freqVect) - min(freqVect)) / (nSamples - 1);
 
 % power in one freq slot
-PSD = abs(fft(x)) .^ 2 / (nSamples*nSamples);
+PSD = abs(fft(x)) .^ 2 / (nSamples * nSamples);
 
 figure(99); grid on; hold on
 plot(fftshift(freqVect), 10*log10(fftshift(PSD))); 

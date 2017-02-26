@@ -24,14 +24,14 @@ x = randi([0 1],1,L);
 y = conv(x,h);
 
 % circular conv will be identical to linear conv provided N >= L+P-1
-N = L+P-1;
+N = L + P - 1;
 
 % implement linear conv using N-point DFT (circular) and zero padding
-yc_N = ifft(fft([x zeros(1,N-L)]).*fft([h zeros(1,N-P)]));
+yc_N = ifft(fft([x zeros(1,N-L)]) .* fft([h zeros(1,N-P)]));
 
 % part of circular conv is identical to linear conv if P < L when using
 % L-point DFT -- the first P-1 points of circular conv will be different
-yc_L = ifft(fft(x).*fft([h zeros(1,L-P)]));
+yc_L = ifft(fft(x) .* fft([h zeros(1,L-P)]));
 
 % to confirm...
 figure; title(sprintf('N = %d, L = %d, P = %d',N,L,P));
@@ -58,8 +58,8 @@ N = 16;
 % move L in each step and perform N-point circular convolution on L points
 % of data based on zero padding and DFT, overlapping happens in output
 for ii = 1:6
-	xx = x((1:L)+(ii-1)*L);
-	yy((1:N)+(ii-1)*L) = yy((1:N)+(ii-1)*L) + ifft(fft([xx zeros(1,6)]).*fft([h zeros(1,9)]));
+	xx = x((1:L) + (ii-1) * L);
+	yy((1:N) + (ii-1) * L) = yy((1:N) + (ii-1) * L) + ifft(fft([xx zeros(1,6)]) .* fft([h zeros(1,9)]));
 end
 
 figure; hold on
@@ -87,10 +87,10 @@ x = [zeros(1,p-1) x];
 % of data based on DFT, and saving the last L points of output. Overlapping
 % happens in input
 for ii = 1:6
-	xx = x((1:N)+(ii-1)*L);
-	tmp = ifft(fft(xx).*fft([h zeros(1,9)]));
+	xx = x((1:N) + (ii-1) * L);
+	tmp = ifft(fft(xx) .* fft([h zeros(1,9)]));
 % tmp = ifft(fft(xx).*fft(h));
-	yy((1:L)+(ii-1)*L) = tmp(p:end);
+	yy((1:L) + (ii-1) * L) = tmp(p:end);
 end
 
 figure; hold on
