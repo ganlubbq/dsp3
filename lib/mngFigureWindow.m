@@ -9,7 +9,7 @@ function mngFigureWindow(h1, h2)
 scrsz = get(0,'ScreenSize');
 
 screen_width = scrsz(3);
-screen_height = scrsz(4);
+% screen_height = scrsz(4);
 
 p1 = get(h1,'Position');
 p2 = get(h2,'Position');
