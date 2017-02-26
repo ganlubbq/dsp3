@@ -45,5 +45,3 @@ H = H.*exp(-1j*polyval(pp,freqGrid/1e9));
 H = H/abs(H(1));
 
 return
-
-

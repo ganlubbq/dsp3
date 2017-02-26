@@ -1,3 +1,4 @@
+function [newstate] = fifoBuffer(state,data)
 % FIFO buffering data in rows
 %
 % Example: [newstate] = fifoBuffer(state,data)
@@ -14,8 +15,6 @@
 % 
 % Copyright default
 
-function [newstate] = fifoBuffer(state,data)
-
 % number of columns, data length
 N = size(data,2);
 
@@ -28,5 +27,3 @@ end
 newstate = [state(:,N+1:end) data(:,1:N)];
 
 return
-
-

@@ -9,6 +9,7 @@ function [y, phi] = FeedbackCPE( signal, mn, mu, initial )
 % the error of phase error.
 %
 % CopyRight:Wang Dawei EIE PolyU   $Date:16/3/2010
+
 N = length(signal);
 y = zeros(size(signal));
 phi= zeros(size(signal));
@@ -39,7 +40,8 @@ switch mn
             phi(kk+1,:) = phi(kk,:) - mu*imag( zz.*conj(err) );
         end
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 function y = slicer16qam(x)
 x = x(:);
 bound = 2;
@@ -49,3 +51,4 @@ b = [sign(imag(x)), sign(imag(x)-sign(imag(x))*bound)];
 b = b(:,2)+2*b(:,1);
 y = a + 1j*b;
 y = y.';
+

@@ -25,4 +25,4 @@ end
 % estimated = inv(signals'*signals)*signals'*observations;
 estimated = (signals' * signals) \ (signals') * observations;
 
-end
+return

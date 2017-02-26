@@ -29,5 +29,3 @@ end
 % figure; plot(xout(:,1),'.'); grid on
 
 return
-
-

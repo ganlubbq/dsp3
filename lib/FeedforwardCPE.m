@@ -72,7 +72,8 @@ if appML
         end
     end
 end
-%%
+
+
 function [y phn] = bps_cpe(x,bs,M,mn)
 % How to solve the cycle-slip problem
 phi = (0:M-1) / M * pi/2;
@@ -98,7 +99,8 @@ for pol = 1:size(x,2)
     y(:,pol) = x(:,pol).* exp(1j*rot_phi_un(:));
     phn(:,pol) = rot_phi_un(:);
 end
-%%
+
+
 function [y phn] = block_cpe(x, bs)
 % 
 a = mod(size(x,1),bs);
@@ -134,7 +136,8 @@ for pol = 1:size(x,2)
     y(:,pol) = x_bk_com(1:end-(a>0)*(bs-a));
     phn(:,pol) = phi(1:end-(a>0)*(bs-a));
 end
-%%
+
+
 function [y, phn] = slide_cpe(x, bs)
 bs = bs + ~mod(bs,2);
 y = zeros(size(x));
@@ -167,4 +170,3 @@ for ii = 1 : ncol
     phn = unwrap( angle(sum_sum(halfN+1:end-halfN))+pi )/4;
     y(:,ii) = x(halfN+1:end-halfN).*exp(-1j*phn);
 end
-%%

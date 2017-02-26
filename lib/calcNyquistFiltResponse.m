@@ -1,3 +1,4 @@
+function H = calcNyquistFiltResponse(nSample,fs,fbaud,alpha,mode)
 % Calculate frequency response of Nyquist filter with input roll-off and
 % baud rate
 % 
@@ -19,8 +20,6 @@
 % 
 % Copyright 2015 Default
 
-function H = calcNyquistFiltResponse(nSample,fs,fbaud,alpha,mode)
-
 HRCOS = calcRCFreqResponse(nSample,fs,fbaud,alpha,mode);
 
 freq = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] * fs / nSample;
@@ -33,4 +32,3 @@ HSINC(abs(freq) <= f_high) = sinc(freq(abs(freq) <= f_high) ./ fbaud);
 H = HRCOS./HSINC;
 
 return
-

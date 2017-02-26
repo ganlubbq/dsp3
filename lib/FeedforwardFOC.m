@@ -2,7 +2,7 @@ function y = FeedforwardFOC(params)
 %FREQ_OFFSET frequency offset estimation routine
 % using bell-lab style
 %
-% CopyRight:Wang Dawei EIE PolyU   $Date:16/3/2010
+
 symbol_rate = params.baudrate;
 x = params.in;
 y = x;
@@ -21,4 +21,5 @@ if params.active
     deltaf = dphi*symbol_rate/(2*pi)
     disp('Done')
 end
-end
+
+return

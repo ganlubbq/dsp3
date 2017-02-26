@@ -1,17 +1,5 @@
-% Get error vector magnitude for input signals
-% Example: 
-% 
-% Input: 
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
-% 
-% Copyright 2015 default
-
 function v = evm(x,mn)
+% Get error vector magnitude for input signals
 
 xn = normalize_mqam(x,mn);
 xd = graySlicer_mQAM(xn,mn);
@@ -47,4 +35,3 @@ return
 %         y = [-7 -5 -3 -1 1 3 5 7]; inph = [y y y y y y y y]; inph = inph.';
 %         c = inph + 1j*quar;
 % end
-

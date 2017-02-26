@@ -1,4 +1,15 @@
 function angleInRadians = deg2rad(angleInDegrees)
+% Example: 
+% 
+% Input: 
+% 
+% Reference: 
+% 
+% Note: 
+% 
+% See Also: 
+% 
+% Copyright 2015 default
 % DEG2RAD Convert angles from degrees to radians
 %
 %   DEG2RAD has been replaced by DEGTORAD.
@@ -10,4 +21,3 @@ function angleInRadians = deg2rad(angleInDegrees)
 % $Revision: 1.9.4.5 $  $Date: 2009/04/15 23:16:12 $
 
 angleInRadians = (pi/180) * angleInDegrees;
-

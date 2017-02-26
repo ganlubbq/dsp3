@@ -1,3 +1,4 @@
+function jv = calcJonesVector(azi,ell)
 % Calculate Jones vector with parameter of azimuth and ellipticity in
 % degree
 % 
@@ -12,8 +13,6 @@
 % See Also: 
 % 
 % Copyright 2015 Default
-
-function jv = calcJonesVector(azi,ell)
 
 while abs(azi) > 90
     azi = (abs(azi)-180) * sign(azi);
@@ -44,4 +43,3 @@ if ita<0
 end
 
 return
-

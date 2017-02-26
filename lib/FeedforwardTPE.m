@@ -1,4 +1,4 @@
-function [y,phEst] = FeedforwardTPE(signal,mn,sps,szBlock,bias,estMeth,intMeth,decFlag,norFlag)
+function [y, phEst] = FeedforwardTPE(signal, mn, sps, szBlock, bias, estMeth, intMeth, decFlag, norFlag)
 %FEEDFORWARDTPE Feedforward timing phase estimation and recovery. The input
 %parameters are defined as follows:
 %
@@ -14,19 +14,19 @@ function [y,phEst] = FeedforwardTPE(signal,mn,sps,szBlock,bias,estMeth,intMeth,d
 
 %   Copyright2012 wangdawei 16/6/2012
 
-if nargin<9
+if nargin < 9
     norFlag = 1;
 end
-if nargin<8
+if nargin < 8
     decFlag = 1;
 end
-if nargin<7
+if nargin < 7
     intMeth = 'linear';
 end
-if nargin<6
+if nargin < 6
     estMeth = 'lee';
 end
-if nargin<5
+if nargin < 5
     bias = 1.0;
 end
 
@@ -51,9 +51,9 @@ switch estMeth
         phEst = [];
     case 'lee'
         % make sure that the length of x can be diveded by block-size
-        temp = mod(mm,szBlock);
+        temp = mod(mm, szBlock);
         if temp
-            x = [ x; zeros(szBlock-temp,kk)];
+            x = [x; zeros(szBlock-temp,kk)];
         end
         for ii = 1:kk
             [y(:,ii) phEst(:,ii)]= Lee_PLL(x(:,ii),sps,bias,szBlock,intMeth);

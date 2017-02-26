@@ -1,5 +1,3 @@
-
-
 function [y,H] = FrequencyDCF(x,Dz,fc,fs,ntaps,method,overlap)
 %FREQUENCYDCF Frequency domain chromatic Dz compensation
 %   Dz: the unit is ps/nm and is product of D and L
@@ -100,4 +98,3 @@ Hfilt = ifftshift( H.');
 % xlabel( 'Frequency (Hz)' )
 % ylabel( 'Phase' )
 % title( 'GVD (all-pass) filter' )
-

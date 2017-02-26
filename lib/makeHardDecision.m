@@ -72,4 +72,3 @@ function s = ksign(x)
 s = (x>0)*2-1;
 
 return
-

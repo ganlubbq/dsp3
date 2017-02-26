@@ -1,3 +1,4 @@
+function y = firfilt(x,h,method,shape)
 % Implementing FIR filter using overlap-and-add and overlap-and-save
 % structures
 % 
@@ -20,8 +21,6 @@
 % See Also: conv, filter, fftfilt.
 %
 % Copyright 2015 DAWEI DE
-
-function y = firfilt(x,h,method,shape)
 
 if nargin<4
     shape = 'full';

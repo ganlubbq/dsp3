@@ -33,5 +33,3 @@ Oy = x.Ex.*sin(theta) + x.Ey.*cos(theta);
 y.E = [Ox;Oy];
 
 return
-
-

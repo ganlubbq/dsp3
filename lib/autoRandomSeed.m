@@ -1,3 +1,4 @@
+function [] = autoRandomSeed(rnsd)
 % Reset system random number seed automatically
 % 
 % Example: autoRandomSeed(seed)
@@ -11,7 +12,6 @@
 % See Also: rand, randi
 % 
 % Copyright 2015 Default
-function [] = autoRandomSeed(rnsd)
 
 if rnsd
     rng(rnsd);
