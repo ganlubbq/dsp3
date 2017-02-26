@@ -13,4 +13,3 @@ color_table = [...
 
 
 return
-
