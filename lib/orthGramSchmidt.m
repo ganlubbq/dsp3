@@ -34,4 +34,4 @@ for i = 2 : k
     U(:,i) = U(:,i) / sqrt(U(:,i)' * U(:,i));
 end
 
-end
+return
