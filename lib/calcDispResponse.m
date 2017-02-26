@@ -1,4 +1,4 @@
-function [H] = calcDispResponse(nSample,fs,lambda,lambda0,DL,SL)
+function [H] = calcDispResponse(nSample, fs, lambda, lambda0, DL, SL)
 % Calculate frequency response of optical chromatic dispersion with
 % accumulated dispersion and dispersion slop
 % 
@@ -24,16 +24,16 @@ function [H] = calcDispResponse(nSample,fs,lambda,lambda0,DL,SL)
 c = 299792458;
 
 % frequency grid in Hz
-freqGrid = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] *fs/nSample;
+freqGrid = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] * fs / nSample;
 
 % DL of multiband
-DL = DL + (lambda-lambda0)*SL;
+DL = DL + (lambda - lambda0) * SL;
 
 dPhase = lambda^2 * DL * pi / c * freqGrid.^2 + ...
     -lambda^3 * DL * 2*pi / 3 / c^2 * freqGrid.^3 + ...
     -lambda^4 * SL * pi / 3 / c^2 * freqGrid.^3;
 
 % frequency response of linear dispersion
-H = exp(1j*dPhase);
+H = exp(1i * dPhase);
 
 return

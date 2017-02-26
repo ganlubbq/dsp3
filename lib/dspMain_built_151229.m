@@ -1,3 +1,4 @@
+function [dspOut1, dspOut2, dspState] = dspMain_built_151229(xi, xq, yi, yq, dspParam)
 % Main testing funtion for offline processing. Using circular boundary
 % condition for adaptive equalizer convergence. 
 % 
@@ -13,13 +14,10 @@
 % 
 % See Also: 
 % 
-% Copyright 2015 Default
-
-function [dspOut1, dspOut2, dspState] = dspMain_built_151229(xi, xq, yi, yq, dspParam)
+% Copyright 2015 
 
 dspState = [];
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % remove the dc componant
 XI = xi - sum(xi)/length(xi);
 XQ = xq - sum(xq)/length(xq);
@@ -46,7 +44,6 @@ YI = YI(:);
 XQ = XQ(:);
 YQ = YQ(:);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the power spectral density
 dataX = XI + 1j*XQ;
 dataY = YI + 1j*YQ;
@@ -61,28 +58,22 @@ acrY = abs(ifft(psdY)) / length(psdY);
 % figure; plot(acrX); hold; plot(acrY,'r'); hold off
 % figure; plot(10*log10(psdX)); hold; plot(10*log10(psdY),'r'); hold off
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.showEye
     ShowEyediagram(xi,xq,symRate,samplingRate)
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doDigitalLPF
-    [xi xq yi yq] = LowpassFilter(samplingRate,Pa_Bw,xi,xq,yi,yq);
+    [xi, xq, yi, yq] = LowpassFilter(samplingRate,Pa_Bw,xi,xq,yi,yq);
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 REAL_DATA = [XI,XQ,YI,YQ];
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.showEye
     ShowEyediagram(xi,xq,symRate,samplingRate)
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 sps = 2;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % need to implement a realistic resampling algorithm here
 [up, down] = rat(dspParam.Rs*sps / dspParam.adcFs);
 if up == down
@@ -104,12 +95,10 @@ end
 
 fs = dspParam.Rs * sps;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % COMPLEX_DATA = [RSP_TMP(:,1)+1j*RSP_TMP(:,2),RSP_TMP(:,3)+1j*RSP_TMP(:,4)];
 rawX = XI + 1j*XQ;
 rawY = YI + 1j*YQ;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doFrontEndComp
     fecX = DspAlg.Orthogonal(rawX);
 	fecY = DspAlg.Orthogonal(rawY);
@@ -123,7 +112,6 @@ nSample = length(fecX);
 if dspParam.doCDE
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doCDC
 	[dspState.HCD] = calcDispResponse(nSample,fs,dspParam.lambda,dspParam.lambda0,dspParam.DL,dspParam.SL);
 	cdcX = ifft(fft(fecX) .* conj(dspState.HCD));
@@ -133,7 +121,6 @@ else
 	cdcY = fecY;
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doTPE
     set(handles.VISA_INFO_OUTPUT,'string',sprintf([str{1:2}])); pause(0.01);
     norFlag = 0;
@@ -150,14 +137,12 @@ else
     dspState.TPE_PHASE = [];
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doDownSampling
 	tpeX = tpeX(1:2:end);
 	tpeY = tpeY(1:2:end);
 	sps = 1;
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doMIMO
     polmux = 1;
     [CMA_OUT,dspState.CMA_MSE] = DspAlg.PolarizationDemux(TPE_OUT,constPoint,sps,...
@@ -170,14 +155,12 @@ else
     dspState.CMA_MSE = [];
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doFOE
     [CMA_OUT,df] = DspAlg.FeedforwardFOC(CMA_OUT,symRate);
 else
     df = 0;
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doCPE
 	switch dspParam.cpeAlgSelect
 		case 1
@@ -205,7 +188,6 @@ if dspParam.doMLCPE
 % 	cpeY = cpe_mle(cpeY,dspParam.cpeMlBlkSize,dspParam.cpeMlIter,dspParam.mn);
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if dspParam.doLmsAfterCPE
     lmsX = lms_sng_eq( cpeX,dspParam.mn,sps,dspParam.lmsGainAfterCPE,dspParam.lmsTapsAfterCPE,dspParam.lmsIterAfterCPE);
     lmsY = lms_sng_eq( cpeY,dspParam.mn,sps,dspParam.lmsGainAfterCPE,dspParam.lmsTapsAfterCPE,dspParam.lmsIterAfterCPE);
@@ -214,10 +196,7 @@ else
 	lmsY = cpeY;
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 dspOut1 = lmsX;
 dspOut2 = lmsY;
 
 return
-
-

@@ -1,4 +1,4 @@
-function [psd] = calcNoisePowerIDRA(alpha,totlen,lambda,KT)
+function [psd] = calcNoisePowerIDRA(alpha, totlen, lambda, KT)
 % Calculate noise power density per state of polarization for ideal Raman
 % amplifier
 % 
@@ -25,9 +25,9 @@ h = 6.626068e-34;
 
 c = 299792458;
 
-v = c/lambda;
+v = c / lambda;
 
 % noise power spectrum density [W/Hz]
-psd = alpha*totlen*h*v*KT;
+psd = alpha * totlen * h * v * KT;
 
 return

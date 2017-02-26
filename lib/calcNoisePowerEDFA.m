@@ -1,4 +1,4 @@
-function [psd] = calcNoisePowerEDFA(NA,gain,lambda,nsp)
+function [psd] = calcNoisePowerEDFA(NA, gain, lambda, nsp)
 % Calculate noise power density per state of polarization for periodic EDFA
 % link
 % 
@@ -26,9 +26,9 @@ h = 6.626068e-34;
 
 c = 299792458;
 
-v = c/lambda;
+v = c / lambda;
 
 % noise power spectrum density [W/Hz]
-psd = NA*(gain-1)*h*v*nsp;
+psd = NA * (gain - 1) * h * v * nsp;
 
 return

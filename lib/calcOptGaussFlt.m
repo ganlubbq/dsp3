@@ -1,4 +1,4 @@
-function [H] = calcOptGaussFlt(nSample,fs,fo,order,bandwidth)
+function [H] = calcOptGaussFlt(nSample, fs, fo, order, bandwidth)
 % Calculate frequency response of optical super Gaussian filter
 % 
 % Example: [H] = calcOptGaussFlt(nSample,fs,fo,order,bandwidth)
@@ -20,12 +20,12 @@ function [H] = calcOptGaussFlt(nSample,fs,fo,order,bandwidth)
 % Copyright 2015 Default
 
 % frequency interval of samples
-deltaFs = fs/nSample;
+deltaFs = fs / nSample;
 
 % frequency grid in Hz
-freqGrid = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] *deltaFs;
+freqGrid = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] * deltaFs;
 
 % frequency response, amplitude spetrum
-H = exp(-0.5*log(2)*(2*(freqGrid-fo)/bandwidth).^(2*order));
+H = exp(-0.5 * log(2) * (2 * (freqGrid-fo) / bandwidth) .^ (2*order));
 
 return
