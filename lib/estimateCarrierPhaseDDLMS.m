@@ -1,4 +1,4 @@
-function [theta, s, J] = estimateCarrierPhaseLMS_hardDecision(observations, mn, stepsize, theta_ini)
+function [theta, s, J] = estimateCarrierPhaseDDLMS(observations, mn, stepsize, theta_ini)
 %ESTIMATECARRIERPHASELMS Implementing the adaptive filter to estimate the
 %carrier phase based on the Least Squares criteria. Signals in the input is
 %known as a reference. Schocastic gradient descent is applied. Loop filter
@@ -29,10 +29,10 @@ end
 
 
 for k = 2:length(observations)
-    
     % output
-    s(k) = observations(k) .* exp(-1j * theta(k-1));
+    s(k) = observations(k) .* exp(-1i * theta(k-1));
     
+    % decision directed
     signal = makeHardDecision(s, mn);
     
     % stochastic gradient
