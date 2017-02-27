@@ -46,6 +46,8 @@ function order = mapint(mn)
 switch mn
     case 4
         order = [1,2,3,4;];
+    case 8
+        order = [1,2,3,4,5,6,7,8;];
     case 16
         order = [1,2,4,3,5,6,8,7,13,14,16,15,9,10,12,11;];
     case 64

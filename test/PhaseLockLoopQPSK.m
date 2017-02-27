@@ -9,12 +9,17 @@
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
 %
-%% QPSK WITH TIME VARYING PHASE ERROR
-clear
+%% m-QAM WITH TIME VARYING PHASE ERROR
+function [] = PhaseLockLoopQPSK(bitpersym, snr)
+
+if nargin < 1
+    bitpersym = 2;
+end
+if nargin < 2
+    snr = 20;
+end
 
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
-
-bitpersym = 2;
 
 symlen = 2^16;
 tvec = 0 : (1/2e9) : ((symlen-1) * (1/2e9));
@@ -29,7 +34,6 @@ bitTx = randi([0 1],bitpersym,symlen);
 symTx = symbolizerGrayQam(bitTx);
 
 % _TWO DIMENSION COMPLEX GAUSSIAN NOISE_
-snr = 17;
 sigma2 = 10*log10(sp) - snr;
 z = wgn(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
 
@@ -50,8 +54,8 @@ symTxPn = symTxPn + z;
 
 % initialize stochastic gradient descent algorithm, implemented as a
 % phase-lock loop, using 1 sample per symbol
-mu1 = 0.09;  % gain parameter 1st-order
-mu2 = 0.001 * 1; % gain parameter 2nd-order
+mu1 = 0.01;         % gain parameter 1st-order
+mu2 = 0.0001 * 1;    % gain parameter 2nd-order
 symRec(1) = symTxPn(1);
 phi(1) = 0;
 nco(1) = 0;
@@ -74,9 +78,12 @@ end
 
 truePhase = unwrap(angle((symTxPn-z) .* conj(symTx)));
 
+% phi = mod(phi, 2*pi);
+% truePhase = mod(truePhase, 2*pi);
+
 figure; 
-subplot(221); plot(symTxPn,'.'); grid on; axis([-2.5 2.5 -2.5 2.5]);
-subplot(222); plot(symRec,'.'); grid on; axis([-2.5 2.5 -2.5 2.5]);
+subplot(221); plot(symTxPn,'.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
+subplot(222); plot(symRec,'.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(223); plot(tvec,phi,tvec,truePhase,'r'); grid on
 subplot(224); plot(dbw(J)); grid on; xlim([0 symlen]); ylim([-100 20])
-
+return
