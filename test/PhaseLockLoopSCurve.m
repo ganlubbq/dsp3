@@ -4,25 +4,27 @@
 % filter bandwidth) to lower the steady state error
 %
 %% QPSK WITH TIME VARYING PHASE ERROR
-clear
+function [] = PhaseLockLoopSCurve(bitpersym, snr)
+
+if nargin < 1
+    bitpersym = 2;
+end
+if nargin < 2
+    snr = -8;
+end
 
 % RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
-
-bitpersym = 2;
 mn = 2^bitpersym;
 symlen = 2^14;
-
-% input power
-sp = 2;
 
 % modulation
 bitTx = randi([0 1],bitpersym,symlen);
 symTx = symbolizerGrayQam(bitTx);
 symRef = symTx;
+% input power
+sp = calcrms(symTx).^2;
 
 %% Observe averaged Phase-locked loop S-curve for various SNR
-snr = -20:20;
-
 % define phase error
 phaseNoise = -pi:0.1:pi+0.1;
 
@@ -42,15 +44,12 @@ for ii = 1:length(snr)
 end
 
 h1=figure; plot(phaseNoise/pi,sc); grid on; xlim([-1 1]);
-xlabel('Phase Error (\phi-\phi_k)/\pi'); ylabel('PED mean');
+xlabel('Phase Error'); ylabel('PED mean');
 
 sc = [];
 
 %% Observe instantanuous Phase-locked loop S-curve for low SNR
-snr = -10;
-
 for ii = 1:10
-    
     % randomly pick an symbol index
     tmp = round(rand()*symlen);
     
@@ -72,3 +71,4 @@ xlabel('Phase Error'); ylabel('PED');
 
 mngFigureWindow(h1,h2);
 
+return
