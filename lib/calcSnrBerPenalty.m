@@ -1,4 +1,4 @@
-function [ penalty] = calcSnrBerPenalty( SNR, BER1, BER2, tarBER)
+function [penalty] = calcSnrBerPenalty(SNR, BER1, BER2, tarBER)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
