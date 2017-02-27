@@ -22,6 +22,7 @@ eint(1) = 0;
 
 if length(stepsize) == 1
 	mu1 = stepsize;
+    mu2 = 0;
 else
 	mu1 = stepsize(1);
 	mu2 = stepsize(2);
