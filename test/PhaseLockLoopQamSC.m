@@ -4,7 +4,7 @@
 % filter bandwidth) to lower the steady state error
 %
 %% QPSK WITH TIME VARYING PHASE ERROR
-function [] = PhaseLockLoopSCurve(bitpersym, snr)
+function [] = PhaseLockLoopQamSC(bitpersym, snr)
 
 if nargin < 1
     bitpersym = 2;
