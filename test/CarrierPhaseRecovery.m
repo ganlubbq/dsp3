@@ -1,109 +1,71 @@
 %% TEST SCRIPT FOR CARRIER PHASE ESTIMATION COMPARISON
 % not finished
 %
-%% QPSK WITH TIME VARYING PHASE ERROR
-clear
+%% M-QAM WITH TIME VARYING PHASE ERROR
+function [] = CarrierPhaseRecovery(bitpersym)
+if nargin < 1
+    bitpersym = 2;
+end
+
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
-% qpsk
-bitpersym = 2;
-mn = 2^bitpersym;
-% symbol length
-symlen = 2^16;
-% input power
-sp = 2;
 
-%% High SNR Phase-locked loop
-snr = 0:10;
+mn = 2 ^ bitpersym;
+symlen = 2 ^ 16;
 
-bitTx = randi([0 1],bitpersym,symlen);
+bitTx = randi([0 1], bitpersym, symlen);
 symTx = symbolizerGrayQam(bitTx);
 symRef = symTx;
-% define phase noies
-txLaserPnVar = 2*pi*10e3/2e9;
-phaseNoise = genLaserPhaseNoise(symlen,txLaserPnVar,pi/6);
-phaseNoise = phaseNoise(:);
 
+% input power
+sp = calcrms(symRef).^2;
+
+% define phase noies
+txLaserPnVar = 2 * pi * 10e3 / 2e9;
+phaseNoise = genLaserPhaseNoise(symlen, txLaserPnVar, 0);
+phaseNoise = phaseNoise(:);
 % debug, one could also test fixed phase error
 % phaseNoise = 0; 
 
 symTx = symTx .* exp(1i * phaseNoise);
 
+snr = -20 : 0;
 for ii = 1:length(snr)
+    % add wgn
     th2 = 10*log10(sp) - snr(ii);
     z = wgn(size(symTx,1), size(symTx,2), th2, 'dbw', 'complex');
     symTxPn = symTx + z;
     
-    % initialize stochastic gradient descent algorithm, implemented as a
-    % phase-lock loop
-    mu = 0.01;
-    symRec(1) = symTxPn(1);
-    phi(1) = 0;
-    for k = 2:length(symTxPn)
-        % output
-        symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
-        
-        % stochastic gradient, also a PED with a typical S-curve
-        grad(k) = -imag(symRec(k) .* conj(symRef(k)));
-        
-        % update filter coeff. along opposite direction of gradient
-        phi(k) = phi(k-1) - mu*grad(k);
-        
-        % squared error
-        J(k) = abs(symRec(k) - symTx(k)).^2;
-    end
-    symrx = normalizeQam(symRec,mn);
-    bitrx = slicerGrayQam(symrx,mn);
-    ber(ii) = nnz(bitTx-bitrx)/(symlen*2);
-end
-
-varEstErrH = calcrms(phaseNoise - phi(:))^2
-
-bert = T_BER_SNR_mQAM(idbw(snr),mn);
-h1=figure; plot(snr,bert,snr,ber); grid on
-xlabel('SNR'); ylabel('BER');
-h2=figure; plot(1:symlen,phaseNoise,'LineWidth',2); hold on
-           plot(1:symlen,phi); grid on
-
-mngFigureWindow(h1,h2);
-
-%% Low SNR Phase-locked loop
-snr = -10:0;
-
-for ii = 1:length(snr)
-    th2 = 10*log10(sp) - snr(ii);
-    z = wgn(size(symTx,1), size(symTx,2), th2, 'dbw', 'complex');
-    symTxPn = symTx + z;
+    stepsize = .05;
+    theta_ini = 0;
+    thetaPLL = estimateCarrierPhaseLMS(symRef, symTxPn, stepsize, theta_ini);
     
-    % initialize stochastic gradient descent algorithm, implemented as a
-    % phase-lock loop
-    mu = 0.001;
-    symRec(1) = symTxPn(1);
-    phi(1) = 0;
-    for k = 2:length(symTxPn)
-        % output
-        symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
-        
-        % stochastic gradient, also a PED with a typical S-curve
-        grad(k) = -imag(symRec(k) .* conj(symRef(k)));
-        
-        % update filter coeff. along opposite direction of gradient
-        phi(k) = phi(k-1) - mu*grad(k);
-        
-        % squared error
-        J(k) = abs(symRec(k) - symTx(k)).^2;
-    end
-    symrx = normalizeQam(symRec,mn);
-    bitrx = slicerGrayQam(symrx,mn);
-    ber(ii) = nnz(bitTx-bitrx)/(symlen*2);
+    blocksize = 2;
+    thetaML = estimateCarrierPhaseML(symRef, symTxPn, blocksize);
+    
+    symRecPLL = symTxPn .* exp(-1i * thetaPLL);
+    symRecML = symTxPn .* exp(-1i * thetaML);
+    
+    bitRxPLL = slicerGrayQam(normalizeQam(symRecPLL,mn), mn);
+    bitRxML = slicerGrayQam(normalizeQam(symRecML,mn), mn);
+    
+    berPLL(ii) = nnz(bitTx - bitRxPLL) / (symlen * bitpersym);
+    berML(ii) = nnz(bitTx - bitRxML) / (symlen * bitpersym);
 end
 
-varEstErrL = calcrms(phaseNoise - phi(:))^2
+varEstErrPLL = calcrms(phaseNoise - thetaPLL(:))^2
+varEstErrML = calcrms(phaseNoise - thetaML(:))^2
 
-bert = T_BER_SNR_mQAM(idbw(snr),mn);
-h1=figure; plot(snr,bert,snr,ber); grid on
+bert = T_BER_SNR_mQAM(idbw(snr), mn);
+
+h1=figure; grid on
+plot(snr, bert, snr, berPLL, snr, berML); 
 xlabel('SNR'); ylabel('BER');
-h2=figure; plot(1:symlen,phaseNoise,'LineWidth',2); hold on
-           plot(1:symlen,phi); grid on
+
+h2=figure; grid on; hold on
+plot(1:symlen,phaseNoise,'LineWidth',2);
+plot(1:symlen,thetaPLL); 
+plot(1:symlen,thetaML); 
 
 mngFigureWindow(h1,h2);
 
+return
