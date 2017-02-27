@@ -10,7 +10,7 @@
 % theory." (1993).
 %
 %% SINGLE FREQUENCY WITH FIXED PHASE ERROR
-clear
+function [] = PhaseLockLoopSineDemo()
 
 frequency = 10;
 
@@ -120,4 +120,4 @@ subplot(2,2,4); plot(tvec,dbw(J)); grid on; ylim([-100 20])
 % another solution with pi shift relatively
 
 mngFigureWindow(h1,h2);
-
+return
