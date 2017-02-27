@@ -10,7 +10,7 @@
 % theory." (1993).
 %
 %% m-QAM WITH TIME VARYING PHASE ERROR
-function [] = PhaseLockLoopQPSK(bitpersym, snr)
+function [] = PhaseLockLoopQamDemo(bitpersym, snr)
 
 if nargin < 1
     bitpersym = 2;
