@@ -22,7 +22,7 @@ sps = 64;
 
 nSamples = sps * nSymbol;
 
-%% Upsampling
+%% upsampling
 if ~iscolumn(sym)
     sym = sym.';
 end

@@ -36,4 +36,3 @@ h2=figure;
 plot(theta,PDF3(10,:)); grid on
 
 mngFigureWindow(h1,h2);
-
