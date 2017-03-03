@@ -16,8 +16,8 @@ tic;
 nodes = ones(N);
 tab_c = ones(N + 1);
 map_c = [1.0  1.0  1.0;
-         0.5  0.5  0.5];
-     
+    0.5  0.5  0.5];
+
 % table to store the status of visited nodes
 tab_vstd = zeros(N);
 % table to store the previous node coordinates (i, j)

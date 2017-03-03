@@ -1,14 +1,20 @@
 function h = chessboard(c)
 
-% 1 is white and 0 is black
+map_c = [1.0  1.0  1.0;
+    0.5  0.5  0.5];
+
+%
 h = pcolor(c);
 
 % this is default setting
 % shading faceted
 
-colormap(gray(2));
+% smallest element in c will take the first color and largest take the last
+% color
+colormap(map_c);
 
+% more intuitive axis orientation
 axis ij
-axis square
+% axis square
 
 return
