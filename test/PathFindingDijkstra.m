@@ -1,6 +1,6 @@
 %% Path finding in a grid based graph with the dijkstra's algortihm
 % obstacle is realized by varying the edge weight
-function PathFindingDijkstra(N, source, destination)
+function tab_dist = PathFindingDijkstra(N, source, destination, obsratio, allow_diagonal_move, allow_random_obstacle)
 if nargin < 1
     N = 10;
 end
@@ -10,9 +10,15 @@ end
 if nargin < 3
     destination = [N, N];
 end
-
-allow_diagonal_move = 1;
-allow_random_obstacle = 1;
+if nargin < 4
+    obsratio = 0.2;
+end
+if nargin < 5
+    allow_diagonal_move = 1;
+end
+if nargin < 6
+    allow_random_obstacle = 1;
+end
 
 nodes = ones(N);
 tab_c = zeros(N + 1);
@@ -30,7 +36,7 @@ tab_dist = ones(N) * inf;
 
 % table to store the obstacles, using color code 3 to select the black
 if allow_random_obstacle
-    obstndx = randperm(N^2, 10);
+    obstndx = randperm(N^2, obsratio * N^2);
 else
     obstndx = [45, 46, 47, 55, 65, 75];
 end
@@ -101,13 +107,15 @@ while ~ isempty(pointer)
     pause(0.01);
 end
 
+% push the destination to the path and register it as the current node
 path = destination;
-destndx = sub2ind(size(nodes), destination(1), destination(2));
+pointer = destination;
 
-while ~ isempty(tab_prev{destndx})
-    path = [path; tab_prev{destndx}];
-    pointer = tab_prev{destndx};
-    destndx = sub2ind(size(nodes), pointer(1), pointer(2));
+while ~ isempty(tab_prev{pointer(1), pointer(2)})
+    % append the previous node of destination to the path and then assign
+    % it to be the current node
+    path = [path; tab_prev{pointer(1), pointer(2)}];
+    pointer = tab_prev{pointer(1), pointer(2)};
     
     % drawing, using color code 2 to select red
     intpath = sub2ind(size(nodes), path(:,1), path(:,2));
