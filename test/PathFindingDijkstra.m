@@ -1,10 +1,17 @@
 %% Path finding in a grid based graph with the dijkstra's algortihm
 % obstacle is realized by varying the edge weight
 %
-% Test case:
-%   while 1; PathFindingDijkstra(15, [1 2], [9 9], .35, 0, 1); pause(0.3); end
+% Test Cases:
+%   PathFindingDijkstra(10, [1 1], [10 10], 0, 0, 0);
+%   PathFindingDijkstra(10, [1 1], [10 10], 0, 1, 0);
+%   PathFindingDijkstra(10, [1 1], [10 10], 0.1, 0, 0);
+%   PathFindingDijkstra(10, [1 1], [10 10], 0.1, 0, 1);
+%   PathFindingDijkstra(10, [1 1], [10 10], 0.1, 1, 0);
+%   PathFindingDijkstra(10, [1 1], [10 10], 0.1, 1, 1);
+%   while 1; PathFindingDijkstra(10, [1 1], [10 10], .25, 0, 1); pause(0.5); end
+%   while 1; PathFindingDijkstra(10, [1 1], [10 10], .25, 1, 1); pause(0.5); end
 %
-function [path, tab_dist] = PathFindingDijkstra(N, source, destination, obsratio, allow_diagonal_move, allow_random_obstacle)
+function [path, tab_dist] = PathFindingDijkstra(N, source, destination, obsratio, allow_diagonal_move, allow_random_obstacle, allow_heuristic)
 if nargin < 1
     N = 10;
 end
@@ -23,31 +30,60 @@ end
 if nargin < 6
     allow_random_obstacle = 1;
 end
+if nargin < 7
+    allow_heuristic = 0;
+end
 
 nodes = ones(N);
 tab_c = zeros(N + 1);
-map_b = [1.0  1.0  1.0;     % white 0 - unvisited
+
+map_3 = [1.0  1.0  1.0;     % white 0 - unvisited
+    1.0  0.0  0.0;          % red   1 - final path
+    0.5  0.5  0.5];         % gray  2 - visited
+
+map_4 = [1.0  1.0  1.0;     % white 0 - unvisited
     0.5  0.5  0.5;          % gray  1 - visited
     1.0  0.0  0.0;          % red   2 - final path
     0  0  0];               % black 3 - obstacles
 
+if obsratio == 0
+    color_code_unvst = 0;
+    color_code_vsted = 2;
+    color_code_path  = 1;
+    color_code_obst  = 3;
+    map_c = map_3;
+else
+    color_code_unvst = 0;
+    color_code_vsted = 1;
+    color_code_path  = 2;
+    color_code_obst  = 3;
+    map_c = map_4;
+end
+
 % table to store the status of visited nodes
-tab_vstd = zeros(N);
+tab_vstd = ones(N) * color_code_unvst;
 % table to store the previous node coordinates (i, j)
 tab_prev = cell(N);
 % table to store the current distance
 tab_dist = ones(N) * inf;
 
-% table to store the obstacles, using color code 3 to select the black
+% table to store the obstacles, using color code 3 to select the black;
+% force the source and goal nodes not being obstacles
 if allow_random_obstacle
     obstndx = randperm(N^2, round(obsratio * N^2));
 else
-    obstndx = [45, 46, 47, 55, 65, 75];
+    if obsratio == 0
+        obstndx = [];
+    else
+        obstndx = [45, 46, 47, 55, 65, 75];
+    end
 end
-tab_vstd(obstndx) = 3;
+tab_vstd(obstndx) = color_code_obst;
+tab_vstd(source(1), source(2)) = color_code_unvst;
+tab_vstd(destination(1), destination(2)) = color_code_unvst;
 
 % drawing
-colormap(map_b);
+colormap(map_c);
 % add one more row and column
 tab_c(1:N, 1:N) = tab_vstd;
 h = pcolor(tab_c);
@@ -57,11 +93,12 @@ axis ij
 % initial
 tab_dist(source(1), source(2)) = 0;
 
-% edges in grid based graph
+% edges in grid based graph, if diagonal move is allowed, the wavefront is
+% round, or curved. If diagonal move is not allowed, the wavefront is flat
 if allow_diagonal_move
     offset = {[-1 0], [1 0], [0 -1], [0 1], [-1 -1], [1 -1], [-1 1], [1 1]};
     % diagonal move is slower than the other directions
-    weight = [1, 1, 1, 1, 1.4, 1.4, 1.4, 1.4];
+    weight = [1, 1, 1, 1, 1.41416, 1.41416, 1.41416, 1.41416];
     num_neighbor = 8;
 else
     offset = {[-1 0], [1 0], [0 -1], [0 1]};
@@ -74,7 +111,7 @@ pointer = source;
 tic;
 while ~ isempty(pointer)
     % marke the current node visited
-    tab_vstd(pointer(1), pointer(2)) = 1;
+    tab_vstd(pointer(1), pointer(2)) = color_code_vsted;
     
     % drawing
     tab_c(1:N, 1:N) = tab_vstd;
@@ -85,12 +122,12 @@ while ~ isempty(pointer)
     for ii = 1 : num_neighbor
         % validate first
         neighbor = pointer + offset{ii};
-        if neighbor(1) == 0 || neighbor(2) == 0 || neighbor(1) > N || neighbor(2) > N || tab_vstd(neighbor(1), neighbor(2)) == 1
+        if neighbor(1) == 0 || neighbor(2) == 0 || neighbor(1) > N || neighbor(2) > N || tab_vstd(neighbor(1), neighbor(2)) == color_code_vsted
             % out of map OR has been visited
         else
             tempndx = sub2ind(size(nodes), neighbor(1), neighbor(2));
             % in the map AND unvisited AND not an obstacle
-            if isempty(find(obstndx == tempndx, 1))
+            if tab_vstd(neighbor(1), neighbor(2)) == color_code_unvst
                 dist = tab_dist(pointer(1), pointer(2)) + weight(ii);
                 if dist < tab_dist(neighbor(1), neighbor(2))
                     tab_dist(neighbor(1), neighbor(2)) = dist;
@@ -101,7 +138,7 @@ while ~ isempty(pointer)
     end
     
     % find the global min distance in unvisited set
-    unvndx = find(tab_vstd == 0);
+    unvndx = find(tab_vstd == color_code_unvst);
     [temp, mn] = min(tab_dist(unvndx));
     % some places you just can not go
     if isinf(temp)
@@ -127,7 +164,7 @@ while ~ isempty(tab_prev{pointer(1), pointer(2)})
     
     % drawing, using color code 2 to select red
     intpath = sub2ind(size(nodes), path(:,1), path(:,2));
-    tab_vstd(intpath) = 2;
+    tab_vstd(intpath) = color_code_path;
     tab_c(1:N, 1:N) = tab_vstd;
     pcolor(tab_c);
     axis ij
