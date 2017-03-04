@@ -1,6 +1,10 @@
 %% Path finding in a grid based graph with the dijkstra's algortihm
 % obstacle is realized by varying the edge weight
-function tab_dist = PathFindingDijkstra(N, source, destination, obsratio, allow_diagonal_move, allow_random_obstacle)
+%
+% Test case:
+%   while 1; PathFindingDijkstra(15, [1 2], [9 9], .35, 0, 1); pause(0.3); end
+%
+function [path, tab_dist] = PathFindingDijkstra(N, source, destination, obsratio, allow_diagonal_move, allow_random_obstacle)
 if nargin < 1
     N = 10;
 end
@@ -36,7 +40,7 @@ tab_dist = ones(N) * inf;
 
 % table to store the obstacles, using color code 3 to select the black
 if allow_random_obstacle
-    obstndx = randperm(N^2, obsratio * N^2);
+    obstndx = randperm(N^2, round(obsratio * N^2));
 else
     obstndx = [45, 46, 47, 55, 65, 75];
 end
@@ -99,8 +103,12 @@ while ~ isempty(pointer)
     % find the global min distance in unvisited set
     unvndx = find(tab_vstd == 0);
     [temp, mn] = min(tab_dist(unvndx));
-    [sub1, sub2] = ind2sub(size(nodes), unvndx(mn));
-    
+    % some places you just can not go
+    if isinf(temp)
+        break;
+    else
+        [sub1, sub2] = ind2sub(size(nodes), unvndx(mn));
+    end
     % update the current node
     pointer = [sub1, sub2];
     
