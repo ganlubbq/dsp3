@@ -81,7 +81,7 @@ else
     if obsratio == 0
         obstndx = [];
     else
-        obstndx = [45, 46, 47, 55, 65, 75];
+        obstndx = [38, 48, 58, 68, 67, 66, 65, 64];
     end
 end
 tab_vstd(obstndx) = color_code_obst;
