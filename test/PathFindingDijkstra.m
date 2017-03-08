@@ -81,7 +81,8 @@ else
     if obsratio == 0
         obstndx = [];
     else
-        obstndx = [38, 48, 58, 68, 67, 66, 65, 64];
+%         obstndx = [38, 48, 58, 68, 67, 66, 65, 64];
+        obstndx = [36, 45, 47, 56, 57] - 1;
     end
 end
 tab_vstd(obstndx) = color_code_obst;
@@ -105,7 +106,7 @@ tab_scre(source(1), source(2)) = 0;
 if allow_diagonal_move
     offset = {[-1 0], [1 0], [0 -1], [0 1], [-1 -1], [1 -1], [-1 1], [1 1]};
     % diagonal move is slower than the other directions
-    weight = [1, 1, 1, 1, 1.41416, 1.41416, 1.41416, 1.41416];
+    weight = [1, 1, 1, 1, 1.4, 1.4, 1.4, 1.4];
     num_neighbor = 8;
 else
     offset = {[-1 0], [1 0], [0 -1], [0 1]};
@@ -181,10 +182,11 @@ end
 % push the destination to the path and register it as the current node
 path = destination;
 pointer = destination;
-
+final_score = 0;
 while ~ isempty(tab_prev{pointer(1), pointer(2)})
     % append the previous node of destination to the path and then assign
     % it to be the current node
+    final_score = final_score + manhattan(pointer, tab_prev{pointer(1), pointer(2)}); 
     path = [path; tab_prev{pointer(1), pointer(2)}];
     pointer = tab_prev{pointer(1), pointer(2)};
     
@@ -194,7 +196,7 @@ while ~ isempty(tab_prev{pointer(1), pointer(2)})
     tab_c(1:N, 1:N) = tab_vstd;
     pcolor(tab_c);
     axis ij
-    title(sprintf('iteration %d', iteration));
+    title(sprintf('score of %.1f at iteration %d', final_score, iteration));
     
     pause(0.01);
 end
@@ -202,8 +204,13 @@ toc;
 return
 
 % educated guess of cost from node "neighbor" to node "destination"
-% it is highly recommended to UNDERESTIMATE the heuristic
+% it is highly recommended to UNDERESTIMATE the heuristic (coeff <= 1)
 function h = heuristic(destination, neighbor)
 h2 = (destination(1) - neighbor(1)) .^ 2 + (destination(2) - neighbor(2)) .^ 2;
-h = 1.9 * sqrt(h2);
+h = 1.4 * sqrt(h2);
+return
+
+% get manhattan distance of two points
+function h = manhattan(destination, neighbor)
+h = abs(destination(1) - neighbor(1)) + abs(destination(2) - neighbor(2));
 return
