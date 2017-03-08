@@ -207,7 +207,7 @@ return
 % it is highly recommended to UNDERESTIMATE the heuristic (coeff <= 1)
 function h = heuristic(destination, neighbor)
 h2 = (destination(1) - neighbor(1)) .^ 2 + (destination(2) - neighbor(2)) .^ 2;
-h = 1.4 * sqrt(h2);
+h = 1.0 * sqrt(h2);
 return
 
 % get manhattan distance of two points
