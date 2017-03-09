@@ -81,10 +81,23 @@ else
     if obsratio == 0
         obstndx = [];
     else
-%         obstndx = [38, 48, 58, 68, 67, 66, 65, 64];
-        obstndx = [36, 45, 47, 56, 57] - 1;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % algorithm that is too greedy will fail this test
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        obs_pos = round(N*2/3);
+        obs_len = round(N/4);
+        obstndx_s1 = [(N+1)*obs_pos - N*obs_len + 1 : N : (N+1)*obs_pos + 1, (N+1)*obs_pos: -1 : (N+1)*obs_pos - obs_len + 1];
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % algorithm that is too greedy will fail this test
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        obs_cntr = (N+1)*round(N/2) - N;
+        obstndx_s2 = [obs_cntr-N, obs_cntr+N, obs_cntr-1, obs_cntr+1, obs_cntr+N+1];
+        
+        obstndx = obstndx_s1;
     end
 end
+
 tab_vstd(obstndx) = color_code_obst;
 tab_vstd(source(1), source(2)) = color_code_unvst;
 tab_vstd(destination(1), destination(2)) = color_code_unvst;
@@ -205,9 +218,10 @@ return
 
 % educated guess of cost from node "neighbor" to node "destination"
 % it is highly recommended to UNDERESTIMATE the heuristic (coeff <= 1)
+% the larger the coefficient, the more greedy the algorithm
 function h = heuristic(destination, neighbor)
 h2 = (destination(1) - neighbor(1)) .^ 2 + (destination(2) - neighbor(2)) .^ 2;
-h = 1.0 * sqrt(h2);
+h = 1.1 * sqrt(h2);
 return
 
 % get manhattan distance of two points
