@@ -19,18 +19,18 @@ function [dspOut1, dspOut2, dspState] = dspMain_built_151229(xi, xq, yi, yq, dsp
 dspState = [];
 
 % remove the dc componant
-XI = xi - sum(xi)/length(xi);
-XQ = xq - sum(xq)/length(xq);
+XI = xi - sum(xi) / length(xi);
+XQ = xq - sum(xq) / length(xq);
 
-YI = yi - sum(yi)/length(yi);
-YQ = yq - sum(yq)/length(yq);
+YI = yi - sum(yi) / length(yi);
+YQ = yq - sum(yq) / length(yq);
 
 % unit the mean power
-XI = XI / sqrt(sum(abs(XI).^2)/length(XI));
-XQ = XQ / sqrt(sum(abs(XQ).^2)/length(XQ));
+XI = XI / sqrt(sum(abs(XI).^2) / length(XI));
+XQ = XQ / sqrt(sum(abs(XQ).^2) / length(XQ));
 
-YI = YI / sqrt(sum(abs(YI).^2)/length(YI));
-YQ = YQ / sqrt(sum(abs(YQ).^2)/length(YQ));
+YI = YI / sqrt(sum(abs(YI).^2) / length(YI));
+YQ = YQ / sqrt(sum(abs(YQ).^2) / length(YQ));
 
 % remove the non-numerical
 XI(isnan(XI)) = 0;
@@ -45,11 +45,11 @@ XQ = XQ(:);
 YQ = YQ(:);
 
 % the power spectral density
-dataX = XI + 1j*XQ;
-dataY = YI + 1j*YQ;
+dataX = XI + 1i * XQ;
+dataY = YI + 1i * YQ;
 
-psdX = abs(fftshift(fft(dataX))).^2;
-psdY = abs(fftshift(fft(dataY))).^2;
+psdX = abs(fftshift(fft(dataX))) .^ 2;
+psdY = abs(fftshift(fft(dataY))) .^ 2;
 
 % ACR function is the ifft of PSD of signal
 acrX = abs(ifft(psdX)) / length(psdX);
@@ -59,33 +59,33 @@ acrY = abs(ifft(psdY)) / length(psdY);
 % figure; plot(10*log10(psdX)); hold; plot(10*log10(psdY),'r'); hold off
 
 if dspParam.showEye
-    ShowEyediagram(xi,xq,symRate,samplingRate)
+    plotEyeDiagram(xi+1i*xq,dspParam.adcFs/dspParam.Rs*3,'e');
 end
 
 if dspParam.doDigitalLPF
     [xi, xq, yi, yq] = LowpassFilter(samplingRate,Pa_Bw,xi,xq,yi,yq);
 end
 
-REAL_DATA = [XI,XQ,YI,YQ];
+REAL_DATA = [XI, XQ, YI, YQ];
 
 if dspParam.showEye
-    ShowEyediagram(xi,xq,symRate,samplingRate)
+    plotEyeDiagram(xi+1i*xq,dspParam.adcFs/dspParam.Rs*3,'e');
 end
 
 sps = 2;
 
 % need to implement a realistic resampling algorithm here
-[up, down] = rat(dspParam.Rs*sps / dspParam.adcFs);
+[up, down] = rat(dspParam.Rs * sps / dspParam.adcFs);
 if up == down
     XI = XI;
 	YI = YI;
 	XQ = XQ;
 	YQ = YQ;
 elseif up == 1
-	XI = XI(1:down:end,1);
-	YI = YI(1:down:end,1);
-	XQ = XQ(1:down:end,1);
-	YQ = YQ(1:down:end,1);
+	XI = XI(1:down:end, 1);
+	YI = YI(1:down:end, 1);
+	XQ = XQ(1:down:end, 1);
+	YQ = YQ(1:down:end, 1);
 else
     XI = resample(XI, up, down);
 	YI = resample(YI, up, down);
@@ -96,8 +96,8 @@ end
 fs = dspParam.Rs * sps;
 
 % COMPLEX_DATA = [RSP_TMP(:,1)+1j*RSP_TMP(:,2),RSP_TMP(:,3)+1j*RSP_TMP(:,4)];
-rawX = XI + 1j*XQ;
-rawY = YI + 1j*YQ;
+rawX = XI + 1i * XQ;
+rawY = YI + 1i * YQ;
 
 if dspParam.doFrontEndComp
     fecX = DspAlg.Orthogonal(rawX);
@@ -113,7 +113,7 @@ if dspParam.doCDE
 end
 
 if dspParam.doCDC
-	[dspState.HCD] = calcDispResponse(nSample,fs,dspParam.lambda,dspParam.lambda0,dspParam.DL,dspParam.SL);
+	[dspState.HCD] = calcDispResponse(nSample, fs, dspParam.lambda, dspParam.lambda0, dspParam.DL, dspParam.SL);
 	cdcX = ifft(fft(fecX) .* conj(dspState.HCD));
 	cdcY = ifft(fft(fecY) .* conj(dspState.HCD));
 else
@@ -122,7 +122,6 @@ else
 end
 
 if dspParam.doTPE
-    set(handles.VISA_INFO_OUTPUT,'string',sprintf([str{1:2}])); pause(0.01);
     norFlag = 0;
     if strcmpi(TPE_estMeth,'lee') || strcmpi(TPE_estMeth,'none')
         [TPE_OUT,TPE_PHASE] = DspAlg.FeedforwardTPE(DCF_OUT,constPoint,sps, ...
@@ -145,8 +144,8 @@ end
 
 if dspParam.doMIMO
     polmux = 1;
-    [CMA_OUT,dspState.CMA_MSE] = DspAlg.PolarizationDemux(TPE_OUT,constPoint,sps,...
-        polmux,CMA_gain,CMA_taps,CMA_errID,CMA_iter,0);
+    [CMA_OUT,dspState.CMA_MSE] = DspAlg.PolarizationDemux(TPE_OUT, constPoint, sps,...
+        polmux, CMA_gain, CMA_taps, CMA_errID, CMA_iter, 0);
 	cmaX = CMA_OUT(:,1);
 	cmaY = CMA_OUT(:,2);
 else
@@ -156,7 +155,7 @@ else
 end
 
 if dspParam.doFOE
-    [CMA_OUT,df] = DspAlg.FeedforwardFOC(CMA_OUT,symRate);
+    [CMA_OUT, df] = DspAlg.FeedforwardFOC(CMA_OUT, symRate);
 else
     df = 0;
 end
@@ -166,15 +165,15 @@ if dspParam.doCPE
 		case 1
             dspState.CPE_PNx = estimateCarrierPhaseBPS(cmaX, dspParam.cpeBlockSize, dspParam.cpeBPSnTestPhase, dspParam.mn);
             dspState.CPE_PNy = estimateCarrierPhaseBPS(cmaY, dspParam.cpeBlockSize, dspParam.cpeBPSnTestPhase, dspParam.mn);
-			cpeX = cmaX .* exp(-1j*dspState.CPE_PNx);
-			cpeY = cmaY .* exp(-1j*dspState.CPE_PNx);
+			cpeX = cmaX .* exp(-1i * dspState.CPE_PNx);
+			cpeY = cmaY .* exp(-1i * dspState.CPE_PNx);
 		case 2
-			[cpeX,dspState.CPE_PNx] = cpe_vvpe(cmaX,dspParam.cpeBlockSize,dspParam.vvpeAvgMode);
-			[cpeY,dspState.CPE_PNy] = cpe_vvpe(cmaY,dspParam.cpeBlockSize,dspParam.vvpeAvgMode);
+			[cpeX, dspState.CPE_PNx] = cpe_vvpe(cmaX, dspParam.cpeBlockSize, dspParam.vvpeAvgMode);
+			[cpeY, dspState.CPE_PNy] = cpe_vvpe(cmaY, dspParam.cpeBlockSize, dspParam.vvpeAvgMode);
 		case 3
 			% TBA
 		otherwise
-			error('unsupported cpe algorithm');
+			warning('unsupported cpe algorithm'); keyboard;
 	end
 else
     cpeX = cmaX;
@@ -189,8 +188,8 @@ if dspParam.doMLCPE
 end
 
 if dspParam.doLmsAfterCPE
-    lmsX = lms_sng_eq( cpeX,dspParam.mn,sps,dspParam.lmsGainAfterCPE,dspParam.lmsTapsAfterCPE,dspParam.lmsIterAfterCPE);
-    lmsY = lms_sng_eq( cpeY,dspParam.mn,sps,dspParam.lmsGainAfterCPE,dspParam.lmsTapsAfterCPE,dspParam.lmsIterAfterCPE);
+    lmsX = lms_sng_eq(cpeX, dspParam.mn, sps, dspParam.lmsGainAfterCPE, dspParam.lmsTapsAfterCPE, dspParam.lmsIterAfterCPE);
+    lmsY = lms_sng_eq(cpeY, dspParam.mn, sps, dspParam.lmsGainAfterCPE, dspParam.lmsTapsAfterCPE, dspParam.lmsIterAfterCPE);
 else
 	lmsX = cpeX;
 	lmsY = cpeY;
