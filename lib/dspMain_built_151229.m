@@ -75,17 +75,15 @@ end
 sps = 2;
 
 % need to implement a realistic resampling algorithm here
+fprintf('+ doing digital resampling \n');
 [up, down] = rat(dspParam.Rs * sps / dspParam.adcFs);
 if up == down
-    XI = XI;
-	YI = YI;
-	XQ = XQ;
-	YQ = YQ;
+    % do nothing
 elseif up == 1
-	XI = XI(1:down:end, 1);
-	YI = YI(1:down:end, 1);
-	XQ = XQ(1:down:end, 1);
-	YQ = YQ(1:down:end, 1);
+	XI = XI(1 : down : end, 1);
+	YI = YI(1 : down : end, 1);
+	XQ = XQ(1 : down : end, 1);
+	YQ = YQ(1 : down : end, 1);
 else
     XI = resample(XI, up, down);
 	YI = resample(YI, up, down);
@@ -95,13 +93,13 @@ end
 
 fs = dspParam.Rs * sps;
 
-% COMPLEX_DATA = [RSP_TMP(:,1)+1j*RSP_TMP(:,2),RSP_TMP(:,3)+1j*RSP_TMP(:,4)];
 rawX = XI + 1i * XQ;
 rawY = YI + 1i * YQ;
 
 if dspParam.doFrontEndComp
-    fecX = DspAlg.Orthogonal(rawX);
-	fecY = DspAlg.Orthogonal(rawY);
+    fprintf('+ doing receiver front-end compensation \n');
+    fecX = orthogonalization(rawX);
+	fecY = orthogonalization(rawY);
 else
     fecX = rawX;
 	fecY = rawY;
@@ -110,9 +108,11 @@ end
 nSample = length(fecX);
 
 if dspParam.doCDE
+    fprintf('+ doing chromatic dispersion estimation \n');
 end
 
 if dspParam.doCDC
+    fprintf('+ doing chromatic dispersion compensation \n');
 	[dspState.HCD] = calcDispResponse(nSample, fs, dspParam.lambda, dspParam.lambda0, dspParam.DL, dspParam.SL);
 	cdcX = ifft(fft(fecX) .* conj(dspState.HCD));
 	cdcY = ifft(fft(fecY) .* conj(dspState.HCD));
@@ -122,14 +122,7 @@ else
 end
 
 if dspParam.doTPE
-    norFlag = 0;
-    if strcmpi(TPE_estMeth,'lee') || strcmpi(TPE_estMeth,'none')
-        [TPE_OUT,TPE_PHASE] = DspAlg.FeedforwardTPE(DCF_OUT,constPoint,sps, ...
-            TPE_blk,TPE_bias,TPE_estMeth,TPE_intMeth,TPE_decFlag,norFlag);
-    elseif strcmpi(TPE_estMeth,'gardner') || strcmpi(TPE_estMeth,'none')
-        [TPE_OUT,TPE_PHASE] = DspAlg.FeedbackTPE(DCF_OUT,constPoint,sps, ...
-            TPE_gain,TPE_estMeth,TPE_intMeth,TPE_decFlag,norFlag);
-    end
+    fprintf('+ doing timing recovery \n');
 else
     tpeX = cdcX;
 	tpeY = cdcY;
@@ -137,17 +130,14 @@ else
 end
 
 if dspParam.doDownSampling
-	tpeX = tpeX(1:2:end);
-	tpeY = tpeY(1:2:end);
+    fprintf('+ doing digital downsampling \n');
+	tpeX = tpeX(1 : 2 : end);
+	tpeY = tpeY(1 : 2 : end);
 	sps = 1;
 end
 
 if dspParam.doMIMO
-    polmux = 1;
-    [CMA_OUT,dspState.CMA_MSE] = DspAlg.PolarizationDemux(TPE_OUT, constPoint, sps,...
-        polmux, CMA_gain, CMA_taps, CMA_errID, CMA_iter, 0);
-	cmaX = CMA_OUT(:,1);
-	cmaY = CMA_OUT(:,2);
+    fprintf('+ doing MIMO \n');
 else
     cmaX = tpeX;
 	cmaY = tpeY;
@@ -155,26 +145,27 @@ else
 end
 
 if dspParam.doFOE
-    [CMA_OUT, df] = DspAlg.FeedforwardFOC(CMA_OUT, symRate);
+    fprintf('+ doing frequency offset estimation \n');
 else
-    df = 0;
+    dspState.freqOffset = 0;
 end
 
 if dspParam.doCPE
+    fprintf('+ doing carrier recovery | %s \n', dspParam.cpeAlgSelect);
 	switch dspParam.cpeAlgSelect
-		case 1
+		case 'BPS'
             dspState.CPE_PNx = estimateCarrierPhaseBPS(cmaX, dspParam.cpeBlockSize, dspParam.cpeBPSnTestPhase, dspParam.mn);
             dspState.CPE_PNy = estimateCarrierPhaseBPS(cmaY, dspParam.cpeBlockSize, dspParam.cpeBPSnTestPhase, dspParam.mn);
-			cpeX = cmaX .* exp(-1i * dspState.CPE_PNx);
-			cpeY = cmaY .* exp(-1i * dspState.CPE_PNx);
-		case 2
-			[cpeX, dspState.CPE_PNx] = cpe_vvpe(cmaX, dspParam.cpeBlockSize, dspParam.vvpeAvgMode);
-			[cpeY, dspState.CPE_PNy] = cpe_vvpe(cmaY, dspParam.cpeBlockSize, dspParam.vvpeAvgMode);
+		case 'VVPE'
+            dspState.CPE_PNx = estimateCarrierPhaseVV(cmaX, dspParam.cpeBlockSize, dspParam.vvpeAvgMode);
+            dspState.CPE_PNy = estimateCarrierPhaseVV(cmaY, dspParam.cpeBlockSize, dspParam.vvpeAvgMode);
 		case 3
 			% TBA
 		otherwise
 			warning('unsupported cpe algorithm'); keyboard;
-	end
+    end
+    cpeX = cmaX .* exp(-1i * dspState.CPE_PNx);
+    cpeY = cmaY .* exp(-1i * dspState.CPE_PNx);
 else
     cpeX = cmaX;
 	cpeY = cmaY;
@@ -188,6 +179,7 @@ if dspParam.doMLCPE
 end
 
 if dspParam.doLmsAfterCPE
+    fprintf('+ doing LMS after carrier recovery \n');
     lmsX = lms_sng_eq(cpeX, dspParam.mn, sps, dspParam.lmsGainAfterCPE, dspParam.lmsTapsAfterCPE, dspParam.lmsIterAfterCPE);
     lmsY = lms_sng_eq(cpeY, dspParam.mn, sps, dspParam.lmsGainAfterCPE, dspParam.lmsTapsAfterCPE, dspParam.lmsIterAfterCPE);
 else

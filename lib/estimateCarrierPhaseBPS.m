@@ -8,15 +8,15 @@ function [theta] = estimateCarrierPhaseBPS(observations, blocksize, M, mn)
 % See also:
 
 % How to solve the cycle-slip problem
-phi = (0:M-1) / M * pi/2;
+phi = (0 : M-1) / M * pi/2;
 
 observations = normalizeQam(observations, mn);
 
 % data matrix
-xp = repmat(observations(:),1,M);
+xp = repmat(observations(:), 1, M);
 
 % test phase matrix
-phsmat = ones(length(observations),1) * exp(1j*phi);
+phsmat = ones(length(observations),1) * exp(1i * phi);
 
 % rotated data
 xpr = xp .* phsmat;
@@ -31,6 +31,6 @@ end
 % unwrap the phase estimation
 theta = unwrap(4 * phi(idx)) / 4;
 
-theta = theta(:);
+theta = -theta(:);
 
 return

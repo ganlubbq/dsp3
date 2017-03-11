@@ -76,7 +76,7 @@ ctrlParam.doPlot        = 0;
 ctrlParam.addCD              = 0;
 ctrlParam.addPMD             = 0;
 ctrlParam.addLaserRIN        = 0;
-ctrlParam.addLaserPN         = 0;
+ctrlParam.addLaserPN         = 1;
 ctrlParam.addPolarRot        = 0;
 ctrlParam.addThermNoise      = 0;
 ctrlParam.addShotNoise       = 0;
@@ -94,8 +94,8 @@ if nargin < 1
     DSP_MODE                = 0; % 0-offline; 1-real time
     DSO_MEMORY_LENGTH       = 64; % number of frames
     LASER_LINEWIDTH         = 500e3;
-    OSNR                    = 150;
-    baudrate                = 28e9;
+    OSNR                    = 20;
+    baudrate                = 30e9;
     bitpersym               = 2;
     modFormat               = 'QPSK';
     freqOffset              = 1.0e9;
@@ -129,15 +129,13 @@ samplesPerSym       = samplingFs / baudrate;
 samplesPerFrame     = symbolsPerFrame * samplesPerSym;
 vctFreqPerFrm       = getFFTGrid(samplesPerFrame, samplingFs);
 numSamples          = FRAME_WINDOW * samplesPerFrame;
-timeVector          = (0:numSamples-1)' / samplingFs;
+timeVector          = (0 : numSamples-1)' / samplingFs;
 freqVector          = getFFTGrid(numSamples, samplingFs);
-ALPHABET_SIZE       = 2^bitpersym;
+ALPHABET_SIZE       = 2 ^ bitpersym;
 vM.StartTime        = datestr(now);
 
 % initialize absolute time
 timeVectorAbs       = timeVector; 
-
-
 
 
 
@@ -313,7 +311,7 @@ dspParam.doFramer			= 0;
 dspParam.doTraining			= 0;
 dspParam.doMIMO				= 0;
 dspParam.doTPE				= 0;
-dspParam.doCPE				= 0;
+dspParam.doCPE				= 1;
 dspParam.doLmsAfterCPE      = 0;
 dspParam.doFOE				= 0;
 dspParam.doFEC				= 0;
@@ -336,14 +334,13 @@ dspParam.lmsTapsAfterCPE = 125;
 dspParam.lmsIterAfterCPE = 4;
 
 dspParam.cpeBlockSize = 16;
-dspParam.pllMu1 = 1e-3;
-dspParam.pllMu2 = 1e-6;
+dspParam.cpePLLmu = [1e-3, 1e-6];
 dspParam.doMLCPE = 2;
-dspParam.cpeMlBlkSize = 32;
+dspParam.cpeMLavgLeng = 32;
 dspParam.cpeMlIter = 1;
 dspParam.vvpeAvgMode = 1; %0 for block 1 for sliding window
 dspParam.cpeBPSnTestPhase = 10;
-dspParam.cpeAlgSelect = 1; %1 for bps 2 for vvpe
+dspParam.cpeAlgSelect = 'VVPE';
 
 refBitsOfflineX		= [];
 refBitsOfflineY		= [];
