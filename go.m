@@ -14,7 +14,7 @@ function vM = go(vSet)
 %
 % Refined: 18-Feb-2017 17:19:42
 
-close all
+% close all
 
 %% Constants
 LIGHT_SPEED             = 299792458;
@@ -70,10 +70,10 @@ ctrlParam.doPlot            = 0;
 ctrlParam.addCD             = 0;
 ctrlParam.addPMD            = 0;
 ctrlParam.addLaserRIN       = 0;
-ctrlParam.addLaserPN        = 1;
+ctrlParam.addLaserPN        = 0;
 ctrlParam.addPolarRot       = 0;
-ctrlParam.addThermNoise     = 0;
-ctrlParam.addShotNoise      = 0;
+ctrlParam.addThermNoise     = 1;
+ctrlParam.addShotNoise      = 1;
 ctrlParam.addAdcClockJitter = 0;
 ctrlParam.addFreqOffset     = 0;
 ctrlParam.doBalanced        = 1;
@@ -88,7 +88,7 @@ if nargin < 1
     DSP_MODE                = 0;            % 0-offline; 1-real time
     DSO_MEMORY_LENGTH       = 64;           % number of frames
     LASER_LINEWIDTH         = 500e3;
-    OSNR                    = 20;
+    OSNR                    = 60;
     baudrate                = 30e9;
     bitpersym               = 2;
     modFormat               = 'QPSK';
@@ -179,7 +179,7 @@ optFilterBw = 40e9;
 
 receiver.centerFreq = CENTER_FREQUENCY;
 receiver.lpfOrder = 5;
-receiver.bandwidth = 0.75*baudrate;
+receiver.bandwidth = 0.75 * baudrate;
 
 rxLaser.centerLambda = LIGHT_SPEED / receiver.centerFreq;
 rxLaser.noiseSeed = 0;
@@ -195,7 +195,11 @@ receiver.pbcPowerSplitRatio   = 0.5;
 receiver.pbcPhaseRetard    = 0;
 receiver.detectorResponsivity = 1.0;
 receiver.detectorDarkCurrent = 0E-9;
+
+% electrical noises are defined as one-sided PSD in current
 receiver.psdThermal = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * (0.5 * samplingFs);
+receiver.psdShot    = 2 * ELECTRON * receiver.detectorResponsivity * (rxLaser.power / 2) * (0.5 * samplingFs);
+receiver.psdRIN     = idbw(rxLaser.psdRIN) * (rxLaser.power).^2 * (0.5 * samplingFs);
 
 
 %% Preparing filter responses
@@ -263,7 +267,7 @@ dspParam.doFramer			= 0;
 dspParam.doTraining			= 0;
 dspParam.doMIMO				= 0;
 dspParam.doTPE				= 0;
-dspParam.doCPE				= 1;
+dspParam.doCPE				= 0;
 dspParam.doLmsAfterCPE      = 0;
 dspParam.doFOE				= 0;
 dspParam.doFEC				= 0;
@@ -614,139 +618,96 @@ for RUN = 1 : MAX_RUN_NUMBER
     switch DETECTION_MODE
         case 'HOM'
             % square law detection
-            IpdXrealP = receiver.detectorResponsivity .* abs(xRealP) .^2;
-            IpdXrealN = receiver.detectorResponsivity .* abs(xRealN) .^2;
-            IpdXimagP = receiver.detectorResponsivity .* abs(xImagP) .^2;
-            IpdXimagN = receiver.detectorResponsivity .* abs(xImagN) .^2;
-            IpdYrealP = receiver.detectorResponsivity .* abs(yRealP) .^2;
-            IpdYrealN = receiver.detectorResponsivity .* abs(yRealN) .^2;
-            IpdYimagP = receiver.detectorResponsivity .* abs(yImagP) .^2;
-            IpdYimagN = receiver.detectorResponsivity .* abs(yImagN) .^2;
+            V1 = receiver.detectorResponsivity .* abs(xRealP) .^2;
+            V2 = receiver.detectorResponsivity .* abs(xRealN) .^2;
+            V3 = receiver.detectorResponsivity .* abs(xImagP) .^2;
+            V4 = receiver.detectorResponsivity .* abs(xImagN) .^2;
+            V5 = receiver.detectorResponsivity .* abs(yRealP) .^2;
+            V6 = receiver.detectorResponsivity .* abs(yRealN) .^2;
+            V7 = receiver.detectorResponsivity .* abs(yImagP) .^2;
+            V8 = receiver.detectorResponsivity .* abs(yImagN) .^2;
             
             if ctrlParam.addThermNoise
-                IpdThermal1 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal2 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal3 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal4 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal5 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal6 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal7 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal8 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
+                IpdThermal1 = genWGN(size(V1,1), size(V1,2), receiver.psdThermal, 'linear', 'real');
+                IpdThermal2 = genWGN(size(V1,1), size(V1,2), receiver.psdThermal, 'linear', 'real');
+                IpdThermal3 = genWGN(size(V1,1), size(V1,2), receiver.psdThermal, 'linear', 'real');
+                IpdThermal4 = genWGN(size(V1,1), size(V1,2), receiver.psdThermal, 'linear', 'real');
             else
                 IpdThermal1 = 0;
                 IpdThermal2 = 0;
                 IpdThermal3 = 0;
                 IpdThermal4 = 0;
-                IpdThermal5 = 0;
-                IpdThermal6 = 0;
-                IpdThermal7 = 0;
-                IpdThermal8 = 0;
             end
             
             if ctrlParam.addShotNoise
-                pd_shtvar1 = 2 * ELECTRON * (calcrms(xRealP).^2) * (samplingFs/2); % assuming responsitivity is 1
-                pd_shtvar2 = 2 * ELECTRON * (calcrms(xRealN).^2) * (samplingFs/2);
-                pd_shtvar3 = 2 * ELECTRON * (calcrms(xImagP).^2) * (samplingFs/2);
-                pd_shtvar4 = 2 * ELECTRON * (calcrms(xImagN).^2) * (samplingFs/2);
-                pd_shtvar5 = 2 * ELECTRON * (calcrms(yRealP).^2) * (samplingFs/2);
-                pd_shtvar6 = 2 * ELECTRON * (calcrms(yRealN).^2) * (samplingFs/2);
-                pd_shtvar7 = 2 * ELECTRON * (calcrms(yImagP).^2) * (samplingFs/2);
-                pd_shtvar8 = 2 * ELECTRON * (calcrms(yImagN).^2) * (samplingFs/2);
-                IpdShot1 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), pd_shtvar1, 'linear', 'real');
-                IpdShot2 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), pd_shtvar2, 'linear', 'real');
-                IpdShot3 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), pd_shtvar3, 'linear', 'real');
-                IpdShot4 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), pd_shtvar4, 'linear', 'real');
-                IpdShot5 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), pd_shtvar5, 'linear', 'real');
-                IpdShot6 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), pd_shtvar6, 'linear', 'real');
-                IpdShot7 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), pd_shtvar7, 'linear', 'real');
-                IpdShot8 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), pd_shtvar8, 'linear', 'real');
+                IpdShot1 = genWGN(size(V1,1), size(V1,2), receiver.psdShot, 'linear', 'real');
+                IpdShot2 = genWGN(size(V1,1), size(V1,2), receiver.psdShot, 'linear', 'real');
+                IpdShot3 = genWGN(size(V1,1), size(V1,2), receiver.psdShot, 'linear', 'real');
+                IpdShot4 = genWGN(size(V1,1), size(V1,2), receiver.psdShot, 'linear', 'real');
             else
                 IpdShot1 = 0;
                 IpdShot2 = 0;
                 IpdShot3 = 0;
                 IpdShot4 = 0;
-                IpdShot5 = 0;
-                IpdShot6 = 0;
-                IpdShot7 = 0;
-                IpdShot8 = 0;
             end
             
-            V1 = IpdXrealP + IpdDark + IpdThermal1 + IpdShot1;
-            V2 = IpdXrealN + IpdDark + IpdThermal2 + IpdShot2;
-            V3 = IpdXimagP + IpdDark + IpdThermal3 + IpdShot3;
-            V4 = IpdXimagN + IpdDark + IpdThermal4 + IpdShot4;
-            V5 = IpdYrealP + IpdDark + IpdThermal5 + IpdShot5;
-            V6 = IpdYrealN + IpdDark + IpdThermal6 + IpdShot6;
-            V7 = IpdYimagP + IpdDark + IpdThermal7 + IpdShot7;
-            V8 = IpdYimagN + IpdDark + IpdThermal8 + IpdShot8;
-            
-            if ctrlParam.doBalanced % balanced detection
-                pd_xi = V1 - V2;
-                pd_xq = V3 - V4;
-                pd_yi = V5 - V6;
-                pd_yq = V7 - V8;
+            if ctrlParam.doBalanced 
+                pd_xi = V1 - V2 + IpdThermal1 + IpdShot1 + IpdDark;
+                pd_xq = V3 - V4 + IpdThermal2 + IpdShot2 + IpdDark;
+                pd_yi = V5 - V6 + IpdThermal3 + IpdShot3 + IpdDark;
+                pd_yq = V7 - V8 + IpdThermal4 + IpdShot4 + IpdDark;
             else
-                pd_xi = V1;
-                pd_xq = V3;
-                pd_yi = V5;
-                pd_yq = V7;
+                pd_xi = V1 + IpdThermal1 + IpdShot1 + IpdDark;
+                pd_xq = V3 + IpdThermal2 + IpdShot2 + IpdDark;
+                pd_yi = V5 + IpdThermal3 + IpdShot3 + IpdDark;
+                pd_yq = V7 + IpdThermal4 + IpdShot4 + IpdDark;
             end
+            
             % filtering
-            pd_xi = real(ifft(fft(pd_xi).* rxPulseShapeFilter.freqRespRRC));
-            pd_xq = real(ifft(fft(pd_xq).* rxPulseShapeFilter.freqRespRRC));
-            pd_yi = real(ifft(fft(pd_yi).* rxPulseShapeFilter.freqRespRRC));
-            pd_yq = real(ifft(fft(pd_yq).* rxPulseShapeFilter.freqRespRRC));
+            pd_xi = real(ifft(fft(pd_xi) .* rxPulseShapeFilter.freqRespRRC));
+            pd_xq = real(ifft(fft(pd_xq) .* rxPulseShapeFilter.freqRespRRC));
+            pd_yi = real(ifft(fft(pd_yi) .* rxPulseShapeFilter.freqRespRRC));
+            pd_yq = real(ifft(fft(pd_yq) .* rxPulseShapeFilter.freqRespRRC));
             
         case 'HET'
             % square law detection
-            IpdXrealP = receiver.detectorResponsivity .* abs(xHetP).^2;
-            IpdXrealN = receiver.detectorResponsivity .* abs(xHetN).^2;
-            IpdYrealP = receiver.detectorResponsivity .* abs(yHetP).^2;
-            IpdYrealN = receiver.detectorResponsivity .* abs(yHetN).^2;
+            V1 = receiver.detectorResponsivity .* abs(xHetP).^2;
+            V2 = receiver.detectorResponsivity .* abs(xHetN).^2;
+            V5 = receiver.detectorResponsivity .* abs(yHetP).^2;
+            V6 = receiver.detectorResponsivity .* abs(yHetN).^2;
             if ctrlParam.addThermNoise
-                receiver.psdThermal = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * samplingFs;
-                IpdThermal1 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal2 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal3 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
-                IpdThermal4 = genWGN(size(IpdXrealP,1), size(IpdXrealP,2), receiver.psdThermal, 'linear', 'real');
+                IpdThermal1 = genWGN(size(V1,1), size(V1,2), receiver.psdThermal, 'linear', 'real');
+                IpdThermal2 = genWGN(size(V1,1), size(V1,2), receiver.psdThermal, 'linear', 'real');
             else
                 IpdThermal1 = 0;
                 IpdThermal2 = 0;
-                IpdThermal3 = 0;
-                IpdThermal4 = 0;
             end
             
             if ctrlParam.addShotNoise
-                pd_shtvar1 = 2*ELECTRON*(calcrms(xHetP)^2)*samplingFs; % assuming responsitivity is 1
-                pd_shtvar2 = 2*ELECTRON*(calcrms(xHetN)^2)*samplingFs;
-                pd_shtvar3 = 2*ELECTRON*(calcrms(yHetP)^2)*samplingFs;
-                pd_shtvar4 = 2*ELECTRON*(calcrms(yHetN)^2)*samplingFs;
-                IpdShot1 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar1,'linear','real');
-                IpdShot2 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar2,'linear','real');
-                IpdShot3 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar3,'linear','real');
-                IpdShot4 = genWGN(size(IpdXrealP,1),size(IpdXrealP,2),pd_shtvar4,'linear','real');
+                IpdShot1 = genWGN(size(V1,1), size(V1,2), receiver.psdShot, 'linear', 'real');
+                IpdShot2 = genWGN(size(V1,1), size(V1,2), receiver.psdShot, 'linear', 'real');
             else
                 IpdShot1      = 0;
                 IpdShot2      = 0;
-                IpdShot3      = 0;
-                IpdShot4      = 0;
             end
             
-            V1 = IpdXrealP + IpdDark + IpdThermal1 + IpdShot1;
-            V2 = IpdXrealN + IpdDark + IpdThermal2 + IpdShot2;
-            V3 = IpdYrealP + IpdDark + IpdThermal3 + IpdShot3;
-            V4 = IpdYrealN + IpdDark + IpdThermal4 + IpdShot4;
+            V1 = V1 + IpdDark + IpdThermal1 + IpdShot1;
+            V2 = V2 + IpdDark + IpdThermal2 + IpdShot2;
+            V3 = V5 + IpdDark + IpdThermal3 + IpdShot3;
+            V4 = V6 + IpdDark + IpdThermal4 + IpdShot4;
             
             if ctrlParam.doBalanced % balanced detection
-                pd_xi = V1 - V2;
-                pd_yi = V3 - V4;
+                pd_xi = V1 - V2 + IpdDark + IpdThermal1 + IpdShot1;
+                pd_yi = V3 - V4 + IpdDark + IpdThermal2 + IpdShot2;
             else
-                pd_xi = V1;
-                pd_yi = V3;
+                pd_xi = V1 + IpdDark + IpdThermal1 + IpdShot1;
+                pd_yi = V3 + IpdDark + IpdThermal2 + IpdShot2;
             end
+            
             % low-pass filtering
             pd_xi = real(ifft(fft(pd_xi) .* rxPulseShapeFilter.freqRespBessel));
             pd_yi = real(ifft(fft(pd_yi) .* rxPulseShapeFilter.freqRespBessel));
+            
         otherwise
             warning('detection mode not supported'); keyboard;
     end
@@ -758,9 +719,7 @@ for RUN = 1 : MAX_RUN_NUMBER
             FIG_EYE = plotEyeDiagram([], pd_xi, baudrate, samplingFs, 'electrical');
         end
         title('Real part of signal after photodetector');
-        %     figure(FIG_RECEIVED); plot(pd_xi,pd_xq,'.'); grid on
     end
-    
     
     % add electrical spectrum
     % keyboard;
