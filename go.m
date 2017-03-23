@@ -74,6 +74,7 @@ ctrlParam.addLaserPN        = 0;
 ctrlParam.addPolarRot       = 0;
 ctrlParam.addThermNoise     = 1;
 ctrlParam.addShotNoise      = 1;
+ctrlParam.addRIN            = 1;
 ctrlParam.addAdcClockJitter = 0;
 ctrlParam.addFreqOffset     = 0;
 ctrlParam.doBalanced        = 1;
@@ -188,18 +189,19 @@ rxLaser.phaseNoiseVar = 2 * pi * rxLaser.linewidth / samplingFs;
 rxLaser.azimuth = 45;
 rxLaser.ellipticity = 0;
 rxLaser.power = 10e-3;
-rxLaser.psdRIN = -130;                  % dBc/Hz, one-sided
+rxLaser.psdRIN = -135;                  % dBc/Hz, one-sided
 
 % power split ratio of PBC
 receiver.pbcPowerSplitRatio   = 0.5;
 receiver.pbcPhaseRetard    = 0;
 receiver.detectorResponsivity = 1.0;
-receiver.detectorDarkCurrent = 0E-9;
+receiver.detectorDarkCurrent = 0.0E-9;
+receiver.CMRR   = 30;
 
 % electrical noises are defined as one-sided PSD in current
 receiver.psdThermal = 4 * BOLTZMAN * TEMPERATURE / PD_LOAD_RESISTANCE * (0.5 * samplingFs);
 receiver.psdShot    = 2 * ELECTRON * receiver.detectorResponsivity * (rxLaser.power / 2) * (0.5 * samplingFs);
-receiver.psdRIN     = idbw(rxLaser.psdRIN) * (rxLaser.power).^2 * (0.5 * samplingFs);
+receiver.psdRIN     = (receiver.detectorResponsivity).^2 * (10.^(-receiver.CMRR/20)).^2 * idbw(rxLaser.psdRIN) * (rxLaser.power).^2 * (0.5 * samplingFs) / 4;
 
 
 %% Preparing filter responses
@@ -651,11 +653,23 @@ for RUN = 1 : MAX_RUN_NUMBER
                 IpdShot4 = 0;
             end
             
+            if ctrlParam.addRIN
+                IpdRIN1 = genWGN(size(V1,1), size(V1,2), receiver.psdRIN, 'linear', 'real');
+                IpdRIN2 = genWGN(size(V1,1), size(V1,2), receiver.psdRIN, 'linear', 'real');
+                IpdRIN3 = genWGN(size(V1,1), size(V1,2), receiver.psdRIN, 'linear', 'real');
+                IpdRIN4 = genWGN(size(V1,1), size(V1,2), receiver.psdRIN, 'linear', 'real');
+            else
+                IpdRIN1 = 0;
+                IpdRIN2 = 0;
+                IpdRIN3 = 0;
+                IpdRIN4 = 0;
+            end
+            
             if ctrlParam.doBalanced 
-                pd_xi = V1 - V2 + IpdThermal1 + IpdShot1 + IpdDark;
-                pd_xq = V3 - V4 + IpdThermal2 + IpdShot2 + IpdDark;
-                pd_yi = V5 - V6 + IpdThermal3 + IpdShot3 + IpdDark;
-                pd_yq = V7 - V8 + IpdThermal4 + IpdShot4 + IpdDark;
+                pd_xi = V1 - V2 + IpdThermal1 + IpdShot1 + IpdDark + IpdRIN1;
+                pd_xq = V3 - V4 + IpdThermal2 + IpdShot2 + IpdDark + IpdRIN2;
+                pd_yi = V5 - V6 + IpdThermal3 + IpdShot3 + IpdDark + IpdRIN3;
+                pd_yq = V7 - V8 + IpdThermal4 + IpdShot4 + IpdDark + IpdRIN4;
             else
                 pd_xi = V1 + IpdThermal1 + IpdShot1 + IpdDark;
                 pd_xq = V3 + IpdThermal2 + IpdShot2 + IpdDark;
@@ -691,14 +705,17 @@ for RUN = 1 : MAX_RUN_NUMBER
                 IpdShot2      = 0;
             end
             
-            V1 = V1 + IpdDark + IpdThermal1 + IpdShot1;
-            V2 = V2 + IpdDark + IpdThermal2 + IpdShot2;
-            V3 = V5 + IpdDark + IpdThermal3 + IpdShot3;
-            V4 = V6 + IpdDark + IpdThermal4 + IpdShot4;
-            
+            if ctrlParam.addRIN
+                IpdRIN1 = genWGN(size(V1,1), size(V1,2), receiver.psdRIN, 'linear', 'real');
+                IpdRIN2 = genWGN(size(V1,1), size(V1,2), receiver.psdRIN, 'linear', 'real');
+            else
+                IpdRIN1 = 0;
+                IpdRIN2 = 0;
+            end
+
             if ctrlParam.doBalanced % balanced detection
-                pd_xi = V1 - V2 + IpdDark + IpdThermal1 + IpdShot1;
-                pd_yi = V3 - V4 + IpdDark + IpdThermal2 + IpdShot2;
+                pd_xi = V1 - V2 + IpdDark + IpdThermal1 + IpdShot1 + IpdRIN1;
+                pd_yi = V3 - V4 + IpdDark + IpdThermal2 + IpdShot2 + IpdRIN2;
             else
                 pd_xi = V1 + IpdDark + IpdThermal1 + IpdShot1;
                 pd_yi = V3 + IpdDark + IpdThermal2 + IpdShot2;
