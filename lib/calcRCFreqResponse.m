@@ -25,10 +25,9 @@ f_high = (1+alpha) * fbaud/2;
 
 fndxl = find(freq <= f_low);
 fndxm = find(freq > f_low & freq <= f_high);
-fndxh = [fndxl;fndxm];
 
 H(fndxl) = ones(size(fndxl));
-H(fndxm) = 0.5 * (1+cos(pi/alpha*(freq(fndxm)/fbaud - (1-alpha)/2)));
+H(fndxm) = 0.5 * (1 + cos(pi / alpha * (freq(fndxm) / fbaud - (1 - alpha) / 2)));
 
 % for ii = 1:length(f)
 %     if abs(f(ii)) <= (1-beta)/(2*T)
