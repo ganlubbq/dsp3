@@ -1,7 +1,7 @@
 function vM = go(vSet)
-%% Fiber-optics with DSP
+% Fiber-optics with DSP
 %
-% ----> datestr(datenum(now))
+% -datestr(datenum(now))
 %
 % Birth:   04-Sep-2015 14:10:02
 % Rebuilt: 13-Mar-2016 06:43:24
@@ -16,7 +16,7 @@ function vM = go(vSet)
 
 % close all
 
-%% Constants
+% Constants
 LIGHT_SPEED             = 299792458;
 BOLTZMAN                = 1.381e-23;
 ELECTRON                = 1.602e-19;
@@ -30,7 +30,7 @@ PD_LOAD_RESISTANCE      = 5000;             % TIA in PD
 NOISE_REFERENCE_BAND    = 12.5e9;           % for OSNR definition
 DETECTION_MODE          = 'HOM';            % HOM or HET
 
-CENTER_FREQUENCY        = 193.1e12;
+CENTER_FREQUENCY        = 193.41e12;
 CENTER_WAVELENGTH       = LIGHT_SPEED / CENTER_FREQUENCY;
 
 FIG_TXPN                = 1;
@@ -42,7 +42,7 @@ FIG_AFTERADC            = 5;
 LOG                     = 0;
 VERBOSE                 = 1;
 
-%% Log file
+% Log file
 if LOG
     logFile = fopen('log','a');
     fprintf(logFile, '-------------------------------------');
@@ -55,7 +55,7 @@ else
     logFile = 1;
 end
 
-%% Switches
+% Switches
 ctrlParam.doPilot           = 0;
 ctrlParam.doNFC             = 0;
 ctrlParam.doRZ              = 0;
@@ -68,7 +68,7 @@ ctrlParam.doDSP             = 1;
 ctrlParam.doPlot            = 0;
 
 % Controller
-ctrlParam.addASE            = 0;
+ctrlParam.addASE            = 1;
 ctrlParam.addCD             = 0;
 ctrlParam.addPMD            = 0;
 ctrlParam.addLaserRIN       = 0;
@@ -80,17 +80,15 @@ ctrlParam.addRIN            = 0;
 ctrlParam.addAdcClockJitter = 0;
 ctrlParam.addFreqOffset     = 0;
 
-
-%%
 if nargin < 1
     MAX_RUN_NUMBER          = 1000;
     HYBRID_90_PHASESHIFT    = 90;           % degree
     ADC_SAMPLING_RATE       = 2;            % samples per symbol
     DSP_MODE                = 0;            % 0 - offline; 
                                             % 1 - real time
-    DSO_MEMORY_LENGTH       = 64;           % number of frames
+    DSO_MEMORY_LENGTH       = 200;           % number of frames
     LASER_LINEWIDTH         = 500e3;
-    OSNR                    = 14;
+    OSNR                    = 10;           % SNR of one symbol
     baudrate                = 30e9;
     bitpersym               = 2;
     modFormat               = 'QPSK';
@@ -104,9 +102,11 @@ else
     DSO_MEMORY_LENGTH       = vSet.DSPmemLen; % number of frames
     LASER_LINEWIDTH         = vSet.linewidth;
     OSNR                    = vSet.osnr;
-    baudrate                = vSet.buffer.rxPhaseNoise;
+    baudrate                = vSet.baudrate;
     bitpersym               = vSet.bitpersym;
     modFormat               = vSet.modFormat;
+    freqOffset              = vSet.freqOffset;
+    psFiltType              = vSet.psFiltType;    % Nyquist Bessel Gaussian
 end
 
 if VERBOSE
@@ -115,14 +115,12 @@ if VERBOSE
     fprintf(logFile, '* detection mode is %s \n', DETECTION_MODE);
 end
 
-
-
-%% Global parameters
+% Global parameters
 samplingFs          = 8 * baudrate;
 timewindow          = 512 / baudrate;
 symbolsPerFrame     = timewindow * baudrate;
-samplesPerSym       = samplingFs / baudrate;
-samplesPerFrame     = symbolsPerFrame * samplesPerSym;
+samplePerSymbol       = samplingFs / baudrate;
+samplesPerFrame     = symbolsPerFrame * samplePerSymbol;
 vctFreqPerFrm       = getFFTGrid(samplesPerFrame, samplingFs);
 numSamples          = FRAME_WINDOW * samplesPerFrame;
 timeVector          = (0 : numSamples-1)' / samplingFs;
@@ -133,10 +131,7 @@ vM.StartTime        = datestr(now);
 % initialize absolute time
 timeVectorAbs       = timeVector;
 
-
-
-%% Components
-
+% Components
 txLaser.centerFreq = CENTER_FREQUENCY;
 txLaser.centerLambda = LIGHT_SPEED / txLaser.centerFreq;
 txLaser.linewidth = LASER_LINEWIDTH;
@@ -226,7 +221,7 @@ rxPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, re
 optGaussianFilter = calcOptGaussFlt(numSamples, samplingFs, 0, optFilterOrder, optFilterBw);
 
 
-%% Initialize buffer
+% Initialize buffer
 buffer.txBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.txBitsY = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
 buffer.rxBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symbolsPerFrame);
@@ -246,8 +241,7 @@ buffer.shotNsQx     = zeros(1,numSamples);
 buffer.shotNsIy     = zeros(1,numSamples);
 buffer.shotNsQy     = zeros(1,numSamples);
 
-
-%% Clear memory
+% Clear memory
 memory1 = [];
 memory2 = [];
 memory3 = [];
@@ -255,8 +249,7 @@ memory4 = [];
 
 dspMemCount = 0;
 
-
-%% DSP
+% DSP
 dspParam.Rs					= 28e9;
 dspParam.mn					= 4;
 dspParam.adcFs				= 56e9;
@@ -297,15 +290,14 @@ dspParam.cpePLLmu = [1e-3, 1e-6];
 dspParam.doMLCPE = 2;
 dspParam.cpeMLavgLeng = 32;
 dspParam.cpeMlIter = 1;
-dspParam.vvpeAvgMode = 1;               %0 for block 1 for sliding window
+dspParam.vvpeAvgMode = 1;               % 0 for blockwise 1 for sliding window
 dspParam.cpeBPSnTestPhase = 10;
 dspParam.cpeAlgSelect = 'VVPE';
 
 refBitsOfflineX		= [];
 refBitsOfflineY		= [];
 
-
-%% Start main loop
+% Start main loop
 for RUN = 1 : MAX_RUN_NUMBER
     % Binary source for a new frame
     bitsX = randi([0 1],bitpersym,symbolsPerFrame);
@@ -317,15 +309,15 @@ for RUN = 1 : MAX_RUN_NUMBER
     
     % offline mode; take the center frame as the reference
     if DSP_MODE == 0
-        refBitsOfflineX = [refBitsOfflineX buffer.txBitsX(:,(1:symbolsPerFrame)+symbolsPerFrame)];
-        refBitsOfflineY = [refBitsOfflineY buffer.txBitsY(:,(1:symbolsPerFrame)+symbolsPerFrame)];
+        refBitsOfflineX = [refBitsOfflineX buffer.txBitsX(:,(1 : symbolsPerFrame) + symbolsPerFrame)];
+        refBitsOfflineY = [refBitsOfflineY buffer.txBitsY(:,(1 : symbolsPerFrame) + symbolsPerFrame)];
     elseif DSP_MODE == 1
-        refBitsX = buffer.txBitsX(:,1:symbolsPerFrame);
-        refBitsY = buffer.txBitsY(:,1:symbolsPerFrame);
+        refBitsX = buffer.txBitsX(:,1 : symbolsPerFrame);
+        refBitsY = buffer.txBitsY(:,1 : symbolsPerFrame);
     end
     
     
-    %% Bit mapping
+    % Bit mapping
     % convert bits to syms
     txBaudX = symbolizerGrayQam(buffer.txBitsX);
     txBaudY = symbolizerGrayQam(buffer.txBitsY);
@@ -396,15 +388,12 @@ for RUN = 1 : MAX_RUN_NUMBER
     % MZM non-linear pre-comp
     % *add MZM nonlinearity pre-comp. here...*
     
-    
     % Pulse shaping
     % DAC - simple oversampling by inserting zeros
-    txDrvIxUps = upSampInsertZeros(txDrvIx, samplesPerSym);
-    txDrvQxUps = upSampInsertZeros(txDrvQx, samplesPerSym);
-    
-    txDrvIyUps = upSampInsertZeros(txDrvIy, samplesPerSym);
-    txDrvQyUps = upSampInsertZeros(txDrvQy, samplesPerSym);
-    
+    txDrvIxUps = upSampInsertZeros(txDrvIx, samplePerSymbol);
+    txDrvQxUps = upSampInsertZeros(txDrvQx, samplePerSymbol);
+    txDrvIyUps = upSampInsertZeros(txDrvIy, samplePerSymbol);
+    txDrvQyUps = upSampInsertZeros(txDrvQy, samplePerSymbol);
     
     % filtering
     txDrvIxWfm = real(ifft(fft(txDrvIxUps) .* txPulseShapeFilter.freqRespRRC));
@@ -412,26 +401,9 @@ for RUN = 1 : MAX_RUN_NUMBER
     txDrvIyWfm = real(ifft(fft(txDrvIyUps) .* txPulseShapeFilter.freqRespRRC));
     txDrvQyWfm = real(ifft(fft(txDrvQyUps) .* txPulseShapeFilter.freqRespRRC));
     
-    if ctrlParam.doPlot
-        if exist('FIG_DRVEYE','var')
-            plotEyeDiagram(txDrvIxWfm, 2*samplingFs/baudrate, 'e');
-        else
-            FIG_DRVEYE = plotEyeDiagram(txDrvIxWfm, 2*samplingFs/baudrate, 'e');
-        end
-        title('Electrical dirver signal');
-    end
-    
-    
-    % keyboard;
-    % % cr
-    % dat_drv_xi = clockRecIdeal(dat_drv_xi,txDrvIxWfm);
-    % dat_drv_xq = clockRecIdeal(dat_drv_xq,txDrvQxWfm);
-    % dat_drv_yi = clockRecIdeal(dat_drv_yi,txDrvIyWfm);
-    % dat_drv_yq = clockRecIdeal(dat_drv_yq,txDrvQyWfm);
-    
-    
+%     plotEyeDiagram(txDrvIxWfm, 2*samplingFs/baudrate, 'e');
+
     % MZM
-    % the bias point
     V1 = - modulator.Vpi / 2;
     V2 = - modulator.Vpi / 2;
     V3 = + modulator.Vpi / 2;
@@ -439,37 +411,27 @@ for RUN = 1 : MAX_RUN_NUMBER
     txOptSigX = oeModIqNested(txLaser.wfm, txDrvIxWfm, txDrvQxwfm, modulator.extRatio, modulator.Vpi, V1, V2, V3);
     txOptSigY = oeModIqNested(txLaser.wfm, txDrvIyWfm, txDrvQyWfm, modulator.extRatio, modulator.Vpi, V1, V2, V3);
     
-    
-    if ctrlParam.doPlot
-        if exist('FIG_TXEYE','var')
-            plotEyeDiagram(txOptSigX, 2*samplingFs/baudrate, 'o');
-        else
-            FIG_TXEYE = plotEyeDiagram(txOptSigX, 2*samplingFs/baudrate, 'o');
-        end
-        title('Optical eye after modulator');
-    end
-    
+%     plotEyeDiagram(txOptSigX, 2*samplingFs/baudrate, 'o');
     
     % OSNR
     % here goes an OSNR emulator
     
-    
-    
     % Fiber channel
     if ~ ctrlParam.doRndPMD % if random birefrigence is switched off, use simple model
-        
         % convert osnr to snr per sample
-        SNR = osnr2snr(OSNR, baudrate, samplesPerSym, 'complex');
+        SNR = osnr2snr(OSNR, baudrate, samplePerSymbol, 'complex');
+        vM.SNR = SNR + dbw(samplePerSymbol);
+        vM.OSNR = OSNR;
         
-        % calc noise power, should we use the power of optimal samples only ??
-        sigPowXdb   = dbw(calcrms(txOptSigX)^2);
-        sigPowYdb   = dbw(calcrms(txOptSigY)^2);
+        % calc noise power, pulse-shaping is energy perserving
+        sigPowXdb   = dbw(calcrms(txOptSigX).^2);
+        sigPowYdb   = dbw(calcrms(txOptSigY).^2);
         noisePowerx = idbw(sigPowXdb - SNR);
         noisePowery = idbw(sigPowYdb - SNR);
         
         % generate new noise for new frame
-        channelNoiseX = genWGN(1,samplesPerFrame,noisePowerx,'linear','complex');
-        channelNoiseY = genWGN(1,samplesPerFrame,noisePowery,'linear','complex');
+        channelNoiseX = genWGN(1, samplesPerFrame, noisePowerx, 'linear', 'complex');
+        channelNoiseY = genWGN(1, samplesPerFrame, noisePowery, 'linear', 'complex');
         
         % fifo
         buffer.channelNoiseX = fifoBuffer(buffer.channelNoiseX, channelNoiseX);
@@ -574,7 +536,7 @@ for RUN = 1 : MAX_RUN_NUMBER
     loLaserPy = sqrt(1 - receiver.pbcPowerSplitRatio) * rxLaser.wfm(2,:).';
     
     
-    %% Hybrid
+    % Hybrid
     hybrid90 = deg2rad(HYBRID_90_PHASESHIFT);
     
     switch DETECTION_MODE
@@ -615,7 +577,7 @@ for RUN = 1 : MAX_RUN_NUMBER
     end
     
     
-    %% Photo detector
+    % Photo detector
     % dark current
     IpdDark = receiver.detectorDarkCurrent;
     
@@ -740,9 +702,9 @@ for RUN = 1 : MAX_RUN_NUMBER
     % keyboard;
     
     % ADC
-    % ad_head         = round(samplesPerSym/2);
+    % ad_head         = round(samplePerSymbol/2);
     ad_head         = 1;
-    ad_sps_sim      = samplesPerSym;
+    ad_sps_sim      = samplePerSymbol;
     
     % need a realistic sampling rate
     switch DETECTION_MODE
@@ -770,10 +732,10 @@ for RUN = 1 : MAX_RUN_NUMBER
         adc_out_len = length(adc1);
         
         % push only the center frame to the memory
-        memory1 = [memory1; adc1(adc_out_len/FRAME_WINDOW+1 : end-adc_out_len/FRAME_WINDOW, 1)];
-        memory2 = [memory2; adc2(adc_out_len/FRAME_WINDOW+1 : end-adc_out_len/FRAME_WINDOW, 1)];
-        memory3 = [memory3; adc3(adc_out_len/FRAME_WINDOW+1 : end-adc_out_len/FRAME_WINDOW, 1)];
-        memory4 = [memory4; adc4(adc_out_len/FRAME_WINDOW+1 : end-adc_out_len/FRAME_WINDOW, 1)];
+        memory1 = [memory1; adc1(adc_out_len / FRAME_WINDOW + 1 : end - adc_out_len / FRAME_WINDOW, 1)];
+        memory2 = [memory2; adc2(adc_out_len / FRAME_WINDOW + 1 : end - adc_out_len / FRAME_WINDOW, 1)];
+        memory3 = [memory3; adc3(adc_out_len / FRAME_WINDOW + 1 : end - adc_out_len / FRAME_WINDOW, 1)];
+        memory4 = [memory4; adc4(adc_out_len / FRAME_WINDOW + 1 : end - adc_out_len / FRAME_WINDOW, 1)];
         
         dspMemCount = dspMemCount + 1;
         
@@ -812,15 +774,28 @@ end %% End of main loop
 % this is the end of main loop <--------------
 
 
-%% Offline DSP
+% Offline DSP
 if VERBOSE
     fprintf('Starting DSP...\n');
 end
-[dspout1,dspout2] = dspMain_built_151229(memory1, memory2, memory3, memory4, dspParam);
+[dspout1, dspout2] = dspMain_built_151229(memory1, memory2, memory3, memory4, dspParam);
 
 h1 = figure(34); plot(dspout1,'.'); grid on;
 h2 = figure(35); plot(dspout2,'.'); grid on;
 mngFigureWindow(h1, h2);
+
+bit1 = slicerGrayQam(dspout1, ALPHABET_SIZE);
+bit2 = slicerGrayQam(dspout2, ALPHABET_SIZE);
+
+berx = sum(sum(abs(bit1 - refBitsOfflineX))) / numel(bit1);
+bery = sum(sum(abs(bit2 - refBitsOfflineY))) / numel(bit2);
+
+if VERBOSE
+    fprintf('BER x = %.2e \n', berx);
+    fprintf('BER y = %.2e \n', bery);
+end
+
+vM.BER = 0.5 * (berx + bery);
 
 return
 

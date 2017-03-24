@@ -17,6 +17,7 @@ function [dspOut1, dspOut2, dspState] = dspMain_built_151229(xi, xq, yi, yq, dsp
 % Copyright 2015 
 
 dspState = [];
+fprintf('+ processing %d input samples \n', 4 * length(xi));
 
 % remove the dc componant
 XI = xi - sum(xi) / length(xi);
@@ -189,5 +190,7 @@ end
 
 dspOut1 = lmsX;
 dspOut2 = lmsY;
+
+fprintf('+ output %d samples \n', 2 * length(lmsX));
 
 return

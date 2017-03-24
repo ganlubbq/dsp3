@@ -15,7 +15,7 @@ nSymbol = 2^16;
 % NUMBER OF BIT PER SYMBOL
 k = input_k;
 
-refbit = randi([0 1],k,nSymbol);
+refbit = randi([0 1], k, nSymbol);
 
 % mapping bit to symbol
 sym = symbolizerGrayQam(refbit);
@@ -23,7 +23,7 @@ sym = symbolizerGrayQam(refbit);
 % symbol power
 signal_power = sum(abs(sym).^2) / nSymbol; 
 
-snr = -10:0.5:10; % in dB
+snr = -10 : 0.5 : 10; % in dB
 
 sps = 16;
 
@@ -40,13 +40,13 @@ Rs = 1;
 Fs = sps;
 % freqVect = getFFTGrid(nSamples,Fs);
 alpha = 0.35; mode = 0;
-H = calcRCFreqResponse(nSamples,Fs,Rs,alpha,mode);
+H = calcRCFreqResponse(nSamples, Fs, Rs, alpha, mode);
 
 % filtering signal in frequency domain
 sym_upsampled_i = real(ifft(fft(real(sym_upsampled)) .* H));
 sym_upsampled_q = real(ifft(fft(imag(sym_upsampled)) .* H));
 
-sym_filtered = sym_upsampled_i + 1i*sym_upsampled_q;
+sym_filtered = sym_upsampled_i + 1i * sym_upsampled_q;
 
 signal_power_rcos_freq = sum(abs(sym_filtered).^2) / nSamples; % symbol power
 
@@ -55,7 +55,7 @@ signal_power_rcos_freq = sum(abs(sym_filtered).^2) / nSamples; % symbol power
 data = sym_filtered(1:sps:end);
 symbol_power = sum(abs(data).^2) / nSymbol;
 
-snr = -10:10; % in dB
+snr = -10 : 10; % in dB
 
 for ndx = 1:length(snr)
     
@@ -63,11 +63,11 @@ for ndx = 1:length(snr)
     pn = symbol_power / idbw(snr(ndx));
     
     % awgn
-    signal = data + genWGN(size(data,1),size(data,2),pn,'linear','complex');
+    signal = data + genWGN(size(data,1), size(data,2), pn, 'linear', 'complex');
    
     bit = slicerGrayQam(signal, 2^k);
    
-    ber(ndx) = sum(abs(bit(:)-refbit(:))) / (k*nSymbol);
+    ber(ndx) = sum(abs(bit(:) - refbit(:))) / (k*nSymbol);
     
     disp(sprintf('snr = %d, ber = %.2e', snr(ndx), ber(ndx)));
 end
