@@ -22,7 +22,11 @@ for ii = 1 : length(osnr)
     snr(ii) = vM.SNR;
 end
 
-TheoreticalBERv2(2);
+t_ber = T_BER_SNR_mQAM(idbw(snr), 4);
 
-hold on;
-semilogy(snr, ber, 'rs-.');
+figure; 
+semilogy(snr, ber, 's-.', snr, t_ber, 'k-', 'MarkerSize', 10, 'LineWidth', 2);
+grid on;
+xlabel('SNR [dB]'); 
+ylabel('BER'); 
+legend(sprintf('%d bit per symbol', 2), 'Theory');

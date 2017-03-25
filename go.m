@@ -1,4 +1,4 @@
-function vM = go(vSet)
+function vM = go(vSet, LOG, VERBOSE, MODE)
 % Fiber-optics with DSP
 %
 % -datestr(datenum(now))
@@ -14,33 +14,20 @@ function vM = go(vSet)
 %
 % Refined: 18-Feb-2017 17:19:42
 
-% close all
+if nargin < 4
+    MODE = 0; % 0 back-to-back
+    % 1
+    % 2
+    % 3
+end
 
-% Constants
-LIGHT_SPEED             = 299792458;
-BOLTZMAN                = 1.381e-23;
-ELECTRON                = 1.602e-19;
+if nargin < 3
+    VERBOSE = 1;
+end
 
-EID                     = 'goErr';
-FRAME_WINDOW            = 3;
-
-TEMPERATURE             = 300;
-PD_LOAD_RESISTANCE      = 5000;             % TIA in PD
-
-NOISE_REFERENCE_BAND    = 12.5e9;           % for OSNR definition
-DETECTION_MODE          = 'HOM';            % HOM or HET
-
-CENTER_FREQUENCY        = 193.41e12;
-CENTER_WAVELENGTH       = LIGHT_SPEED / CENTER_FREQUENCY;
-
-FIG_TXPN                = 1;
-FIG_TXLASER             = 2;
-FIG_DRVEYE              = 3;
-FIG_RECEIVED            = 4;
-FIG_AFTERADC            = 5;
-
-LOG                     = 0;
-VERBOSE                 = 1;
+if nargin < 2
+    LOG = 0;
+end
 
 % Log file
 if LOG
@@ -55,40 +42,63 @@ else
     logFile = 1;
 end
 
-% Switches
-ctrlParam.doPilot           = 0;
-ctrlParam.doNFC             = 0;
-ctrlParam.doRZ              = 0;
-ctrlParam.doNyquist         = 1;
-ctrlParam.doRndPMD          = 0;
-ctrlParam.doMzmComp         = 1;
-% ctrlParam.doCoherent        = 1;
-ctrlParam.doBalanced        = 1;
-ctrlParam.doDSP             = 1;
-ctrlParam.doPlot            = 0;
+switch MODE
+    case 0
+        ctrlParam.doPilot           = 0;
+        ctrlParam.doNFC             = 0;
+        ctrlParam.doRZ              = 0;
+        ctrlParam.doNyquist         = 1;
+        ctrlParam.doRndPMD          = 0;
+        ctrlParam.doMzmComp         = 1;
+        % ctrlParam.doCoherent        = 1;
+        ctrlParam.doBalanced        = 1;
+        ctrlParam.doDSP             = 1;
+        ctrlParam.doPlot            = 0;
+        % Controller
+        ctrlParam.addASE            = 1;
+        ctrlParam.addCD             = 0;
+        ctrlParam.addPMD            = 0;
+        ctrlParam.addLaserRIN       = 0;
+        ctrlParam.addLaserPN        = 0;
+        ctrlParam.addPolarRot       = 0;
+        ctrlParam.addThermNoise     = 0;
+        ctrlParam.addShotNoise      = 0;
+        ctrlParam.addRIN            = 0;
+        ctrlParam.addAdcClockJitter = 0;
+        ctrlParam.addFreqOffset     = 0;
+    case 1
+    case 2
+    case 3
+    otherwise
+        keyboard;
+end
 
-% Controller
-ctrlParam.addASE            = 1;
-ctrlParam.addCD             = 0;
-ctrlParam.addPMD            = 0;
-ctrlParam.addLaserRIN       = 0;
-ctrlParam.addLaserPN        = 0;
-ctrlParam.addPolarRot       = 0;
-ctrlParam.addThermNoise     = 0;
-ctrlParam.addShotNoise      = 0;
-ctrlParam.addRIN            = 0;
-ctrlParam.addAdcClockJitter = 0;
-ctrlParam.addFreqOffset     = 0;
+% Constants
+LIGHT_SPEED             = 299792458;
+BOLTZMAN                = 1.381e-23;
+ELECTRON                = 1.602e-19;
+EID                     = 'goErr';
+FRAME_WINDOW            = 3;
+TEMPERATURE             = 300;
+PD_LOAD_RESISTANCE      = 5000;             % TIA in PD
+NOISE_REFERENCE_BAND    = 12.5e9;           % for OSNR definition
+DETECTION_MODE          = 'HOM';            % HOM or HET
+CENTER_FREQUENCY        = 193.41e12;
+CENTER_WAVELENGTH       = LIGHT_SPEED / CENTER_FREQUENCY;
+FIG_TXPN                = 1;
+FIG_TXLASER             = 2;
+FIG_DRVEYE              = 3;
+FIG_RECEIVED            = 4;
+FIG_AFTERADC            = 5;
 
 if nargin < 1
     MAX_RUN_NUMBER          = 1000;
     HYBRID_90_PHASESHIFT    = 90;           % degree
     ADC_SAMPLING_RATE       = 2;            % samples per symbol
     DSP_MODE                = 0;            % 0 - offline; 
-                                            % 1 - real time
-    DSO_MEMORY_LENGTH       = 200;           % number of frames
+    DSO_MEMORY_LENGTH       = 200;          % number of frames
     LASER_LINEWIDTH         = 500e3;
-    OSNR                    = 10;           % SNR of one symbol
+    OSNR                    = 14;           % SNR of one symbol
     baudrate                = 30e9;
     bitpersym               = 2;
     modFormat               = 'QPSK';
@@ -96,17 +106,17 @@ if nargin < 1
     psFiltType              = 'Nyquist';    % Nyquist Bessel Gaussian
 else
     MAX_RUN_NUMBER          = vSet.nFrm;
-    HYBRID_90_PHASESHIFT    = vSet.Hyd90;   % degree
-    ADC_SAMPLING_RATE       = vSet.ADCfs;   % samples per symbol
-    DSP_MODE                = vSet.DSPmode; % 0-offline; 1-real time
-    DSO_MEMORY_LENGTH       = vSet.DSPmemLen; % number of frames
+    HYBRID_90_PHASESHIFT    = vSet.Hyd90;
+    ADC_SAMPLING_RATE       = vSet.ADCfs;
+    DSP_MODE                = vSet.DSPmode;
+    DSO_MEMORY_LENGTH       = vSet.DSPmemLen; 
     LASER_LINEWIDTH         = vSet.linewidth;
     OSNR                    = vSet.osnr;
     baudrate                = vSet.baudrate;
     bitpersym               = vSet.bitpersym;
     modFormat               = vSet.modFormat;
     freqOffset              = vSet.freqOffset;
-    psFiltType              = vSet.psFiltType;    % Nyquist Bessel Gaussian
+    psFiltType              = vSet.psFiltType;
 end
 
 if VERBOSE
@@ -119,7 +129,7 @@ end
 samplingFs          = 8 * baudrate;
 timewindow          = 512 / baudrate;
 symbolsPerFrame     = timewindow * baudrate;
-samplePerSymbol       = samplingFs / baudrate;
+samplePerSymbol     = samplingFs / baudrate;
 samplesPerFrame     = symbolsPerFrame * samplePerSymbol;
 vctFreqPerFrm       = getFFTGrid(samplesPerFrame, samplingFs);
 numSamples          = FRAME_WINDOW * samplesPerFrame;
@@ -135,7 +145,7 @@ timeVectorAbs       = timeVector;
 txLaser.centerFreq = CENTER_FREQUENCY;
 txLaser.centerLambda = LIGHT_SPEED / txLaser.centerFreq;
 txLaser.linewidth = LASER_LINEWIDTH;
-txLaser.phaseNoiseVar = 2*pi * txLaser.linewidth / samplingFs;
+txLaser.phaseNoiseVar = 2 * pi * txLaser.linewidth / samplingFs;
 txLaser.azimuth = 0;
 txLaser.ellipticity = 0;
 txLaser.power = 1e-3;
@@ -418,8 +428,9 @@ for RUN = 1 : MAX_RUN_NUMBER
     
     % Fiber channel
     if ~ ctrlParam.doRndPMD % if random birefrigence is switched off, use simple model
-        % convert osnr to snr per sample
+        % convert osnr to snr per sample (oversampling)
         SNR = osnr2snr(OSNR, baudrate, samplePerSymbol, 'complex');
+        % snr per symbol is much higher than snr oversampling
         vM.SNR = SNR + dbw(samplePerSymbol);
         vM.OSNR = OSNR;
         
@@ -796,6 +807,9 @@ if VERBOSE
 end
 
 vM.BER = 0.5 * (berx + bery);
-
+vM.BER_Theo = T_BER_SNR_mQAM(idbw(vM.SNR), ALPHABET_SIZE);
+if vM.BER < vM.BER_Theo
+    warning('SANITY CHECK: Break BER limit, %.2E (%.2E in theory)', vM.BER, vM.BER_Theo);
+end
 return
 
