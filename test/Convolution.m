@@ -6,12 +6,11 @@
 % Oppenheim, Alan V., and Ronald W. Schafer. Discrete-time signal
 % processing. Pearson Higher Education, 2010.
 %
-%%
+
 clear
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',148));
 
-%% Basic setting
-
+% Basic setting
 % filter has length P
 P = 6;
 h = (1:P)./P;
@@ -41,7 +40,7 @@ plot(1:N,yc_N,'gs-');
 plot(yc_L,'rd-','MarkerFaceColor','r'); grid on; legend('conv','N-point DFT','L-point DFT');
 hold off;
 
-%% Long sequence - overlap and add
+% Long sequence - overlap and add
 % filter impulse response, P=7
 h = [1 2 3 4 3 2 1];
 % data sequence, length 60
@@ -65,7 +64,7 @@ end
 figure; hold on
 plot(y,'x-'); plot(yy(1:length(y)),'o-'); grid on
 
-%% Long sequence - overlap and save
+% Long sequence - overlap and save
 % filter P=7
 h = [1 2 3 4 3 2 1];
 % data sequence
