@@ -64,4 +64,3 @@ fprintf('Totally %d files and %d folders are checked in %.2f seconds.\n',fileNum
 fprintf('Time now is %s.\n',currentTime);
 fprintf('----------------------------------------------------------------------------------------------------\n');
 
-

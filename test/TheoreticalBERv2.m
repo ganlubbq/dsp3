@@ -2,7 +2,7 @@
 % CALCULATING THEORETICAL BER OF M-QAM SYSTEM WITH GAUSSIAN NOISE
 % Using one sample per symbol only, i.e. no pulse shaping in this version
 
-%% Using input argument to specify the number of bits per symbol
+% Using input argument to specify the number of bits per symbol
 function [] = TheoreticalBERv2(input_k)
 
 if nargin < 1;
@@ -54,4 +54,3 @@ ylabel('BER');
 legend(sprintf('%d bit per symbol', k), 'Theory');
 
 return
-

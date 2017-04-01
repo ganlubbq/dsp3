@@ -21,13 +21,13 @@ sps = 64;
 
 nSamples = sps * nSymbol;
 
-%% upsampling
+% upsampling
 if ~iscolumn(sym)
     sym = sym.';
 end
 sym_upsampled = upSampInsertZeros(sym, sps);
 
-%% get a freq domain raised cosine filter response
+% get a freq domain raised cosine filter response
 Rs = 1;
 Fs = sps;
 freqVect = getFFTGrid(nSamples,Fs);
@@ -45,7 +45,7 @@ signal_power_rcos_freq = sum(abs(sym_filtered).^2) / nSamples
 
 h1 = plotEyeDiagram(sym_filtered(1:end), 2*sps, 'e');
 
-%% design a rcos digital filter
+% design a time domain rcos digital filter
 span = 10;
 shape = 'normal';
 h = rcosdesign(alpha,span,sps,shape);

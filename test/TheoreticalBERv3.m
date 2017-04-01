@@ -80,11 +80,10 @@ else
 end
 
 figure;
-plot(snr, log10(ber), 's-', snr, log10(t_ber), 'k-'); 
+semilogy(snr, ber, 's-', snr, t_ber, 'k-'); 
 grid on
 xlabel('SNR dB'); 
 ylabel('LOG10 BER'); 
 legend(sprintf('%d bit per symbol',k),'Theory');
 
 return
-
