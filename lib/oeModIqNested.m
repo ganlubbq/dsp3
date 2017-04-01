@@ -14,12 +14,14 @@ function oSigMod = oeModIqNested(oSig, eSigI, eSigQ, ERdB, Vpi, V1, V2, V3)
 % 
 % See Also: 
 
-
-oSig = oSig(:);
+oSig  = oSig(:);
 eSigI = eSigI(:);
 eSigQ = eSigQ(:);
 
 Imperfect  = 1 / sqrt(10 .^ (ERdB / 10));
+if ERdB > 99
+    Imperfect = 0;
+end
 psr1       = sqrt(0.5 + Imperfect);
 psr2       = sqrt(0.5 - Imperfect);
 

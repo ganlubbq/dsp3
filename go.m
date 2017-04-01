@@ -98,7 +98,7 @@ if nargin < 1
     DSP_MODE                = 0;            % 0 - offline; 
     DSO_MEMORY_LENGTH       = 200;          % number of frames
     LASER_LINEWIDTH         = 500e3;
-    OSNR                    = 14;           % SNR of one symbol
+    OSNR                    = 140;           % SNR of one symbol
     baudrate                = 30e9;
     bitpersym               = 2;
     modFormat               = 'QPSK';
@@ -152,8 +152,8 @@ txLaser.power = 1e-3;
 txLaser.RIN = -130;                     % dBc/Hz
 
 modulator.Vpi = 3;                      % [V]
-modulator.extRatio = 350;               % [dB]
-modulator.efficiency = 0.55;
+modulator.extRatio = 100;               % [dB]
+modulator.efficiency = 0.15;
 
 transmtter.lpfOrder = 4;
 transmtter.bandwidth = 0.75 * baudrate;
@@ -326,7 +326,6 @@ for RUN = 1 : MAX_RUN_NUMBER
         refBitsY = buffer.txBitsY(:,1 : symbolsPerFrame);
     end
     
-    
     % Bit mapping
     % convert bits to syms
     txBaudX = symbolizerGrayQam(buffer.txBitsX);
@@ -373,7 +372,6 @@ for RUN = 1 : MAX_RUN_NUMBER
     %     figure(FIG_TXLASER); plot(abs(txLaser(pltIndex).^2)); grid on; title('Tx laser power waveform');
     % end
     
-    
     % Driver
     % normalize
     txBaudRealX = real(txBaudX) / (sqrt(ALPHABET_SIZE)-1);
@@ -381,29 +379,12 @@ for RUN = 1 : MAX_RUN_NUMBER
     txBaudRealY = real(txBaudY) / (sqrt(ALPHABET_SIZE)-1);
     txBaudImagY = imag(txBaudY) / (sqrt(ALPHABET_SIZE)-1);
     
-    % pre-distortion
-    if ctrlParam.doMzmComp
-        txDrvIx = asin(txBaudRealX) * modulator.Vpi /pi;
-        txDrvQx = asin(txBaudImagX) * modulator.Vpi /pi;
-        txDrvIy = asin(txBaudRealY) * modulator.Vpi /pi;
-        txDrvQy = asin(txBaudImagY) * modulator.Vpi /pi;
-    else
-        txDrvIx = (txBaudRealX * modulator.efficiency) * modulator.Vpi /pi;
-        txDrvQx = (txBaudImagX * modulator.efficiency) * modulator.Vpi /pi;
-        txDrvIy = (txBaudRealY * modulator.efficiency) * modulator.Vpi /pi;
-        txDrvQy = (txBaudImagY * modulator.efficiency) * modulator.Vpi /pi;
-    end
-    
-    
-    % MZM non-linear pre-comp
-    % *add MZM nonlinearity pre-comp. here...*
-    
     % Pulse shaping
     % DAC - simple oversampling by inserting zeros
-    txDrvIxUps = upSampInsertZeros(txDrvIx, samplePerSymbol);
-    txDrvQxUps = upSampInsertZeros(txDrvQx, samplePerSymbol);
-    txDrvIyUps = upSampInsertZeros(txDrvIy, samplePerSymbol);
-    txDrvQyUps = upSampInsertZeros(txDrvQy, samplePerSymbol);
+    txDrvIxUps = upSampInsertZeros(txBaudRealX, samplePerSymbol);
+    txDrvQxUps = upSampInsertZeros(txBaudImagX, samplePerSymbol);
+    txDrvIyUps = upSampInsertZeros(txBaudRealY, samplePerSymbol);
+    txDrvQyUps = upSampInsertZeros(txBaudImagY, samplePerSymbol);
     
     % filtering
     txDrvIxWfm = real(ifft(fft(txDrvIxUps) .* txPulseShapeFilter.freqRespRRC));
@@ -413,6 +394,21 @@ for RUN = 1 : MAX_RUN_NUMBER
     
 %     plotEyeDiagram(txDrvIxWfm, 2*samplingFs/baudrate, 'e');
 
+    % pre-distortion
+    if ctrlParam.doMzmComp
+        txDrvIxWfm = asin(txDrvIxWfm) * modulator.Vpi /pi;
+        txDrvQxwfm = asin(txDrvQxwfm) * modulator.Vpi /pi;
+        txDrvIyWfm = asin(txDrvIyWfm) * modulator.Vpi /pi;
+        txDrvQyWfm = asin(txDrvQyWfm) * modulator.Vpi /pi;
+    else
+        txDrvIxWfm = (txDrvIxWfm * modulator.efficiency) * modulator.Vpi /pi;
+        txDrvQxwfm = (txDrvQxwfm * modulator.efficiency) * modulator.Vpi /pi;
+        txDrvIyWfm = (txDrvIyWfm * modulator.efficiency) * modulator.Vpi /pi;
+        txDrvQyWfm = (txDrvQyWfm * modulator.efficiency) * modulator.Vpi /pi;
+    end
+    % MZM non-linear pre-comp
+    % *add MZM nonlinearity pre-comp. here...*
+    
     % MZM
     V1 = - modulator.Vpi / 2;
     V2 = - modulator.Vpi / 2;
