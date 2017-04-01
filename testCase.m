@@ -1,7 +1,7 @@
 clear
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #1 back-to-back test
 osnr = 1 : 0.5 : 13;
-
 for ii = 1 : length(osnr)
     vSet.nFrm = 1000;
     vSet.Hyd90 = 90;        % degree
@@ -21,12 +21,20 @@ for ii = 1 : length(osnr)
     ber(ii) = vM.BER;
     snr(ii) = vM.SNR;
 end
-
-t_ber = T_BER_SNR_mQAM(idbw(snr), 4);
-
+t_ber = T_BER_SNR_mQAM(idbw(snr), 2^vSet.bitpersym);
 figure; 
-semilogy(snr, ber, 's-.', snr, t_ber, 'k-', 'MarkerSize', 10, 'LineWidth', 2);
+semilogy(snr, ber, 'o-.', snr, t_ber, '-', 'MarkerSize', 6, 'LineWidth', 2);
 grid on;
 xlabel('SNR [dB]'); 
 ylabel('BER'); 
 legend(sprintf('%d bit per symbol', 2), 'Theory');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #2
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #3
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #4
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #5
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% EOF
