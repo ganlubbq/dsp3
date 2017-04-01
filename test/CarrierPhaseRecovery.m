@@ -1,7 +1,7 @@
 %% TEST SCRIPT FOR CARRIER PHASE ESTIMATION COMPARISON
 % not finished
-%
-%% M-QAM WITH TIME VARYING PHASE ERROR
+
+% M-QAM WITH TIME VARYING PHASE ERROR
 function [] = CarrierPhaseRecovery(bitpersym)
 if nargin < 1
     bitpersym = 2;

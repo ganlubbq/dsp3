@@ -2,7 +2,6 @@
 % Compare raised cosine pulse-shaping filter in both frequency and time
 % domain
 
-%%
 clear
 
 nSymbol = 2^10;

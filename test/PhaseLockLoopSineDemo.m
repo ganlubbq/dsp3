@@ -8,8 +8,8 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-%
-%% SINGLE FREQUENCY WITH FIXED PHASE ERROR
+
+% SINGLE FREQUENCY WITH FIXED PHASE ERROR
 function [] = PhaseLockLoopSineDemo()
 
 frequency = 10;
@@ -67,14 +67,14 @@ subplot(2,2,3); plot(tvec,phi); grid on
 % Squares
 subplot(2,2,4); plot(tvec,dbw(J)); grid on; ylim([-100 20])
 
-%% Solving transformed linear LS function with gradient descent method
+% Solving transformed linear LS function with gradient descent method
 % Using least squares data model, i.e., J = |ref*theta-x|^2, i.e., viewing
 % theta=exp(i*phi) as the unknown parameter. However, this simple
 % transformation results a NONLINEAR constrained LS problem...
 
 % no solution yet...
 
-%% Solving the nonlinear LS function with Newton-Raphson method
+% Solving the nonlinear LS function with Newton-Raphson method
 % Using least squares equalization model, i.e., J = |x*exp(-j*phi)-ref|^2
 s = [];
 phi = [];
@@ -120,4 +120,5 @@ subplot(2,2,4); plot(tvec,dbw(J)); grid on; ylim([-100 20])
 % another solution with pi shift relatively
 
 mngFigureWindow(h1,h2);
+
 return

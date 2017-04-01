@@ -3,8 +3,8 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-%
-%% M-QAM WITH TIME VARYING PHASE ERROR
+
+% M-QAM WITH TIME VARYING PHASE ERROR
 function [] = PhaseLockLoopLowSNR(bitpersym)
 if nargin < 1
     bitpersym = 2;
@@ -19,7 +19,7 @@ symlen = 2^16;
 a = constellation(mn);
 sp = sum(abs(a).^2) / mn;
 
-%% Low SNR range
+% Low SNR range
 snr = -10:0;
 
 % modulation
@@ -80,8 +80,9 @@ end
 
 % plot phase estimation error vs. stepsize, phase estimation error floor
 % can be observed and the floor rises as the laser noise variance increases
-figure; grid on
+figure; 
 plot(log10(muV), log10(varEstErrL)); 
+grid on
 xlabel('Log10 Stepsize'); 
 ylabel('Log10 Variance of phase est. err.');
 
@@ -91,12 +92,14 @@ snrPenalty = calcSnrBerPenalty(snr', bert', ber', mean(bert));
 
 % plot snr penalty vs stepsize, there is obviously one optimal stepsize
 % that would give the minimum snr penalty
-figure; grid on
+figure;
 plot(log10(muV), snrPenalty);
+grid on
 xlabel('Log10 Stepsize'); 
 ylabel('SNR Penalty');
 
 % phase estimation error floor transfers into snr penalty, and this is the
 % limition of PLL
 minSnrPenalty = min(snrPenalty)
+
 return  % EOF

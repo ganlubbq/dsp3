@@ -4,8 +4,8 @@
 % Ungerboeck G. Channel coding with multilevel/phase signals[J]. 
 % IEEE Transactions on Information Theory,
 % 1982, 28(1):55-67.
-%
-%% m-QAM
+
+% m-QAM
 function ConstrainedCapacity(bitpersym)
 
 if nargin < 1
@@ -49,12 +49,14 @@ for qq = 1:length(bitpersym)
     end
 end
 
-%% Limit for complex modulation
+% Limit for complex modulation
 lcc = log2(1 + idbw(snr));
 
-figure; hold on; grid on
+figure; 
+hold on; 
 plot(snr,lcc,'k-'); 
 plot(snr,cc); 
+grid on
 ylim([1,10]);
 xlabel('SNR (dB)'); 
 ylabel('Capacity (bit/symbol)'); 

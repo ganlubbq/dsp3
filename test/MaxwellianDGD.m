@@ -43,5 +43,3 @@ legend('Maxwellian CDF');
 grid on
 
 mngFigureWindow(h1, h2);
-
-

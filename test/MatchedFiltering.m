@@ -4,7 +4,6 @@
 % the filter shape acting on r that could get the maximum snr is exactly
 % the x so that the signal is recovered as the self inner product.
 
-%%
 clear
 
 nSymbol = 2^10;

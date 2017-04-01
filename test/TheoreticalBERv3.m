@@ -79,9 +79,11 @@ else
     t_ber = T_BER_SNR_mQAM(idbw(snr), 2^k);
 end
 
-figure; grid on
-plot(snr,log10(ber),'s-',snr,log10(t_ber),'k-'); 
-xlabel('SNR dB'); ylabel('LOG10 BER'); 
+figure;
+plot(snr, log10(ber), 's-', snr, log10(t_ber), 'k-'); 
+grid on
+xlabel('SNR dB'); 
+ylabel('LOG10 BER'); 
 legend(sprintf('%d bit per symbol',k),'Theory');
 
 return

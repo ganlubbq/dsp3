@@ -8,8 +8,8 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-%
-%% m-QAM WITH TIME VARYING PHASE ERROR
+
+% m-QAM WITH TIME VARYING PHASE ERROR
 function [] = PhaseLockLoopQamDemo(bitpersym, snr)
 
 if nargin < 1
@@ -49,7 +49,7 @@ symTxPn = symTx .* exp(1i*phaseNoise) .* exp(1i*2*pi*cfo*tvec);
 % add white gaussian noise
 symTxPn = symTxPn + z;
 
-%% Solving the nonlinear LS function with gradient descent method
+% Solving the nonlinear LS function with gradient descent method
 % Using least squares equalization model, i.e., J = |x*exp(-j*phi)-ref|^2
 
 % initialize stochastic gradient descent algorithm, implemented as a

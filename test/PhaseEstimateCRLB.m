@@ -3,8 +3,8 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-%
-%% Estimate constant phase
+
+% Estimate constant phase
 % By applying the parameter transformation $\theta = exp(j*\phi)$, the data
 % model is linearized. The MVU estimator of transformed parameter can be
 % obtained easily. Since it is also an ML estimator, by applying the
@@ -65,4 +65,5 @@ semilogy(snr,CRLBt,'-',snr,var(phi_hat),'d');
 xlabel('SNR [dB]'); ylabel('Estimation variance');  grid on
 
 % larger frame length, lower crlb
+
 return

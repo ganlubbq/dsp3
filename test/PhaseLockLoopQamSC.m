@@ -2,8 +2,8 @@
 % Observe the PLL S-Curve under different SNR. The instanstanuous gradient
 % gets noisier for lower SNR and requires smaller stepsize (smaller loop
 % filter bandwidth) to lower the steady state error
-%
-%% QPSK WITH TIME VARYING PHASE ERROR
+
+% QPSK WITH TIME VARYING PHASE ERROR
 function [] = PhaseLockLoopQamSC(bitpersym, snr)
 
 if nargin < 1
@@ -24,17 +24,16 @@ symRef = symTx;
 % input power
 sp = calcrms(symTx).^2;
 
-%% Observe averaged Phase-locked loop S-curve for various SNR
+% Observe averaged Phase-locked loop S-curve for various SNR
 % define phase error
-phaseNoise = -pi:0.1:pi+0.1;
+phaseNoise = -pi : 0.1 : pi + 0.1;
 
-for ii = 1:length(snr)
-    
+for ii = 1 : length(snr)
     % generate wgn
     sigma2 = 10*log10(sp) - snr(ii);
     z = wgn(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
     
-    for k = 1:length(phaseNoise)
+    for k = 1 : length(phaseNoise)
         % data model
         symTxPn = symTx .* exp(1i * phaseNoise(k)) + z;
         
@@ -43,21 +42,24 @@ for ii = 1:length(snr)
     end
 end
 
-h1=figure; plot(phaseNoise/pi,sc); grid on; xlim([-1 1]);
+h1 = figure; 
+plot(phaseNoise/pi,sc); 
+grid on; 
+xlim([-1 1]);
+ylim([-1 1]);
 xlabel('Phase Error'); ylabel('PED mean');
 
 sc = [];
 
-%% Observe instantanuous Phase-locked loop S-curve for low SNR
-for ii = 1:10
+% Observe instantanuous Phase-locked loop S-curve for low SNR
+for ii = 1 : 10
     % randomly pick an symbol index
     tmp = round(rand()*symlen);
     
     sigma2 = 10*log10(sp) - snr;
     z = wgn(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
     
-    for k = 1:length(phaseNoise)
-        
+    for k = 1 : length(phaseNoise)
         % data model
         symTxPn = symTx .* exp(1i * phaseNoise(k)) + z;
         
@@ -66,8 +68,12 @@ for ii = 1:10
     end
 end
 
-h2=figure; plot(phaseNoise,sc); grid on; xlim([-pi pi]);
-xlabel('Phase Error'); ylabel('PED');
+h2 = figure; 
+plot(phaseNoise,sc); 
+grid on; 
+xlim([-pi pi]);
+xlabel('Phase Error'); 
+ylabel('PED');
 
 mngFigureWindow(h1,h2);
 

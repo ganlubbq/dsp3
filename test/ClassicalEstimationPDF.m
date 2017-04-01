@@ -3,8 +3,8 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-%
-%% Unknown parameter is deterministic
+
+% Unknown parameter is deterministic
 clear
 
 % nominal data
