@@ -1,5 +1,4 @@
-%% TEST SCRIPT FOR CARRIER PHASE ESTIMATION WITH LMS FILTER OR PHASE-LOCK LOOP OF 1ST ORDER
-% THE LEAST SQUARES CRITERIA IS ASSUMED. 
+% TEST SCRIPT FOR IMPLEMENT A 2ND-ORDER PHASE-LOCK LOOP BASED ON SGD ALGORITHM
 %
 % Note that multiple samples per symbol are used for the loop. In the case
 % of large carrier frequency offset, it is necessary to turn on the
@@ -8,9 +7,9 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-
+%
 % SINGLE FREQUENCY WITH FIXED PHASE ERROR
-function [] = PhaseLockLoopSineDemo()
+function [] = PllSineSGDvsNewton()
 
 frequency = 10;
 

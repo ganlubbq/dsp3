@@ -1,16 +1,15 @@
-%% TEST SCRIPT FOR CARRIER PHASE ESTIMATION WITH LMS FILTER OR PHASE-LOCK LOOP OF 1ST ORDER
-% THE LEAST SQUARES CRITERIA IS ASSUMED. 
+% TEST SCRIPT FOR IMPLEMENT A 2ND-ORDER PHASE-LOCK LOOP BASED ON SGD ALGORITHM
 %
-% Note that one sample per symbol is used for the loop. In the case
-% of large carrier frequency offset, it is necessary to turn on the
-% 2nd-order loop filter. One can turn on and off the 2nd order loop filter
-% to observe the phase tracking results.
+% Note that one sample per symbol is used for the loop. In the case of
+% large carrier frequency offset, it is necessary to turn on the 2nd-order
+% loop filter. One can turn on and off the 2nd order loop filter to observe
+% the phase tracking results.
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-
-% m-QAM WITH TIME VARYING PHASE ERROR
-function [] = PhaseLockLoopQamDemo(bitpersym, snr, mu1, mu2)
+%
+% M-QAM WITH TIME VARYING PHASE ERROR
+function [] = PllQamSGD(bitpersym, snr, mu1, mu2)
 
 if nargin < 1
     bitpersym = 2;
