@@ -10,13 +10,19 @@
 % theory." (1993).
 
 % m-QAM WITH TIME VARYING PHASE ERROR
-function [] = PhaseLockLoopQamDemo(bitpersym, snr)
+function [] = PhaseLockLoopQamDemo(bitpersym, snr, mu1, mu2)
 
 if nargin < 1
     bitpersym = 2;
 end
 if nargin < 2
     snr = 20;
+end
+if nargin < 3
+    mu1 = 0.01;
+end
+if nargin < 4
+    mu2 = 0.001;
 end
 
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
@@ -54,8 +60,8 @@ symTxPn = symTxPn + z;
 
 % initialize stochastic gradient descent algorithm, implemented as a
 % phase-lock loop, using 1 sample per symbol
-mu1 = 0.01;         % gain parameter 1st-order
-mu2 = 0.0001 * 1;    % gain parameter 2nd-order
+% mu1 = 0.01;         % gain parameter 1st-order
+% mu2 = 0.001 * 1;    % gain parameter 2nd-order
 symRec(1) = symTxPn(1);
 phi(1) = 0;
 nco(1) = 0;
@@ -70,10 +76,10 @@ for k = 2:length(symTxPn)
     nco(k) = nco(k-1) + grad(k);
     
     % update filter coeff. along opposite direction of gradient
-    phi(k) = phi(k-1) - mu1*grad(k) - mu2*nco(k);
+    phi(k) = phi(k-1) - mu1 * grad(k) - mu2 * nco(k);
     
     % squared error
-    J(k) = abs(symRec(k) - symTx(k)).^2;
+    J(k) = abs(symRec(k) - symTx(k)) .^ 2;
 end
 
 truePhase = unwrap(angle((symTxPn-z) .* conj(symTx)));
@@ -85,5 +91,5 @@ figure;
 subplot(221); plot(symTxPn,'.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(222); plot(symRec,'.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(223); plot(tvec,phi,tvec,truePhase,'r'); grid on
-subplot(224); plot(dbw(J)); grid on; xlim([0 symlen]); ylim([-100 20])
+subplot(224); plot(dbw(J(1:1000))); grid on; %xlim([0 symlen]); ylim([-100 20])
 return

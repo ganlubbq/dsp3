@@ -59,7 +59,7 @@ for ii = 1:length(snr)
             grad(k) = -imag(symRec(k) .* conj(symRef(k)));
             
             % update filter coeff. along opposite direction of gradient
-            phi(k) = phi(k-1) - mu*grad(k);
+            phi(k) = phi(k-1) - mu * grad(k);
             
             % squared error
             J(k) = abs(symRec(k) - symRef(k)).^2;
