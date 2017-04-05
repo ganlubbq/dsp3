@@ -1,9 +1,10 @@
-%% TEST SCRIPT FOR PHASE-LOCKED LOOP S-CURVE
+% TEST SCRIPT FOR PLOTTING S-CURVE OF PHASE-LOCKED LOOP
+%
 % Observe the PLL S-Curve under different SNR. The instanstanuous gradient
 % gets noisier for lower SNR and requires smaller stepsize (smaller loop
 % filter bandwidth) to lower the steady state error
-
-% QPSK WITH TIME VARYING PHASE ERROR
+%
+% MQAM WITH TIME VARYING PHASE ERROR
 function [] = PhaseLockLoopQamSC(bitpersym, snr)
 
 if nargin < 1

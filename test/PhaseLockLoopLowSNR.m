@@ -1,9 +1,8 @@
-%% TEST SCRIPT FOR CARRIER PHASE ESTIMATION WITH PHASE-LOCK LOOP 
-% LOW SNR IS CONSIDERED
+% TEST SCRIPT FOR EVALUATING PHASE-LOCK LOOP UNDER LOW SNR
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-
+%
 % M-QAM WITH TIME VARYING PHASE ERROR
 function [] = PhaseLockLoopLowSNR(bitpersym)
 if nargin < 1
