@@ -103,10 +103,10 @@ subplot(224); plot(dbw(J(1:1000))); grid on; %xlim([0 symlen]); ylim([-100 20])
 symRec(1) = symTxPn(1);
 phi(1) = 0;
 nco(1) = 0;
-gamma = 0.9;
+gamma = 0.95;
 meanSquareGradient = 0;
 meanSquareDeltaPhi = 0;
-deltaPhi = 0.0;
+epsilon = 1e-6;
 for k = 2 : length(symTxPn)
     % output
     symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
@@ -117,20 +117,20 @@ for k = 2 : length(symTxPn)
     % update mean square of gradient
     meanSquareGradient = gamma * meanSquareGradient + (1 - gamma) * grad(k)^2;
     
-    % update mean square of delta phi
-    meanSquareDeltaPhi = gamma * meanSquareDeltaPhi + (1 - gamma) * deltaPhi^2;
-    
     % rms of gradient
-    rmsGradient = sqrt(meanSquareGradient + 1e-8);
+    rmsGradient = sqrt(meanSquareGradient + epsilon);
     
     % rms of delta phi
-    rmsDeltaPhi = sqrt(meanSquareDeltaPhi + 1e-8);
+    rmsDeltaPhi = sqrt(meanSquareDeltaPhi + epsilon);
     
     % err integration
     nco(k) = nco(k-1) + grad(k);
     
     % 
-    deltaPhi = (mu1 / rmsGradient) * grad(k);
+    deltaPhi = (rmsDeltaPhi / rmsGradient) * grad(k);
+    
+    % update mean square of delta phi
+    meanSquareDeltaPhi = gamma * meanSquareDeltaPhi + (1 - gamma) * deltaPhi^2;
     
     % update filter coeff. along opposite direction of gradient
     phi(k) = phi(k-1) - deltaPhi - mu2 * nco(k);
@@ -146,9 +146,5 @@ subplot(221); plot(symTxPn,'.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(222); plot(symRec,'.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(223); plot(tvec,mod(phi,2*pi),tvec,mod(truePhase,2*pi),'r'); grid on
 subplot(224); plot(dbw(J(1:1000))); grid on; %xlim([0 symlen]); ylim([-100 20])
-
-
-
-
 
 return
