@@ -1,8 +1,8 @@
 clear
-
-for snr = 11 : 20
-    ber = PllQamSGDvsAdadelta(2, snr, 2e-4, 0.0, 0.01, 0.0)
-    bert(snr, :) = ber;
+snr = 5 : 0.5 : 10;
+for ii = 1 : length(snr)
+    ber = PllQamSGDvsAdadelta(2, snr(ii), (1/28)*1e-3, 0.0, 0.1, 0.0)
+    bert(ii, :) = ber;
 end
 
 figure;

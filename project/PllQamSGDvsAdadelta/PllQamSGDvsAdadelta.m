@@ -67,7 +67,7 @@ symTxPn = symTxPn + z;
 symRec(1) = symTxPn(1);
 phi(1) = 0;
 nco(1) = 0;
-trainingLength = 16;
+trainingLength = 8;
 frameLength = 512;
 for k = 2 : length(symTxPn)
     % output
@@ -101,10 +101,10 @@ ber(1) = sum(abs(bitTx(:) - bitRx(:))) / (bitpersym * symlen);
 symRec(1) = symTxPn(1);
 phi(1) = 0;
 nco(1) = 0;
-gamma = 0.99;
+gamma = 0.95;
 meanSquareGradient = 0;
 meanSquareDeltaPhi = 0;
-epsilon = 1e-8;
+epsilon = 1e-4;
 for k = 2 : length(symTxPn)
     % output
     symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
@@ -128,7 +128,7 @@ for k = 2 : length(symTxPn)
     nco(k) = nco(k-1) + grad(k);
     
     % 
-    deltaPhi = (mu1 / rmsGradient) * grad(k);
+    deltaPhi = (rmsDeltaPhi / rmsGradient) * grad(k);
     
     % update mean square of delta phi
     meanSquareDeltaPhi = gamma * meanSquareDeltaPhi + (1 - gamma) * deltaPhi^2;
