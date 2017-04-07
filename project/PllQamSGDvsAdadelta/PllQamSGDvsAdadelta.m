@@ -3,9 +3,10 @@
 %
 % Decision directed PLL
 %
+% Framed data structure with training head
 %
-% Test cases
-%   
+% Test cases:
+%   see go.m
 %
 % M-QAM WITH TIME VARYING PHASE ERROR
 function [ber] = PllQamSGDvsAdadelta(bitpersym, snr, pnvar, cfo, mu1, mu2)
@@ -64,9 +65,12 @@ symTxPn = symTxPn + z;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % initialize stochastic gradient descent algorithm, implemented as a
 % phase-lock loop, using 1 sample per symbol
+symRec = zeros(size(symTxPn));
+phi = zeros(size(symTxPn));
+nco = zeros(size(symTxPn));
+grad = zeros(size(symTxPn));
+J = zeros(size(symTxPn));
 symRec(1) = symTxPn(1);
-phi(1) = 0;
-nco(1) = 0;
 trainingLength = 8;
 frameLength = 512;
 for k = 2 : length(symTxPn)
@@ -98,13 +102,16 @@ ber(1) = sum(abs(bitTx(:) - bitRx(:))) / (bitpersym * symlen);
 % Solving the nonlinear least squares problem using stochastic gradient
 % descent algorithm with adaptive step size - Adadelta
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+symRec = zeros(size(symTxPn));
+phi = zeros(size(symTxPn));
+nco = zeros(size(symTxPn));
+grad = zeros(size(symTxPn));
+J = zeros(size(symTxPn));
 symRec(1) = symTxPn(1);
-phi(1) = 0;
-nco(1) = 0;
 gamma = 0.95;
 meanSquareGradient = 0;
 meanSquareDeltaPhi = 0;
-epsilon = 1e-4;
+epsilon = 1e-5;
 for k = 2 : length(symTxPn)
     % output
     symRec(k) = symTxPn(k) .* exp(-1i * phi(k-1));
