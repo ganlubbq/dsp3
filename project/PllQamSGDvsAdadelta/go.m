@@ -1,9 +1,9 @@
 clear
 
-snr = 0 : 1 : 10;
+snr = 5 : 1 : 14;
 
 for ii = 1 : length(snr)
-    ber = PllQamSGDvsAdadelta(2, snr(ii), (1.5/28)*1e-3, 0.0, 0.02, 0.0)
+    ber = PllQamSGDvsAdadelta(2, snr(ii), (0.5/28)*1e-3, 2e-3, 0.02, 0.002)
     bert(ii, :) = ber;
 end
 

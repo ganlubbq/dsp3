@@ -30,7 +30,7 @@ if nargin < 6
     mu2 = 0.001;
 end
 
-RandStream.setGlobalStream(RandStream('mt19937ar','Seed',2435));
+RandStream.setGlobalStream(RandStream('mt19937ar','Seed',283));
 
 symlen = 2^18;
 tvec = 0 : 1 : (symlen-1);
@@ -131,17 +131,17 @@ for k = 2 : length(symTxPn)
     % rms of delta phi
     rmsDeltaPhi = sqrt(meanSquareDeltaPhi + epsilon);
     
-    % err integration
-    nco(k) = nco(k-1) + grad(k);
-    
-    % 
-    deltaPhi = (rmsDeltaPhi / rmsGradient) * grad(k);
+    % error
+    deltaPhi(k) = (rmsDeltaPhi / rmsGradient) * grad(k);
     
     % update mean square of delta phi
-    meanSquareDeltaPhi = gamma * meanSquareDeltaPhi + (1 - gamma) * deltaPhi^2;
+    meanSquareDeltaPhi = gamma * meanSquareDeltaPhi + (1 - gamma) * deltaPhi(k)^2;
+    
+    % error integration
+    nco(k) = gamma * nco(k-1) + (1 - gamma) * deltaPhi(k);
     
     % update filter coeff. along opposite direction of gradient
-    phi(k) = phi(k-1) - deltaPhi - mu2 * nco(k);
+    phi(k) = phi(k-1) - deltaPhi(k);% - nco(k);
     
     % squared error
     J(k) = abs(symRec(k) - symTx(k)) .^ 2;
@@ -151,11 +151,5 @@ truePhase = unwrap(angle((symTxPn-z) .* conj(symTx)));
 
 bitRx = slicerGrayQam(symRec, 2^bitpersym);
 ber(2) = sum(abs(bitTx(:) - bitRx(:))) / (bitpersym * symlen);
-
-% figure; 
-% subplot(221); plot(symTxPn,'.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
-% subplot(222); plot(symRec,'.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
-% subplot(223); plot(tvec,mod(phi,2*pi),tvec,mod(truePhase,2*pi),'r'); grid on
-% subplot(224); plot(dbw(J(1:1000))); grid on; %xlim([0 symlen]); ylim([-100 20])
 
 return
