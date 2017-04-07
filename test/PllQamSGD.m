@@ -110,11 +110,12 @@ end
 
 truePhase = unwrap(angle((symTxPn-z) .* conj(symTx)));
 
-figure; 
+h1 = figure; 
 subplot(221); plot(symRec, '.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(222); plot(mu1 * grad(1 : 1000), '.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(223); plot(tvec, mod(phi,2*pi), tvec, mod(truePhase,2*pi),'r'); grid on
 subplot(224); plot(dbw(J(1 : 1000))); grid on; %xlim([0 symlen]); ylim([-100 20])
+title('SGD method');
 
 bitRx = slicerGrayQam(symRec, 2^bitpersym);
 ber(1) = sum(abs(bitTx(:) - bitRx(:))) / (bitpersym * symlen);
@@ -172,13 +173,16 @@ end
 
 truePhase = unwrap(angle((symTxPn-z) .* conj(symTx)));
 
-figure; 
+h2 = figure; 
 subplot(221); plot(symRec, '.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(222); plot(deltaPhi(1 : 1000), '.'); grid on; %axis([-2.5 2.5 -2.5 2.5]);
 subplot(223); plot(tvec, mod(phi,2*pi), tvec, mod(truePhase,2*pi),'r'); grid on
 subplot(224); plot(dbw(J(1 : 1000))); grid on; %xlim([0 symlen]); ylim([-100 20])
+title('Adadelta method')
 
 bitRx = slicerGrayQam(symRec, 2^bitpersym);
 ber(2) = sum(abs(bitTx(:) - bitRx(:))) / (bitpersym * symlen);
+
+mngFigureWindow(h1, h2);
 
 return

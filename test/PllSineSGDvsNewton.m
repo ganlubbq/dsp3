@@ -63,7 +63,7 @@ h1 = figure; title('gradient decent');
 subplot(2,1,1); plot(tvec, mod(phi,2*pi)); grid on
 % Squares
 subplot(2,1,2); plot(dbw(J(1:1000))); grid on; ylim([-100 20])
-
+title('SGD');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Solving transformed linear least squares function with gradient descent
 % method with data model J = |ref*theta - x|^2, by viewing \theta =
@@ -87,6 +87,7 @@ mu2 = 0.001 * 1;    % gain parameter 2nd order
 s(1) = x(1);
 phi(1) = 0;
 nco(1) = 0;
+epsilon = 0.5;      % can solve the convergence problem to some extent
 for k = 2:length(x)
     % output
     s(k) = x(k) .* exp(-1i * phi(k-1));
@@ -95,7 +96,7 @@ for k = 2:length(x)
     grad(k) = -imag(s(k) .* conj(ref(k)));
     
     % stochastic hessian (BE CAREFUL when hessian is small!!!)
-    hess(k) = real(s(k) .* conj(ref(k)));
+    hess(k) = real(s(k) .* conj(ref(k))) + epsilon;
     
     % solving the next root of linearization model
     phi(k) = phi(k-1) - grad(k) / hess(k);
@@ -104,11 +105,12 @@ for k = 2:length(x)
     J(k) = abs(s(k) - ref(k)).^2;
 end
 
-h2 = figure; title('Newton-Raphson');
+h2 = figure; 
 % phase estimation
 subplot(2,1,1); plot(tvec, mod(phi,2*pi)); grid on
 % Squares
 subplot(2,1,2); plot(dbw(J(1:1000))); grid on; ylim([-100 20])
+title('Newton-Raphson');
 
 % depending on the location of initial guess, this method may converge to
 % another solution with pi shift relatively
