@@ -1,7 +1,6 @@
-%% TEST SCRIPT FOR TESTING VARIOUS TYPES OF PULSE-SHAPING FILTERING
-% Compare raised cosine pulse-shaping filter in both frequency and time
-% domain
-
+% TEST SCRIPT FOR PULSE-SHAPING USING RCOS FILTER Compare raised cosine
+% pulse-shaping filter in both frequency and time domain. Note that in both
+% cases, the upsampling should be a zero inserting one.
 clear
 
 nSymbol = 2^10;

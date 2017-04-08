@@ -1,5 +1,5 @@
-%% Path finding in a grid based graph with the dijkstra's algortihm
-% obstacle is realized by varying the edge weight
+% Path finding in a grid based graph with both dijkstra and A* algortihm
+% obstacles are realized by varying the edge weight
 %
 % Test Cases:
 %   PathFindingDijkstra(10, [1 1], [10 10], 0, 0, 0, 0);
