@@ -15,12 +15,11 @@ u = u.';
 
 % visualize
 linewidth = 2;
-figure;
+h = figure('Position', [483 188 572 539]);
 hold on
 grid on
 box on
 axis([-1.5 1.5 -1.5 1.5]);
-axis square
 plot(v(:,1), v(:,2), 'b-', 'LineWidth', linewidth);
 plot(u(:,1), u(:,2), 'g-.', 'LineWidth', linewidth);
 

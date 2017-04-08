@@ -1,8 +1,8 @@
 %% Draw the maxwellian distribution of the fiber DGD, which is defined as the length of the PMD vector
-
-% REFERENCE
+%
 % Magnus Karlsson, "Probability density functions of the DGD in optical
 % fiber communication systems" JLT 2001
+%
 
 clear
 
