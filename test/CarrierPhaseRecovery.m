@@ -4,11 +4,13 @@
 % - Stochastic gradient descent (PLL)
 %
 % Test cases:
-%   CarrierPhaseRecovery(2, 7, 1E-4, 0.40, 1)
-%   CarrierPhaseRecovery(4, 7, 1E-4, 0.05, 1)
+%   CarrierPhaseRecovery(2, 7, 1E-4, 0.40, 1, 512, 8, 0)
+%   CarrierPhaseRecovery(2, 7, 1E-4, 0.04, 1, 512, 8, 1)
+%   CarrierPhaseRecovery(4, 10, 1E-4, 0.05, 1, 512, 8, 0)
+%   CarrierPhaseRecovery(4, 10, 1E-4, 0.01, 1, 512, 8, 1)
 %
 % M-QAM WITH TIME VARYING PHASE ERROR
-function [ber] = CarrierPhaseRecovery(bitpersym, snr, pnvar, stepsize, blocksize)
+function [ber] = CarrierPhaseRecovery(bitpersym, snr, pnvar, stepsize, blocksize, framesize, trainingsize, ddmode)
 if nargin < 1
     bitpersym = 2;
 end
@@ -23,6 +25,15 @@ if nargin < 4
 end
 if nargin < 5
     blocksize = 20;
+end
+if nargin < 6
+    framesize = 512;
+end
+if nargin < 7
+    trainingsize = 8;
+end
+if nargin < 8
+    ddmode = 0;
 end
 
 % RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
@@ -54,14 +65,24 @@ th2 = 10*log10(sp) - snr;
 z = wgn(size(symTx,1), size(symTx,2), th2, 'dbw', 'complex');
 symTxPn = symTx + z;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% pure training mode, all the signals are known
-% the maximum likelihood (with block size of 1) is the best
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-theta_ini = 0;
-thetaPLL = estimateCarrierPhasePLL(symRef, symTxPn, stepsize, theta_ini);
-thetaAda = estimateCarrierPhaseAdadelta(symRef, symTxPn, theta_ini);
-thetaML = estimateCarrierPhaseML(symRef, symTxPn, blocksize);
+if ddmode == 0
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % pure training mode, all the signals are known
+    % the maximum likelihood (with block size of 1) is the best
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    theta_ini = 0;
+    thetaPLL = estimateCarrierPhaseDDPLL(symRef, symTxPn, mn, stepsize, numel(symTxPn), numel(symTxPn), theta_ini);
+    thetaAda = estimateCarrierPhaseAdadelta(symRef, symTxPn, mn, numel(symTxPn), numel(symTxPn), theta_ini);
+    thetaML = estimateCarrierPhaseML(symRef, symTxPn, blocksize);
+elseif ddmode == 1
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % training + decision mode, periodic training symbols
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    theta_ini = 0;
+    thetaPLL = estimateCarrierPhaseDDPLL(symRef, symTxPn, mn, stepsize, framesize, trainingsize, theta_ini);
+    thetaAda = estimateCarrierPhaseAdadelta(symRef, symTxPn, mn, framesize, trainingsize, theta_ini);
+    thetaML = estimateCarrierPhaseML(symRef, symTxPn, blocksize);
+end
 
 symRecPLL = symTxPn .* exp(-1i * thetaPLL);
 symRecAda = symTxPn .* exp(-1i * thetaAda);
@@ -74,37 +95,5 @@ bitRxML = slicerGrayQam(normalizeQam(symRecML,mn), mn);
 ber(1) = sum(abs(bitTx(:) - bitRxPLL(:))) / (symlen * bitpersym);
 ber(2) = sum(abs(bitTx(:) - bitRxAda(:))) / (symlen * bitpersym);
 ber(3) = sum(abs(bitTx(:) - bitRxML(:))) / (symlen * bitpersym);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% training + decision mode, periodic training symbols
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-theta_ini = 0;
-thetaPLL = estimateCarrierPhasePLL(symRef, symTxPn, stepsize, theta_ini);
-thetaAda = estimateCarrierPhaseAdadelta(symRef, symTxPn, theta_ini);
-thetaML = estimateCarrierPhaseML(symRef, symTxPn, blocksize);
-
-symRecPLL = symTxPn .* exp(-1i * thetaPLL);
-symRecAda = symTxPn .* exp(-1i * thetaAda);
-symRecML = symTxPn .* exp(-1i * thetaML);
-
-bitRxPLL = slicerGrayQam(normalizeQam(symRecPLL,mn), mn);
-bitRxAda = slicerGrayQam(normalizeQam(symRecAda,mn), mn);
-bitRxML = slicerGrayQam(normalizeQam(symRecML,mn), mn);
-
-ber(1) = sum(abs(bitTx(:) - bitRxPLL(:))) / (symlen * bitpersym);
-ber(2) = sum(abs(bitTx(:) - bitRxAda(:))) / (symlen * bitpersym);
-ber(3) = sum(abs(bitTx(:) - bitRxML(:))) / (symlen * bitpersym);
-% bert = T_BER_SNR_mQAM(idbw(snr), mn);
-% 
-% h1=figure; grid on
-% plot(snr, bert, snr, berPLL, snr, berML); 
-% xlabel('SNR'); ylabel('BER');
-% 
-% h2=figure; grid on; hold on
-% plot(1:symlen,phaseNoise,'LineWidth',2);
-% plot(1:symlen,thetaPLL); 
-% plot(1:symlen,thetaML); 
-% 
-% mngFigureWindow(h1,h2);
 
 return

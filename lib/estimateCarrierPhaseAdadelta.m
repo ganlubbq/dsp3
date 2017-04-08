@@ -1,8 +1,10 @@
-function [theta, s, J] = estimateCarrierPhaseAdadelta(signals, observations, theta_ini)
+function [theta, s, J] = estimateCarrierPhaseAdadelta(signals, observations, mn, framesize, trainingsize, theta_ini)
 % Implementing the phase-locked loop to estimate the carrier phase based on
 % the least squares criteria and adadelta algorithm (variable step size).
+% This algorithm is not very useful for estimating carrier phase as one has
+% also to vary the \epsilon when calculating the rms value of gradient.
 % Signals in the input is known as a reference.
-if nargin < 3
+if nargin < 6
     theta_ini = 0;
 end
 
@@ -20,14 +22,24 @@ gamma = 0.95;
 beta  = 0.99;
 meanSquareGradient = 0;
 meanSquareDeltaPhi = 0;
-epsilon = 1e-2;
+
+% it turns out one has also to vary this parameter in various cases,
+% useless for carrier phase estimation
+epsilon = 1e-5;
 
 for k = 2 : length(observations)
     % output symbols with phase correction
     s(k) = observations(k) .* exp(-1i * theta(k-1));
     
+    % decision directed
+    if mod(k, framesize) < trainingsize + 1
+        signal = signals(k);
+    else
+        signal = makeHardDecision(s(k), mn);
+    end
+    
     % stochastic gradient
-    grad(k) = -imag(s(k) .* conj(signals(k)));
+    grad(k) = -imag(s(k) .* conj(signal));
 
     % update mean square of gradient using running sum with exponential
     % decay
