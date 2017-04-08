@@ -1,10 +1,15 @@
-%% TEST SCRIPT FOR CALCULATING CONSTRAINED CHANNEL CAPACITY
-% THE CHANNEL CAPACITY FOR A DISCRETE MEMORYLESS GAUSSIAN CHANNEL
+% TEST SCRIPT FOR CALCULATING CONSTRAINED CHANNEL CAPACITY OF A DISCRETE
+% MEMORYLESS GAUSSIAN CHANNEL
 %
 % Ungerboeck G. Channel coding with multilevel/phase signals[J]. 
 % IEEE Transactions on Information Theory,
 % 1982, 28(1):55-67.
-
+%
+%   ConstrainedCapacity([2 3])
+%   ConstrainedCapacity([2 3 4])
+%   ConstrainedCapacity([2 3 4 5])
+%   ConstrainedCapacity([2 3 4 5 6])
+%
 % m-QAM
 function ConstrainedCapacity(bitpersym)
 
@@ -13,11 +18,10 @@ if nargin < 1
 end
 
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',199));
-% RandStream.setGlobalStream(RandStream('mt19937ar','Seed',0));
 
 symlen = 2^13;
 
-for qq = 1:length(bitpersym)
+for qq = 1 : length(bitpersym)
     mn = 2 .^ bitpersym(qq);
     
     % get the constellation
@@ -27,7 +31,7 @@ for qq = 1:length(bitpersym)
     sp = sum(abs(a).^2)/mn;
     
     % set snr range
-    snr = 0:1:36;
+    snr = 0 : 1 : 36;
     
     for pp = 1:length(snr)
         % get the power of noise
@@ -54,8 +58,8 @@ lcc = log2(1 + idbw(snr));
 
 figure; 
 hold on; 
-plot(snr,lcc,'k-'); 
-plot(snr,cc); 
+plot(snr,lcc,'k-','LineWidth',2); 
+plot(snr,cc,'LineWidth',2); 
 grid on
 ylim([1,10]);
 xlabel('SNR (dB)'); 

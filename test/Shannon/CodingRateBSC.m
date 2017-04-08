@@ -1,30 +1,27 @@
-%% TEST SCRIPT FOR CALCULATING THEORETICAL CODING RATE
-% THE THEORETICAL BINARY CODING RATE IS ALWAYS LESS THAN THE CHANNEL
-% CAPACITY, WHICH IS A BINARY REAL-VALUED CHANNEL
-
+% TEST SCRIPT FOR CALCULATING THEORETICAL CODING RATE OF BIANRY SYMMETRIC
+% CHANNEL
 clear
-clc
 
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',1));
 
+% simulating a binary symmetric channel with a bpsk modulation
 bitpersym = 1;
 mn = 2^bitpersym;
-
 symlen = 2^15;
-
 a = constellation(mn);
 
-% input power
+% signal power
 sp = sum(abs(a).^2) / mn;
 
-snr = -20 : 1 : 10; % dB unit
+% SNR with dB unit
+snr = -20 : 0.5 : 10;
 
 for pp = 1 : length(snr)
-
-    % dB unit noise power
+    % noise power with dB unit 
 	th2db = 10*log10(sp) - snr(pp); 
 	th2ln = 10^(th2db/10);
     
+    % add gaussian real noise
 	z = genWGN(1, symlen, th2db, 'dbw', 'real');
 	
 	for kk = 1 : mn
@@ -36,7 +33,7 @@ for pp = 1 : length(snr)
 	
 	c2 = sum(mean(ss, 2));
 	
-    % simulated constrained capacity for binary channel
+    % simulated constrained capacity
 	cc(pp) = log2(mn) - c2 / mn; 
 end
 
@@ -45,25 +42,25 @@ lcc = 0.5 * log2(1 + idbw(snr));
 
 % plot
 h1 = figure(1); hold on; 
-plot(snr,cc,'r.-'); 
-plot(snr,lcc,'k-'); 
+plot(snr, lcc, 'k', 'LineWidth', 2); 
+plot(snr, cc, 'r', 'LineWidth', 2); 
 grid on
 ylim([0,2]);
 xlabel('SNR (dB)'); 
 ylabel('Capacity (bit/symbol)'); 
-legend('BPSK', 'Shannon');
+legend('Gaussian', 'BPSK');
 
-% Coding rate
 % esno = .5*snr for real modulation
 esno = 10*log10(0.5.*10.^(snr/10)); 
 
 % theoretical code rate is equal to capacity
 ebno = esno - 10*log10(bitpersym) - 10*log10(cc); 
 h2 = figure; 
-plot(ebno,cc);
+plot(ebno, cc, 'LineWidth', 2);
 grid on; 
 xlabel('E_b/N_0'); 
 ylabel('Coding Rate');
+legend('R < C = 1 - H(p)');
 
 mngFigureWindow(h1,h2);
 
