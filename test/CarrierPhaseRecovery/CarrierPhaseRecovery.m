@@ -2,6 +2,11 @@
 %
 % - Maximum likelihood (ideal for m-psk)
 % - Stochastic gradient descent (PLL)
+% - Adadelta (variable stepsize PLL)
+%
+% Adadelta may work well on some irregular cost surface, however not well
+% on the time-varying cost surface like the carrier phase noise. Will test
+% methods such as Kalman filter.
 %
 % Test cases:
 %   CarrierPhaseRecovery(2, 7, 1E-4, 0.40, 1, 512, 8, 0)

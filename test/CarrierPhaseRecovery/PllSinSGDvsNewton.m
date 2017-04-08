@@ -12,7 +12,7 @@
 % theory." (1993).
 %
 % SINGLE FREQUENCY WITH FIXED PHASE ERROR
-function [] = PllSineSGDvsNewton()
+function [] = PllSinSGDvsNewton()
 
 frequency = 10;
 
@@ -80,14 +80,12 @@ title('SGD');
 s = [];
 phi = [];
 grad = [];
-% The newton algorithm suffers from convergence problem for particular
-% initial points.
-mu1 = 0.05;         % gain parameter 1st order
-mu2 = 0.001 * 1;    % gain parameter 2nd order
 s(1) = x(1);
 phi(1) = 0;
-nco(1) = 0;
-epsilon = 0.5;      % can solve the convergence problem to some extent
+
+% add this to hessian can solve the convergence problem to some extent
+epsilon = 0.5; 
+
 for k = 2:length(x)
     % output
     s(k) = x(k) .* exp(-1i * phi(k-1));

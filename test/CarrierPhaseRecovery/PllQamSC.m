@@ -5,7 +5,7 @@
 % filter bandwidth) to lower the steady state error
 %
 % MQAM WITH TIME VARYING PHASE ERROR
-function [] = PhaseLockLoopQamSC(bitpersym, snr)
+function [] = PllQamSC(bitpersym, snr)
 
 if nargin < 1
     bitpersym = 2;
