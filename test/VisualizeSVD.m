@@ -1,8 +1,11 @@
-
+% Visualize sigular value decomposition of matrix. For an arbitrary matrix,
+% one can always find a set of orthonormal vectors V which will be
+% transformed to another set of orthonormal vectors U. The scaling factor
+% for each vector is called the singular values.
 clear
 
 % a sheer matrix
-A = [1 1; 0 1];
+A = [1, 1; 0, 1];
 
 % input space v is a circle
 x = -1:0.01:1;

@@ -14,7 +14,7 @@ p1 = get(h1,'Position');
 p2 = get(h2,'Position');
 
 p1(1) = round(screen_width/2) - p1(3);
-p2(1) = p1(1) + p1(3) + 10;
+p2(1) = p1(1) + p1(3) + 5;
 set(h1,'Position',p1);
 set(h2,'Position',p2);
 

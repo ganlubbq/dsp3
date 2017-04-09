@@ -72,4 +72,4 @@ if ~iscolumn(sym_filtered)
 end
 h2 = plotEyeDiagram(sym_filtered((1:end-2*delay)+delay), 2*sps, 'e');
 
-mngFigureWindow(h1,h2);
+mngFigureWindow(h1, h2);

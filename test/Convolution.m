@@ -35,15 +35,16 @@ yc_N = ifft(fft([x, zeros(1, N-L)]) .* fft([h, zeros(1, N-P)]));
 yc_L = ifft(fft(x) .* fft([h, zeros(1, L-P)]));
 
 % to confirm...
-figure; 
+h1 = figure; 
 hold on; 
 plot(y,'x-'); 
 plot(1:N,yc_N,'gs-'); 
 plot(yc_L,'rd-','MarkerFaceColor','r'); 
 grid on; 
+box on
 hold off;
-legend('conv','N-point DFT','L-point DFT');
-title(sprintf('N = %d, L = %d, P = %d',N,L,P));
+legend('Linear conv.','N-point DFT','L-point DFT');
+title(sprintf('N = %d, L = %d, P = %d', N, L, P));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Long sequence - overlap and add
 % filter impulse response, P=7
@@ -66,29 +67,17 @@ for ii = 1 : 6
 	yy((1 : N) + (ii - 1) * L) = yy((1 : N) + (ii - 1) * L) + ifft(fft([xx, zeros(1,6)]) .* fft([h, zeros(1,9)]));
 end
 
-figure; 
+h2 = figure; 
 hold on
 plot(y,'x-'); 
 plot(yy(1:length(y)),'o-'); 
-grid on
-hold off
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Long sequence - overlap and save
-% filter P=7
-h = [1 2 3 4 3 2 1];
-% data sequence
-x = randi([0 1],1,60);
-% linear convolution with length of 66
-y = conv(x,h);
-
+% use the same data
 yy = zeros(1,80);
-
 L = 10;
-
 N = 16;
-
 p = 7;
-
 x = [zeros(1, p-1), x];
 
 % move L in each step and perform N-point circular convolution on N points
@@ -100,9 +89,10 @@ for ii = 1 : 6
 	yy((1 : L) + (ii - 1) * L) = tmp(p : end);
 end
 
-figure; 
-hold on
-plot(y,'x-'); 
-plot(yy(1:length(y)),'o-'); 
+plot(yy(1:length(y)),'s-'); 
 grid on
+box on
 hold off
+legend('Linear conv.', 'overlap-add', 'overlap-save');
+
+mngFigureWindow(h1, h2);
