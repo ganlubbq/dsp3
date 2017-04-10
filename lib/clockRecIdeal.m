@@ -10,9 +10,6 @@ function output = clockRecIdeal(after,before)
 % Note: 
 % 
 % See Also: 
-% 
-% Copyright 2015 
-
 % the longer the better
 MAX_XCOR_LEN = 4096;
 

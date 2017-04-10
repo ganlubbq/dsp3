@@ -1,12 +1,12 @@
 function [y, H] = chromDispCompFreq(x, fs, lambda, lambda0, DL, SL, ntaps, method, overlap)
 % Frequency domain chromatic dispersion compensation
 %
-%   DL: accumulated dispersion ps/nm
-%   fc: center frequency
-%   fs: sampling frequency
-%   ntaps: FFT size
-%   method: 'overlap' or 'one-shot'
-%   overlap: overlap ratio in one block
+% %   DL: accumulated dispersion ps/nm
+% %   fc: center frequency
+% %   fs: sampling frequency
+% %   ntaps: FFT size
+% %   method: 'overlap' or 'one-shot'
+% %   overlap: overlap ratio in one block
 %
 %   Example
 %   

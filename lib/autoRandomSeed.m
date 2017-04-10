@@ -5,8 +5,6 @@ function [] = autoRandomSeed(rnsd)
 % 
 % Input: rnsd - seed
 % 
-% Reference: 
-% 
 % Note: 
 % 
 % See Also: rand, randi

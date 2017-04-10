@@ -5,18 +5,12 @@ function Y = calcrms(X)
 % 
 % Input: X has to be a 1d vector, either a column or a row vector
 % 
-% Reference: 
-% 
-% Note: 
-% 
 % See Also: 
 % 
-% Copyright: default
-
 if ~iscolumn(X) && ~isrow(X)
     warning('input vector has to be a 1d vector'); keyboard;
 end
 
-Y = sqrt(sum(abs(X).^2)/length(X));
+Y = sqrt(sum(abs(X).^2) / numel(X));
 
 return

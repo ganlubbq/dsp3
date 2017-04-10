@@ -7,7 +7,6 @@ function c = constellation(mn)
 % cr = h.Constellation;
 
 switch mn
-    
     case 2
         c = [-1; 1];
         
@@ -39,7 +38,6 @@ switch mn
         
     otherwise
         warning('unsupported modulation format'); keyboard;
-        
 end
 
 c = c(:);
