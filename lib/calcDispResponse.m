@@ -19,8 +19,6 @@ function [H] = calcDispResponse(nSample, fs, lambda, lambda0, DL, SL)
 % 
 % See also: calcBesselRespon, calcOptGaussFlt
 % 
-% Copyright 2015 Default
-
 c = 299792458;
 
 % frequency grid in Hz

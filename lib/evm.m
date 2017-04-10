@@ -3,7 +3,6 @@ function v = evm(x, mn)
 
 xn = normalizeQam(x, mn);
 xd = slicerGrayQam(xn, mn);
-
 Ps = mean(abs(xd).^2);
 c = constellation(mn);
 
