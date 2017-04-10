@@ -10,9 +10,6 @@ function h = plotEyeDiagram(x, period, xMode)
 % Note: 
 % 
 % See Also: 
-% 
-% Copyright 2015 
-
 if ~iscolumn(x)
     error('input has to be a column vector');
 end

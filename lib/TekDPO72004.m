@@ -1,18 +1,7 @@
 function [varargout] = TekDPO72004(h,cmdStr,parmCell)
 % TekDPO72004 Scope control programing
 %
-% Example: 
-% 
-% Input: 
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
-
 switch cmdStr
-    
 	case 'start'
 		set(h,'EOSMode','read&write');
 		set(h,'InputBufferSize',10000000);
@@ -61,7 +50,7 @@ switch cmdStr
 		disp('TekDPO72004 debug'); keyboard;
 		
 	otherwise
-		disp('Un-supported command in TekDPO72004.m');
+		error('Unsupported command in TekDPO72004.m');
 end
 
 return
