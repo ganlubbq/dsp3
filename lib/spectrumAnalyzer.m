@@ -17,9 +17,6 @@ function [PSD, freqVect] = spectrumAnalyzer(x, freqVect)
 %
 % However, the psd is not power per Hz, rather power per frequency slot of
 % spectrum analyzer, varying with the frequency resolution
-%
-% Copyright DEFAULT
-
 if nargin < 2
 	nSamples = length(x);
 	freqVect = [(0:nSamples/2-1)'; flipud(-(1:(nSamples/2))')] * 1.0 / nSamples;
@@ -32,13 +29,12 @@ freqResolution = (max(freqVect) - min(freqVect)) / (nSamples - 1);
 % power in one freq slot
 PSD = abs(fft(x)) .^ 2 / (nSamples * nSamples);
 
-figure(99); grid on; hold on
+figure(99);
 plot(fftshift(freqVect), 10*log10(fftshift(PSD))); 
-
+grid on; hold on;
 xlim([min(freqVect), max(freqVect)]);
 
-% set sensitivity by limiting the y axis
-% to do
+% todo: set sensitivity by limiting the y axis
 
 xlabel('Frequency (Hz)'); 
 ylabel('PSD (dB)');

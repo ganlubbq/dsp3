@@ -1,18 +1,7 @@
 function output = upSampInsertZeros(input, sps)
 % Upsampling signal by inserting zeros
 % 
-% Example: 
-% 
-% Input: 
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
-% 
-% Copyright DEFAULT
-
+% See Also: upSampInsertZeros
 if ~iscolumn(input)
     error('the first input has to be a column vector');
 end
