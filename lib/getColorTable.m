@@ -1,6 +1,4 @@
 function [color_table] = getColorTable()
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
 
 color_table = [...
          0    0.4470    0.7410;
@@ -10,6 +8,5 @@ color_table = [...
     0.4660    0.6740    0.1880;
     0.3010    0.7450    0.9330;
     0.6350    0.0780    0.1840;];
-
 
 return

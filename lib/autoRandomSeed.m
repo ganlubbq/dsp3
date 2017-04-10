@@ -10,9 +10,6 @@ function [] = autoRandomSeed(rnsd)
 % Note: 
 % 
 % See Also: rand, randi
-% 
-% Copyright 2015 Default
-
 if rnsd
     rng(rnsd);
 else
