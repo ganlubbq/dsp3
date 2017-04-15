@@ -86,7 +86,7 @@ xlabel('Log10 Stepsize');
 ylabel('Log10 Variance of phase est. err.');
 
 % get snr penalty for different step size
-bert = T_BER_SNR_mQAM(idbw(snr), mn);
+bert = snr2ber(idbw(snr), bitpersym);
 snrPenalty = calcSnrBerPenalty(snr', bert', ber', mean(bert));
 
 % plot snr penalty vs stepsize, there is obviously one optimal stepsize

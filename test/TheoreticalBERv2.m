@@ -41,9 +41,9 @@ end
 
 if k == 1 
     % count only real noise 
-    t_ber = T_BER_SNR_mQAM(idbw(snr) * 2, 2^k);
+    t_ber = snr2ber(idbw(snr) * 2, k);
 else
-    t_ber = T_BER_SNR_mQAM(idbw(snr), 2^k);
+    t_ber = snr2ber(idbw(snr), k);
 end
 
 figure; 
