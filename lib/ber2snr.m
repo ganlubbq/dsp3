@@ -11,5 +11,7 @@ if k == 1
     snr = 2 * (erfinv(1 - 2*ber)) .^ 2;
 elseif k == 2
     snr = 2 * (erfinv(1 - 2*ber)) .^ 2;
+else
+    % todo: may use interpolation
 end
 return
