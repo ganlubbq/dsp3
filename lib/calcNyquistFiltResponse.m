@@ -24,7 +24,7 @@ HRCOS = calcRCFreqResponse(nSample, fs, fbaud, alpha, mode);
 
 freq = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] * fs / nSample;
 
-f_high = (1+alpha) * fbaud / 2;
+f_high = (1 + alpha) * fbaud / 2;
 
 HSINC = ones(size(HRCOS));
 HSINC(abs(freq) <= f_high) = sinc(freq(abs(freq) <= f_high) ./ fbaud);

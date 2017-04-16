@@ -1,9 +1,9 @@
-function H = calcBesselResponse(nSample,fs,order,bandwidth)
+function H = calcBesselResponse(nSample, fs, order, bandwidth)
 % Calculate frequency response of Bessel filter with input order and
 % 3dB bandwidth
 % 
 % Example: 
-%   H = calcBesselRespon(nSample,fs,order,bandwidth)
+%   H = calcBesselRespon(nSample, fs, order, bandwidth)
 % 
 % Input: 
 %       nSample     - number of samples
@@ -16,8 +16,7 @@ function H = calcBesselResponse(nSample,fs,order,bandwidth)
 % Note: the intrinsic group delay is removed in this implementation
 % 
 % See also: calcDispResponse, calcOptGaussFlt
-
-vAlpha = [1.0 1.361654129 1.755672389 2.113917675 2.427410702 2.703395061];
+vAlpha = [1.0, 1.361654129, 1.755672389, 2.113917675, 2.427410702, 2.703395061];
 
 % frequency grid in Hz
 freqGrid = [(0:nSample/2-1)'; flipud(-(1:(nSample/2))')] * fs / nSample;
@@ -27,7 +26,7 @@ s = 1i * freqGrid / bandwidth * vAlpha(order);
 
 % Order coeff
 n = order;
-for k = 0:n
+for k = 0 : n
     b(k+1) = factorial(2*n-k) / (2^(n-k) * factorial(k) * factorial(n-k));
     D(k+1,:) = b(k+1) * s.^k;
 end
