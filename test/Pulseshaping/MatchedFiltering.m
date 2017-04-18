@@ -1,4 +1,3 @@
-%% SCRIPT FOR TESTING MATCHED FILTERING
 % Matched filtering is the max-snr filtering technique. The signal model
 %       r = x + n
 % the filter shape acting on r that could get the maximum snr is exactly

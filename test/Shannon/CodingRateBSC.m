@@ -1,5 +1,7 @@
-% TEST SCRIPT FOR CALCULATING THEORETICAL CODING RATE OF BIANRY SYMMETRIC
-% CHANNEL
+% Test script for calculating theoretical coding rate of bianry symmetric
+% channel with constrained input power, i.e., the channel capacity is
+% related to the snr. The minimum required ebno for binary data transmission
+% is found to be -1.6dB.
 clear
 
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',1));

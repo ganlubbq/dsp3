@@ -1,9 +1,9 @@
-%% TEST SCRIPT FOR PARAMETERIZED PDF OF CLASSICAL ESTIMATION
-% SLICE ALONG FIXED DATA WOULD GENERATE A LIKELIHOOD FUNCTION OF UNKNOWN PARAMTER
+% Plotting the parameterized pdf of classical estimation model, slice along
+% fixed data would generate a likelihood function of unknown paramter
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-
+%
 % Unknown parameter is deterministic
 clear
 

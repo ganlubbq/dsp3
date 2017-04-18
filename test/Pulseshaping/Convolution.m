@@ -2,14 +2,13 @@
 % USING FFT-BASED CIRCULAR CONVOLUTION. 
 %
 % Assuming that the length of filter l is always less than the length of
-% data p, then padding both the filter coeff and data to l+p-1 and do
+% data p, then padding both the filter coeff and data to l + p - 1 and do
 % fft-based circular convolution would generate identical output with
-% linear convolution for full length l+p-1
+% linear convolution for full length l + p - 1
 %
 % Oppenheim, Alan V., and Ronald W. Schafer. Discrete-time signal
 % processing. Pearson Higher Education, 2010.
 %
-
 clear
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Basic setting

@@ -31,7 +31,7 @@ sym = sym(:);
 freqVector = getFFTGrid(nSamples,Fs);
 
 alpha = 0.36;
-H = calcRCFreqResponse(nSamples,Fs,Rs,alpha,0);
+H = calcRCFreqResponse(nSamples, Fs, Rs, alpha, 'rc');
 
 order = 4;
 bandwidth = 32 * Rs;
