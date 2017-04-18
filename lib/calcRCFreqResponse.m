@@ -2,7 +2,7 @@ function H = calcRCFreqResponse(nSample, fs, fbaud, alpha, mode)
 % CALCULATE RAISED COSINE DIGITAL FILTER RESPONSE IN FREQUENCY DOMAIN
 % 
 if nargin < 5
-    mode = 0;
+    mode = 'rc';
 end
 
 freq = [0:nSample/2]' / (nSample/2) * fs * 0.5;
@@ -17,13 +17,13 @@ fndxm = find(freq > f_low & freq <= f_high);
 H(fndxl) = ones(size(fndxl));
 H(fndxm) = 0.5 * (1 + cos(pi / alpha * (freq(fndxm) / fbaud - (1 - alpha) / 2)));
 
-switch mode
-    case 0
+switch lower(mode)
+    case 'rc'
         % rcos
-    case 1
+    case 'rrc'
         H = sqrt(H);
     otherwise
-        error('raised cosine configuration not supported');
+        keyboard;
 end
 
 H = [H; conj(flipud(H(2:end-1)))];

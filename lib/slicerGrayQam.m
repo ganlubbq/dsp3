@@ -102,9 +102,9 @@ switch mn % MSB first
 end
 
 % convert bit in rows to dec by MSB to LSB order
-twos = 2.^(log2(mn)-1:-1:0);
-twos = repmat(twos,length(x),1);
-ndx = sum(bit.*twos,2) + 1;
+twos = 2.^(log2(mn)-1 : -1 : 0);
+twos = repmat(twos, length(x), 1);
+ndx = sum(bit .* twos, 2) + 1;
 
 return
 
@@ -127,11 +127,11 @@ function bit = dec2bin(dec,k)
 
 dec = dec(:).';
 
-bit = zeros(k,length(dec));
+bit = zeros(k, length(dec));
 
 for ii=1:k
-    bit(ii,:) = mod(dec,2);
-    dec = floor(dec/2);
+    bit(ii,:) = mod(dec, 2);
+    dec = floor(dec / 2);
 end
 
 return

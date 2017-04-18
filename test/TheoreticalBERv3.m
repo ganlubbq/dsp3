@@ -5,7 +5,6 @@
 
 %%
 function [] = TheoreticalBERv3(input_k)
-
 if nargin < 1;
     input_k = 1;
 end
@@ -20,9 +19,6 @@ refbit = randi([0 1], k, nSymbol);
 % mapping bit to symbol
 sym = symbolizerGrayQam(refbit);
 
-% symbol power
-signal_power = sum(abs(sym).^2) / nSymbol; 
-
 snr = -10 : 0.5 : 10; % in dB
 
 sps = 16;
@@ -30,17 +26,11 @@ sps = 16;
 nSamples = sps * nSymbol;
 
 % Upsampling
-if ~iscolumn(sym)
-    sym = sym.';
-end
-sym_upsampled = upSampInsertZeros(sym, sps);
+sym_upsampled = upSampInsertZeros(sym(:), sps);
 
 % get a freq domain raised cosine filter response
-Rs = 1;
-Fs = sps;
-% freqVect = getFFTGrid(nSamples,Fs);
-alpha = 0.35; mode = 0;
-H = calcRCFreqResponse(nSamples, Fs, Rs, alpha, mode);
+alpha = 0.35;
+H = calcRCFreqResponse(nSamples, sps, 1, alpha, 'rc');
 
 % filtering signal in frequency domain
 sym_upsampled_i = real(ifft(fft(real(sym_upsampled)) .* H));
@@ -48,16 +38,10 @@ sym_upsampled_q = real(ifft(fft(imag(sym_upsampled)) .* H));
 
 sym_filtered = sym_upsampled_i + 1i * sym_upsampled_q;
 
-signal_power_rcos_freq = sum(abs(sym_filtered).^2) / nSamples; % symbol power
-
-% h1 = plotEyeDiagram(sym_filtered(1:8192),2*sps,'e');
-
-data = sym_filtered(1:sps:end);
+data = sym_filtered(1 : sps : end);
 symbol_power = sum(abs(data).^2) / nSymbol;
 
-snr = -10 : 10; % in dB
-
-for ndx = 1:length(snr)
+for ndx = 1 : length(snr)
     
     % noise power
     pn = symbol_power / idbw(snr(ndx));

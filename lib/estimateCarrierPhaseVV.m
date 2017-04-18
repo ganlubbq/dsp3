@@ -35,7 +35,7 @@ elseif avg_mode==1
 	x4s = smooth(x4, block_size);
 
 else
-	error('average mode not supported');
+	warning('average mode not supported'); keyboard;
 end
 
 % unwrapping

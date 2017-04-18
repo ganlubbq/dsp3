@@ -212,20 +212,20 @@ receiver.psdRIN     = (receiver.detectorResponsivity).^2 * (10.^(-receiver.CMRR/
 
 %% Preparing filter responses
 txPulseShapeFilter.RollOffFactor = 0.35;
-txPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 0);
-txPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 1);
+txPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 'rc');
+txPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, txPulseShapeFilter.RollOffFactor, 'rrc');
 
 txPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, transmtter.lpfOrder, transmtter.bandwidth);
-txPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
+txPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 'rc');
 txPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, transmtter.lpfOrder, transmtter.bandwidth);
 
 
 rxPulseShapeFilter.RollOffFactor = 0.35;
-rxPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, rxPulseShapeFilter.RollOffFactor, 0);
-rxPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, rxPulseShapeFilter.RollOffFactor, 1);
+rxPulseShapeFilter.freqRespRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, rxPulseShapeFilter.RollOffFactor, 'rc');
+rxPulseShapeFilter.freqRespRRC = calcRCFreqResponse(numSamples, samplingFs, baudrate, rxPulseShapeFilter.RollOffFactor, 'rrc');
 
 rxPulseShapeFilter.freqRespBessel = calcBesselResponse(numSamples, samplingFs, receiver.lpfOrder, receiver.bandwidth);
-rxPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 0);
+rxPulseShapeFilter.freqRespNyquist = calcNyquistFiltResponse(numSamples, samplingFs, baudrate, 0.1, 'rc');
 rxPulseShapeFilter.freqRespGaussian = calcGaussFlt(numSamples, samplingFs, 0, receiver.lpfOrder, receiver.bandwidth);
 
 optGaussianFilter = calcOptGaussFlt(numSamples, samplingFs, 0, optFilterOrder, optFilterBw);
@@ -803,7 +803,7 @@ if VERBOSE
 end
 
 vM.BER = 0.5 * (berx + bery);
-vM.BER_Theo = T_BER_SNR_mQAM(idbw(vM.SNR), ALPHABET_SIZE);
+vM.BER_Theo = snr2ber(idbw(vM.SNR), ALPHABET_SIZE);
 if vM.BER < vM.BER_Theo
     warning('SANITY CHECK: Break BER limit, %.2E (%.2E in theory)', vM.BER, vM.BER_Theo);
 end

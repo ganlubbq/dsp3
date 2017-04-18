@@ -24,13 +24,13 @@ c = constellation(M);
 
 % special case for bpsk
 if M == 2
-    sym = c(bit+1); return
+    sym = c(bit + 1); return
 end
 
 % convert bit in rows to dec by LSB to MSB order
-twos = 2.^(0:log2(M)-1);
-twos = repmat(twos,nSample,1).';
-dec = sum(bit.*twos)+1;
+twos = 2.^(0 : log2(M)-1);
+twos = repmat(twos, nSample, 1).';
+dec = sum(bit .* twos) + 1;
 
 % integer mapper of gray coded m-qam
 mapper = mapint(M);

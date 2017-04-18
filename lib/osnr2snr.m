@@ -1,5 +1,5 @@
 function snr = osnr2snr(osnr, rs, sps, dmod)
-%OSNR2SNR Convert OSNR in 0.1nm (12.5GHz) in dB to SNR in dB
+%OSNR2SNR Convert OSNR in 0.1nm (12.5GHz) in dB to SNR per sample in dB
 % 
 % Example: snr = osnr2snr(osnr,rs,sps,dmod)
 % 

@@ -30,7 +30,7 @@ if ntaps > N
     ntaps = N;
 end
 
-if strcmpi(method,'overlap')
+if strcmpi(method, 'overlap')
     % overlap length
     overlap = floor(ntaps * overlap);
     
@@ -62,7 +62,7 @@ if strcmpi(method,'overlap')
         y = [y; z];
     end
 
-elseif strcmpi(method,'non-overlap')
+elseif strcmpi(method, 'non-overlap')
     % transfer function of GVD
     H = calcDispResponse(ntaps, fs, lambda, lambda0, DL, SL);
     y = [];
@@ -74,11 +74,13 @@ elseif strcmpi(method,'non-overlap')
         y = [y; z];
     end
     
-elseif strcmpi(method,'ideal')
+elseif strcmpi(method, 'ideal')
     % transfer function of GVD
     H = calcDispResponse(length(x), fs, lambda, lambda0, DL, SL);
     % compensate
     y = ifft(fft(x) .* H);
+else
+    keyboard;
 end
 
 return

@@ -22,8 +22,8 @@ Imperfect  = 1 / sqrt(10 .^ (ERdB / 10));
 if ERdB > 99
     Imperfect = 0;
 end
-psr1       = sqrt(0.5 + Imperfect);
-psr2       = sqrt(0.5 - Imperfect);
+psr1 = sqrt(0.5 + Imperfect);
+psr2 = sqrt(0.5 - Imperfect);
 
 % push-pull
 phi1 =   pi * (eSigI ./ Vpi + V1 ./ Vpi);
