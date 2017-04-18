@@ -3,9 +3,9 @@
 %
 % Kay, Steven M. "Fundamentals of statistical signal processing: estimation
 % theory." (1993).
-
+%
 % Estimate constant phase
-% By applying the parameter transformation $\theta = exp(j*\phi)$, the data
+% By applying the parameter transformation $\theta = exp(i*\phi)$, the data
 % model is linearized. The MVU estimator of transformed parameter can be
 % obtained easily. Since it is also an ML estimator, by applying the
 % invariance property of ML estimation, the true phase estimation can be

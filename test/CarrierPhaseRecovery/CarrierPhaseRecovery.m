@@ -70,23 +70,25 @@ th2 = 10*log10(sp) - snr;
 z = wgn(size(symTx,1), size(symTx,2), th2, 'dbw', 'complex');
 symTxPn = symTx + z;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% pure training mode, all the signals are known
+% the maximum likelihood (with block size of 1) is the best
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ddmode == 0
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % pure training mode, all the signals are known
-    % the maximum likelihood (with block size of 1) is the best
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     theta_ini = 0;
     thetaPLL = estimateCarrierPhaseDDPLL(symRef, symTxPn, mn, stepsize, numel(symTxPn), numel(symTxPn), theta_ini);
     thetaAda = estimateCarrierPhaseAdadelta(symRef, symTxPn, mn, numel(symTxPn), numel(symTxPn), theta_ini);
     thetaML = estimateCarrierPhaseML(symRef, symTxPn, blocksize);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% training + decision mode, periodic training symbols
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 elseif ddmode == 1
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % training + decision mode, periodic training symbols
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     theta_ini = 0;
     thetaPLL = estimateCarrierPhaseDDPLL(symRef, symTxPn, mn, stepsize, framesize, trainingsize, theta_ini);
     thetaAda = estimateCarrierPhaseAdadelta(symRef, symTxPn, mn, framesize, trainingsize, theta_ini);
     thetaML = estimateCarrierPhaseML(symRef, symTxPn, blocksize);
+else 
+    keyboard;
 end
 
 symRecPLL = symTxPn .* exp(-1i * thetaPLL);

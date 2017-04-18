@@ -1,5 +1,4 @@
 clear
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #1 back-to-back test
 osnr = 1 : 0.5 : 13;
 for ii = 1 : length(osnr)
@@ -21,7 +20,7 @@ for ii = 1 : length(osnr)
     ber(ii) = vM.BER;
     snr(ii) = vM.SNR;
 end
-t_ber = T_BER_SNR_mQAM(idbw(snr), 2^vSet.bitpersym);
+t_ber = snr2ber(idbw(snr), vSet.bitpersym);
 figure; 
 semilogy(snr, ber, 'o-.', snr, t_ber, '-', 'MarkerSize', 6, 'LineWidth', 2);
 grid on;
