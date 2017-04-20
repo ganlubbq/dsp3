@@ -406,6 +406,7 @@ for RUN = 1 : MAX_RUN_NUMBER
         txDrvIyWfm = (txDrvIyWfm * modulator.efficiency) * modulator.Vpi /pi;
         txDrvQyWfm = (txDrvQyWfm * modulator.efficiency) * modulator.Vpi /pi;
     end
+    
     % MZM non-linear pre-comp
     % *add MZM nonlinearity pre-comp. here...*
     
@@ -413,7 +414,8 @@ for RUN = 1 : MAX_RUN_NUMBER
     V1 = - modulator.Vpi / 2;
     V2 = - modulator.Vpi / 2;
     V3 = + modulator.Vpi / 2;
-    
+    % the nonlinear transfer function of MZM will degradate the matched
+    % filtering
     txOptSigX = oeModIqNested(txLaser.wfm, txDrvIxWfm, txDrvQxwfm, modulator.extRatio, modulator.Vpi, V1, V2, V3);
     txOptSigY = oeModIqNested(txLaser.wfm, txDrvIyWfm, txDrvQyWfm, modulator.extRatio, modulator.Vpi, V1, V2, V3);
     
@@ -430,7 +432,7 @@ for RUN = 1 : MAX_RUN_NUMBER
         vM.SNR = SNR + dbw(samplePerSymbol);
         vM.OSNR = OSNR;
         
-        % calc noise power, pulse-shaping is energy perserving
+        % calc noise power, pulse-shaping is power perserving
         sigPowXdb   = dbw(calcrms(txOptSigX).^2);
         sigPowYdb   = dbw(calcrms(txOptSigY).^2);
         noisePowerx = idbw(sigPowXdb - SNR);
