@@ -36,7 +36,7 @@ for pp = 1 : length(snr)
 	c2 = sum(mean(ss, 2));
 	
     % simulated constrained capacity
-	cc(pp) = log2(mn) - c2 / mn; 
+	chc(pp) = log2(mn) - c2 / mn; 
 end
 
 % Limit for real modulation such as bpsk
@@ -45,7 +45,7 @@ lcc = 0.5 * log2(1 + idbw(snr));
 % plot
 h1 = figure(1); hold on; 
 plot(snr, lcc, 'k', 'LineWidth', 2); 
-plot(snr, cc, 'r', 'LineWidth', 2); 
+plot(snr, chc, 'r', 'LineWidth', 2); 
 grid on
 ylim([0,2]);
 xlabel('SNR (dB)'); 
@@ -56,9 +56,9 @@ legend('Gaussian', 'BPSK');
 esno = 10*log10(0.5.*10.^(snr/10)); 
 
 % theoretical code rate is equal to capacity
-ebno = esno - 10*log10(bitpersym) - 10*log10(cc); 
+ebno = esno - 10*log10(bitpersym) - 10*log10(chc); 
 h2 = figure; 
-plot(ebno, cc, 'LineWidth', 2);
+plot(ebno, chc, 'LineWidth', 2);
 grid on; 
 xlabel('E_b/N_0'); 
 ylabel('Coding Rate');

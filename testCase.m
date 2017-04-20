@@ -20,7 +20,7 @@ for ii = 1 : length(osnr)
     ber(ii) = vM.BER;
     snr(ii) = vM.SNR;
 end
-t_ber = snr2ber(idbw(snr), vSet.bitpersym);
+t_ber = snr2ber(snr, vSet.bitpersym, 'dB');
 figure; 
 semilogy(snr, ber, 'o-.', snr, t_ber, '-', 'MarkerSize', 6, 'LineWidth', 2);
 grid on;

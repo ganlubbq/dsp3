@@ -49,17 +49,17 @@ for qq = 1 : length(bitpersym)
         % the second term
         c2 = sum(mean(ss,2));
         
-        cc(pp,qq) = log2(mn) - c2/mn;
+        chc(pp,qq) = log2(mn) - c2/mn;
     end
 end
 
 % Limit for complex modulation
 lcc = log2(1 + idbw(snr));
 
-figure; 
+figure(67);
 hold on; 
 plot(snr,lcc,'k-','LineWidth',2); 
-plot(snr,cc,'LineWidth',2); 
+plot(snr,chc,'LineWidth',2); 
 grid on
 ylim([1,10]);
 xlabel('SNR (dB)'); 

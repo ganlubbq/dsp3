@@ -803,7 +803,7 @@ if VERBOSE
 end
 
 vM.BER = 0.5 * (berx + bery);
-vM.BER_Theo = snr2ber(idbw(vM.SNR), ALPHABET_SIZE);
+vM.BER_Theo = snr2ber(vM.SNR, bitpersym, 'dB');
 if vM.BER < vM.BER_Theo
     warning('SANITY CHECK: Break BER limit, %.2E (%.2E in theory)', vM.BER, vM.BER_Theo);
 end

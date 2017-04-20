@@ -58,9 +58,9 @@ end
 
 if k == 1 
     % count only real noise 
-    t_ber = snr2ber(idbw(snr)*2, k);
+    t_ber = snr2ber(idbw(snr)*2, k, 'linear');
 else
-    t_ber = snr2ber(idbw(snr), k);
+    t_ber = snr2ber(idbw(snr), k, 'linear');
 end
 
 figure;

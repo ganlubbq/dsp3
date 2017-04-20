@@ -6,12 +6,23 @@
 %
 % Note: erfc = 1 - erf
 %       erfinv(erf(x)) = x
-function snr = ber2snr(ber, k)
+%
+% Test: ber2snr(snr2ber(1.5,2,'db'),2,'db')
+function snr = ber2snr(ber, k, snrmode)
 if k == 1
     snr = 2 * (erfinv(1 - 2*ber)) .^ 2;
 elseif k == 2
     snr = 2 * (erfinv(1 - 2*ber)) .^ 2;
 else
     % todo: may use interpolation
+end
+
+switch lower(snrmode)
+    case 'db'
+        snr = 10 * log10(snr);
+    case 'linear'
+        % 
+    otherwise
+        keyboard;
 end
 return
