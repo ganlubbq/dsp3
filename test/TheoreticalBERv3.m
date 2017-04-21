@@ -1,7 +1,7 @@
-% Calculating theoretical ber of m-qam signal in gaussian noise using
-% multiple sample per symbol with pulse-shaping considered in
-% this version. It is shown that the real SNR is obtained by doing
-% matched filtering at the receiver.
+% This script calculates the theoretical ber of m-qam signal in gaussian
+% noise using multiple sample per symbol with pulse-shaping considered in
+% this version. It is shown that the real SNR is obtained by doing matched
+% filtering at the receiver.
 function [] = TheoreticalBERv3(input_k)
 if nargin < 1;
     input_k = 1;
@@ -20,7 +20,7 @@ refbit = randi([0 1], k, nSymbols);
 % mapping bit to symbol
 sym = symbolizerGrayQam(refbit);
 
-%%%%%%%%%%%%%%%%% pulse-shaping
+% pulse-shaping using frequency domain method
 % get a freq domain raised cosine filter response
 alpha = 0.35;
 H = calcRCFreqResponse(nSamples, sps, 1, alpha, 'rrc');

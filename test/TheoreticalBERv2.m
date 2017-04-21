@@ -1,6 +1,6 @@
-% Calculating theoretical ber of m-qam signal in gaussian noise using one
-% sample per symbol only, i.e., no pulse-shaping is considered in this
-% version
+% This script calculates the theoretical ber of m-qam signal in gaussian
+% noise using one sample per symbol only, i.e., no pulse-shaping is
+% considered in this version.
 function [] = TheoreticalBERv2(input_k)
 if nargin < 1;
     input_k = 1;
