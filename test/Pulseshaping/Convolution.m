@@ -11,7 +11,7 @@
 %
 clear
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Basic setting
+% ***************************** Basic setting
 % filter has length P < L
 P = 6;
 h = (1 : P) ./ P;
@@ -45,7 +45,7 @@ hold off;
 legend('Linear conv.','N-point DFT','L-point DFT');
 title(sprintf('N = %d, L = %d, P = %d', N, L, P));
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Long sequence - overlap and add
+% ***************************** Long sequence - overlap and add
 % filter impulse response, P=7
 h = [1 2 3 4 3 2 1];
 % data sequence, length 60
@@ -71,7 +71,7 @@ hold on
 plot(y,'x-'); 
 plot(yy(1:length(y)),'o-'); 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Long sequence - overlap and save
+% ***************************** Long sequence - overlap and save
 % use the same data
 yy = zeros(1,80);
 L = 10;
