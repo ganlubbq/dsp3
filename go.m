@@ -1,7 +1,7 @@
 function vM = go(vSet, LOG, VERBOSE, MODE)
 % Fiber-optics with DSP
 %
-% -datestr(datenum(now))
+% datestr(datenum(now))
 %
 % Birth:   04-Sep-2015 14:10:02
 % Rebuilt: 13-Mar-2016 06:43:24
