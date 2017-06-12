@@ -1,4 +1,4 @@
-function [PSD, freqVect] = spectrumAnalyzer(x, freqVect)
+function [psd, freqVect] = spectrumAnalyzer(x, fs)
 % According to parseval's theorem, the signal power in time domain equals
 % the signal power in frequency domain. However, due to normalization used
 % in Matlab, the power integrated in frequency domain via fft should be
@@ -17,27 +17,32 @@ function [PSD, freqVect] = spectrumAnalyzer(x, freqVect)
 %
 % However, the psd is not power per Hz, rather power per frequency slot of
 % spectrum analyzer, varying with the frequency resolution
+nSamples = length(x);
 if nargin < 2
-	nSamples = length(x);
-	freqVect = [(0:nSamples/2-1)'; flipud(-(1:(nSamples/2))')] * 1.0 / nSamples;
-else
-    nSamples = length(x);
+    fs = 1.0;
 end
+freqVect = [(0:nSamples/2-1)'; flipud(-(1:(nSamples/2))')] * fs / nSamples;
 
 freqResolution = (max(freqVect) - min(freqVect)) / (nSamples - 1);
 
 % power in one freq slot
-PSD = abs(fft(x)) .^ 2 / (nSamples * nSamples);
+psd = abs(fft(x)) .^ 2 / (nSamples * nSamples);
 
 figure(99);
-plot(fftshift(freqVect), 10*log10(fftshift(PSD))); 
+plot(fftshift(freqVect), 10*log10(fftshift(psd)));
 grid on; hold on;
 xlim([min(freqVect), max(freqVect)]);
-
+xlabel('Frequency (Hz)');
+ylabel('PSD (dB)');
 % todo: set sensitivity by limiting the y axis
 
-xlabel('Frequency (Hz)'); 
-ylabel('PSD (dB)');
-title(sprintf('Frequency Resolution %.2f MHz', freqResolution/1e6));
+
+if freqResolution > 1e6
+    title(sprintf('Frequency Resolution %.2f MHz', freqResolution/1e6));
+elseif freqResolution > 1e3
+    title(sprintf('Frequency Resolution %.2f KHz', freqResolution/1e3));
+else
+    title(sprintf('Frequency Resolution %.2f Hz', freqResolution));
+end
 
 return
