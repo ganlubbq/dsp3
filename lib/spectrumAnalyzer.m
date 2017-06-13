@@ -28,21 +28,20 @@ freqResolution = (max(freqVect) - min(freqVect)) / (nSamples - 1);
 % power in one freq slot
 psd = abs(fft(x)) .^ 2 / (nSamples * nSamples);
 
-figure(99);
+% figure(99);
 plot(fftshift(freqVect), 10*log10(fftshift(psd)));
-grid on; hold on;
 xlim([min(freqVect), max(freqVect)]);
+ylim([10*log10(eps), 10]);
 xlabel('Frequency (Hz)');
 ylabel('PSD (dB)');
-% todo: set sensitivity by limiting the y axis
-
+grid on;
 
 if freqResolution > 1e6
-    title(sprintf('Frequency Resolution %.2f MHz', freqResolution/1e6));
+    title(sprintf('Spectrum Analyzer: FR %.2f MHz', freqResolution/1e6));
 elseif freqResolution > 1e3
-    title(sprintf('Frequency Resolution %.2f KHz', freqResolution/1e3));
+    title(sprintf('Spectrum Analyzer: FR %.2f KHz', freqResolution/1e3));
 else
-    title(sprintf('Frequency Resolution %.2f Hz', freqResolution));
+    title(sprintf('Spectrum Analyzer: FR %.2f Hz', freqResolution));
 end
 
 return

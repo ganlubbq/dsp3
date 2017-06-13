@@ -19,6 +19,7 @@ pn = 0.1 * cos(2*pi*100e3*t);
 % data model
 x = cos(2*pi*fc*t + pn);
 mf = max(abs(fft(x)).^2)/(nsample*nsample);
+figure(90); hold on;
 spectrumAnalyzer(x, fs);
 
 % white gaussian phase noise
@@ -28,9 +29,9 @@ x = cos(2*pi*fc*t + pn);
 spectrumAnalyzer(x, fs);
 
 % random walk phase noise
-pn = genLaserPhaseNoise(nsample, 0.0001, 0);
+pn = genLaserPhaseNoise(nsample, 0.01, 0);
 % data model
 x = cos(2*pi*fc*t + pn);
 spectrumAnalyzer(x, fs); 
 
-figure(99); ylim([-150, 0]);
+hold off;
