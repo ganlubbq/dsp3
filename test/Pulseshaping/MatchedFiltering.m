@@ -1,69 +1,75 @@
-% Matched filtering is the max-snr filtering technique. The signal model
-%       r = x + n
-% the filter shape acting on r that could get the maximum snr is exactly
-% the x so that the signal is recovered as the self inner product.
+% This script calculates the theoretical ber of m-qam signal in gaussian
+% noise using multiple sample per symbol with pulse-shaping considered in
+% this version. It is shown that the real SNR is obtained by doing matched
+% filtering at the receiver.
+function [] = MatchedFiltering(input_k)
+if nargin < 1;
+    input_k = 1;
+end
 
-clear
+sps = 16;
 
-nSymbol = 2^10;
+nSymbols = 2^16;
+nSamples = sps * nSymbols;
 
 % NUMBER OF BIT PER SYMBOL
-k = 2;
-refbit = randi([0 1], k, nSymbol);
+k = input_k;
+
+refbit = randi([0 1], k, nSymbols);
 
 % mapping bit to symbol
 sym = symbolizerGrayQam(refbit);
 
-% symbol power
-signal_power = sum(abs(sym).^2) / nSymbol
+% pulse-shaping using frequency domain method
+% get a freq domain raised cosine filter response
+alpha = 0.35;
+H = calcRCFreqResponse(nSamples, sps, 1, alpha, 'rrc');
 
-sps = 16;
-nSamples = sps * nSymbol;
-
-%% Upsampling
-if ~iscolumn(sym)
-    sym = sym.';
-end
-sym_upsampled = sps * upSampInsertZeros(sym, sps);
-
-%% get a freq domain raised cosine filter response
-Rs = 1;
-Fs = sps;
-freqVect = getFFTGrid(nSamples,Fs);
-alpha = 0.35; 
-% RRC
-mode = 1;
-H = calcRCFreqResponse(nSamples, Fs, Rs, alpha, mode);
+sym_upsampled = upSampInsertZeros(sym(:), sps);
 
 % filtering signal in frequency domain
 sym_upsampled_i = real(ifft(fft(real(sym_upsampled)) .* H));
 sym_upsampled_q = real(ifft(fft(imag(sym_upsampled)) .* H));
 
-txSignal = sym_upsampled_i + 1i*sym_upsampled_q;
+txSignal = sym_upsampled_i + 1i * sym_upsampled_q;
 
-% display signal power after pulse shaping, optimal sampling instance
-signal_power_tx = sum(abs(txSignal(1:sps:end)).^2) / nSymbol
+% get the signal power which is the power of information
+symbol_power = calcrms(txSignal).^2;
 
-h1 = plotEyeDiagram(txSignal(1:end), 2*sps, 'e');
+% this is symbol snr in db
+snr = -10 : 0.5 : 10;
+for ndx = 1 : length(snr)
+    % noise power in the whole spectrum, obtained by multiplying the noise
+    % power per symbol by the oversampling factor
+    pn = symbol_power * sps / idbw(snr(ndx));
+    
+    % awgn
+    rxSignal = txSignal + genWGN(size(txSignal,1), size(txSignal,2), pn, 'linear', 'complex');
 
-% set a fixed snr dB
-snr = 10;
+    % matched filtering
+    signal_i = real(ifft(fft(real(rxSignal)) .* H));
+    signal_q = real(ifft(fft(imag(rxSignal)) .* H));
+    rxSym = signal_i(1:sps:end) + 1i * signal_q(1:sps:end);
+    
+    bit = slicerGrayQam(rxSym, 2^k);
+   
+    ber(ndx) = sum(abs(bit(:) - refbit(:))) / numel(refbit);
+    
+    fprintf('snr = %.1f, ber = %.2e\n', snr(ndx), ber(ndx));
+end
 
-noise_power = 2 / idbw(snr);
-noise = genWGN(size(txSignal,1), size(txSignal,2), noise_power, 'linear', 'complex');
+if k == 1 
+    % count only real noise 
+    t_ber = snr2ber(idbw(snr)*2, k, 'linear');
+else
+    t_ber = snr2ber(idbw(snr), k, 'linear');
+end
 
-rxSignal = txSignal + noise;
+figure;
+semilogy(snr, ber, 's-', snr, t_ber, 'k-'); 
+grid on
+xlabel('SNR dB'); 
+ylabel('LOG10 BER'); 
+legend(sprintf('%d bit per symbol',k),'Theory');
 
-% filtering received signal in frequency domain by using a matched filter
-rxSignal_i = real(ifft(fft(real(rxSignal)) .* H));
-rxSignal_q = real(ifft(fft(imag(rxSignal)) .* H));
-
-recSignal = rxSignal_i + 1i * rxSignal_q;
-
-h2 = plotEyeDiagram(recSignal(1:end), 2*sps, 'e');
-
-mngFigureWindow(h1,h2);
-
-% read the snr of recovered signal
-recPS = sum(abs(recSignal(1:sps:end)).^2) / nSymbol;
-% recSNR = dbw();
+return
