@@ -1,3 +1,4 @@
+function snr = ber2snr(ber, k, snrmode)
 % Calculate required snr for a given ber with mqam in the awgn model
 %
 % Algorithm:
@@ -8,7 +9,6 @@
 %       erfinv(erf(x)) = x
 %
 % Test: ber2snr(snr2ber(1.5,2,'db'),2,'db')
-function snr = ber2snr(ber, k, snrmode)
 if k == 1
     snr = 2 * (erfinv(1 - 2*ber)) .^ 2;
 elseif k == 2
@@ -25,4 +25,5 @@ switch lower(snrmode)
     otherwise
         keyboard;
 end
+
 return
