@@ -98,4 +98,6 @@ switch lower(type)
     keyboard;
   end
   
+H = H(:);
+  
 return

@@ -41,7 +41,7 @@ sym_upsampled = upSampInsertZeros(sym(:), sps);
 % freq response of raised cosine filter with unit energy, i.e.,
 % sum(ifft(H).^2) == 1
 % such that the signal after pulse-shaping will have the same average power
-H = calcRCFreqResponse(nSamples, sps, 1, beta, 'rc');
+H = calcFilterFreqResp(nSamples, sps, beta, 1, 'rc');
 H = H./sqrt(sum(H.^2)/nSamples);
 
 % filtering signal in frequency domain

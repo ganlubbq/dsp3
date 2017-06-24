@@ -23,7 +23,7 @@ sym = symbolizerGrayQam(refbit);
 % pulse-shaping using frequency domain method
 % get a freq domain raised cosine filter response
 alpha = 0.35;
-H = calcRCFreqResponse(nSamples, sps, 1, alpha, 'rrc');
+H = calcFilterFreqResp(nSamples, sps, alpha, 1, 'rrc');
 
 sym_upsampled = upSampInsertZeros(sym(:), sps);
 
