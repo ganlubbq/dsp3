@@ -8,8 +8,8 @@ function H = calcFilterFreqResp(nsample, fs, order, bandwidth, type)
 % Input: 
 %       nsample     - number of samples
 %       fs          - sampling frequency [Hz]
-%       order       - filter order
-%       bandwidth   - filter 3dB bandwidth one-sided [Hz]
+%       order       - filter order/roll-off factor
+%       bandwidth   - filter 3dB bandwidth one-sided/baudrate [Hz]
 %       type        - filter type
 % 
 % Reference: 

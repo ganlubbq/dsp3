@@ -37,7 +37,7 @@ txSignal = sym_upsampled_i + 1i * sym_upsampled_q;
 symbol_power = calcrms(txSignal).^2;
 
 % this is symbol snr in db
-snr = -10 : 0.5 : 10;
+snr = -10 : 1 : 10;
 for ndx = 1 : length(snr)
     % noise power in the whole spectrum, obtained by multiplying the noise
     % power per symbol by the oversampling factor
@@ -66,10 +66,8 @@ else
 end
 
 figure;
-semilogy(snr, ber, 's-', snr, t_ber, 'k-'); 
-grid on
-xlabel('SNR dB'); 
-ylabel('LOG10 BER'); 
+semilogy(snr, ber, 's-', snr, t_ber, 'k-'); grid on
+xlabel('SNR dB'); ylabel('LOG10 BER'); 
 legend(sprintf('%d bit per symbol',k),'Theory');
 
 return

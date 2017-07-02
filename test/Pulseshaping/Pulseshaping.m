@@ -27,14 +27,12 @@ sym = symbolizerGrayQam(refbit);
 % symbol power spread into one symbol period after zero inserting
 pwr_sig = calcrms(sym).^2 / sps;
 
-% filter response domain, should be FREQ or TIME
-domain = 'FREQ';
-% domain = 'TIME';
-
 % roll-off factor of raised cosine filter
 beta = 0.65;
 
-%%%%%%%%%%%%%%%%%%%%%%% FREQ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FREQ domain
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % upsampling
 sym_upsampled = upSampInsertZeros(sym(:), sps);
 
@@ -60,7 +58,9 @@ pwr_sig_freq = calcrms(sym_filtered).^2;
 
 h1 = plotEyeDiagram(sym_filtered(1:end), 2*sps, 'e');
 
-%%%%%%%%%%%%%%%%%%%%%%% TIME 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TIME domain
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % impulse response of rcos digital filter with unit energy, i.e.,
 % sum(h.^2) == 1
 % such that the signal after pulse-shaping will have the same average power

@@ -1,4 +1,5 @@
-% Using proportional alone doesn't work well for systems with inertia, causing oscillation and so on
+% Using proportional alone doesn't work well for systems with inertia,
+% causing oscillation and so on
 
 clear
 

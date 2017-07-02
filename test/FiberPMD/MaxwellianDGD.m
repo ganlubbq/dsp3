@@ -28,18 +28,11 @@ pMxw = (3 * tau.^2 / (DGD_Section.^3 * N)) .* sqrt(6 / pi / N) .* exp(-3 * tau.^
 % CDF
 cMxw = cumsum(pMxw);
 
-h1 = figure; 
-plot(tau, pMxw, 'b', 'LineWidth', 4);
-xlabel('DGD');
-ylabel('Prob.');
+figure;
+subplot(211); plot(tau, pMxw, 'b', 'LineWidth', 4); grid on
+xlabel('DGD'); ylabel('Prob.');
 legend('Maxwellian PDF');
-grid on
 
-h2 = figure; 
-plot(tau, cMxw, 'r', 'LineWidth', 4);
-xlabel('DGD');
-ylabel('Prob.');
+subplot(212); plot(tau, cMxw, 'r', 'LineWidth', 4); grid on
+xlabel('DGD'); ylabel('Prob.');
 legend('Maxwellian CDF');
-grid on
-
-mngFigureWindow(h1, h2);
