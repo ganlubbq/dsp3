@@ -45,7 +45,7 @@ for k = 2:length(x)
     s(k) = x(k) .* exp(-1i * phi(k-1));
     
     % stochastic gradient; PED with s-curve, equivalent to sin(angle())
-    grad(k) = -imag(s(k) .* conj(ref(k)));
+    grad(k) = - imag(s(k) .* conj(ref(k)));
     
     % err integration
     nco(k) = nco(k-1) + grad(k);
@@ -60,9 +60,9 @@ end
 
 h1 = figure; title('gradient decent');
 % phase estimation
-subplot(2,1,1); plot(tvec, mod(phi,2*pi)); grid on
+subplot(211); plot(tvec, mod(phi, 2*pi)); grid on
 % Squares
-subplot(2,1,2); plot(dbw(J(1:1000))); grid on; ylim([-100 20])
+subplot(212); plot(dbw(J(1 : 1000))); grid on; ylim([-100 20])
 title('SGD');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Solving transformed linear least squares function with gradient descent
@@ -91,7 +91,7 @@ for k = 2:length(x)
     s(k) = x(k) .* exp(-1i * phi(k-1));
     
     % stochastic gradient
-    grad(k) = -imag(s(k) .* conj(ref(k)));
+    grad(k) = - imag(s(k) .* conj(ref(k)));
     
     % stochastic hessian (BE CAREFUL when hessian is small!!!)
     hess(k) = real(s(k) .* conj(ref(k))) + epsilon;
@@ -105,9 +105,9 @@ end
 
 h2 = figure; 
 % phase estimation
-subplot(2,1,1); plot(tvec, mod(phi,2*pi)); grid on
+subplot(211); plot(tvec, mod(phi, 2*pi)); grid on
 % Squares
-subplot(2,1,2); plot(dbw(J(1:1000))); grid on; ylim([-100 20])
+subplot(212); plot(dbw(J(1 : 1000))); grid on; ylim([-100 20])
 title('Newton-Raphson');
 
 % depending on the location of initial guess, this method may converge to

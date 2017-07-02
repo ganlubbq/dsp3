@@ -25,14 +25,14 @@ symRef = symTx;
 % input power
 sp = calcrms(symTx).^2;
 
-% Observe averaged Phase-locked loop S-curve for various SNR
+% Observe averaged S-curve of phase-locked loop under various SNR
 % define phase error
 phaseNoise = -pi : 0.1 : pi + 0.1;
 
 for ii = 1 : length(snr)
     % generate wgn
     sigma2 = 10*log10(sp) - snr(ii);
-    z = wgn(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
+    z = genWGN(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
     
     for k = 1 : length(phaseNoise)
         % data model
@@ -43,22 +43,21 @@ for ii = 1 : length(snr)
     end
 end
 
-h1 = figure; 
-plot(phaseNoise/pi,sc); 
-grid on; 
-xlim([-1 1]);
-ylim([-1 1]);
+figure; 
+subplot(211); plot(phaseNoise/pi,sc); grid on; 
+xlim([-1 1]); ylim([-1 1]);
 xlabel('Phase Error'); ylabel('PED mean');
+title('Averaged S-curve');
 
 sc = [];
 
-% Observe instantanuous Phase-locked loop S-curve for low SNR
+% Observe instantanuous S-curve of phase-locked loop under low SNR
 for ii = 1 : 10
     % randomly pick an symbol index
     tmp = round(rand()*symlen);
     
-    sigma2 = 10*log10(sp) - snr;
-    z = wgn(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
+    sigma2 = 10*log10(sp) - snr(1);
+    z = genWGN(size(symTx,1), size(symTx,2), sigma2, 'dbw', 'complex');
     
     for k = 1 : length(phaseNoise)
         % data model
@@ -69,13 +68,9 @@ for ii = 1 : 10
     end
 end
 
-h2 = figure; 
-plot(phaseNoise,sc); 
-grid on; 
+subplot(212); plot(phaseNoise,sc); grid on; 
 xlim([-pi pi]);
-xlabel('Phase Error'); 
-ylabel('PED');
-
-mngFigureWindow(h1,h2);
+xlabel('Phase Error'); ylabel('PED');
+title('Instantanuous S-curve');
 
 return
