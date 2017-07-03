@@ -57,6 +57,7 @@ sym_filtered = sym_upsampled_i + 1i * sym_upsampled_q;
 pwr_sig_freq = calcrms(sym_filtered).^2;
 
 h1 = plotEyeDiagram(sym_filtered(1:end), 2*sps, 'e');
+title('Frequency domain filtering');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TIME domain
@@ -81,6 +82,7 @@ sym_filtered = sym_upsampled_i + 1i * sym_upsampled_q;
 pwr_sig_time = calcrms(sym_filtered).^2;
 
 h2 = plotEyeDiagram(sym_filtered(1 + delay : end - delay), 2*sps, 'e');
+title('Time domain filtering');
 
 mngFigureWindow(h1, h2);
 
