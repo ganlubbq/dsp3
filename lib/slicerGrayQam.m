@@ -23,7 +23,7 @@ function bit = slicerGrayQam(sym, M)
 % 
 % Note: 
 % 
-% See Also: 
+% See Also: symbolizerGrayQam
 
 % special case of bpsk
 if M == 2

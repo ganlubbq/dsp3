@@ -12,7 +12,7 @@ function sym = symbolizerGrayQam(bit)
 % 
 % Note: Gray mapping only
 % 
-% See Also: 
+% See Also: slicerGrayQam
 
 % size of alphabet
 M = 2 ^ size(bit,1);

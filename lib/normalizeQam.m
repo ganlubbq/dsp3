@@ -3,12 +3,6 @@ function y = normalizeQam(x, mn)
 % 
 % Example: y = normalizeQam (x, mn)
 % 
-% Input: 
-% 
-% Reference: 
-% 
-% Note: 
-% 
 % See Also: 
 
 % get the scaling factor for canonical form, i.e., the average power of canonical

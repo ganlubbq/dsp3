@@ -7,12 +7,6 @@ function oSigMod = oeModIqNested(oSig, eSigI, eSigQ, ERdB, Vpi, V1, V2, V3)
 %		V1		- Vpi/2
 %		V2		- Vpi/2
 %		V3		- Vpi/2
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
 
 oSig  = oSig(:);
 eSigI = eSigI(:);

@@ -3,19 +3,6 @@ function [hs, local_max] = hist2(x1,cmap)
 % return the handle of histogram figure and local peak of it, cmap defines
 % the color map.
 % 
-% Example: 
-% 
-% Input: 
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
-% 
-% Copyright 2015
-
-%
 % check the input parameters
 %
 if nargin < 2
