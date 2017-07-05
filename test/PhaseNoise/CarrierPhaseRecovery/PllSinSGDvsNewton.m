@@ -58,12 +58,9 @@ for k = 2:length(x)
     J(k) = abs(s(k) - ref(k)).^2;
 end
 
-h1 = figure; title('gradient decent');
-% phase estimation
-subplot(211); plot(tvec, mod(phi, 2*pi)); grid on
-% Squares
-subplot(212); plot(dbw(J(1 : 1000))); grid on; ylim([-100 20])
-title('SGD');
+h1 = figure;
+subplot(211); plot(tvec, mod(phi, pi)); grid on; legend('estimated phase');
+subplot(212); plot(dbw(J(1 : 1000))); grid on; ylim([-80 20]); legend('SGD');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Solving transformed linear least squares function with gradient descent
 % method with data model J = |ref*theta - x|^2, by viewing \theta =
@@ -84,7 +81,7 @@ s(1) = x(1);
 phi(1) = 0;
 
 % add this to hessian can solve the convergence problem to some extent
-epsilon = 0.5; 
+epsilon = 0.05; 
 
 for k = 2:length(x)
     % output
@@ -104,11 +101,8 @@ for k = 2:length(x)
 end
 
 h2 = figure; 
-% phase estimation
-subplot(211); plot(tvec, mod(phi, 2*pi)); grid on
-% Squares
-subplot(212); plot(dbw(J(1 : 1000))); grid on; ylim([-100 20])
-title('Newton-Raphson');
+subplot(211); plot(tvec, mod(phi, pi)); grid on; legend('estimated phase');
+subplot(212); plot(dbw(J(1 : 1000))); grid on; ylim([-80 20]); legend('Newton-Raphson');
 
 % depending on the location of initial guess, this method may converge to
 % another solution with pi shift relatively
