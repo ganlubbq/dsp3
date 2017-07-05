@@ -26,18 +26,13 @@ for jj = 1 : length(theta)
 end
 
 % plot the parameterized pdf
-h1 = figure;
-mesh(theta,x,PDF3);
-view([-64 19]);
-xlabel('x');
-ylabel('\theta');
-zlabel('PDF');
+figure;
+subplot(211); mesh(theta,x,PDF3); view([-64 19]);
+xlabel('x'); ylabel('\theta'); zlabel('PDF');
 
 % the likelihood function can be obtained by fix data x and varying unknown
 % parameter
-h2 = figure;
+subplot(212);
 plot(theta, PDF3(10,:)); 
-grid on
-box on
-
-mngFigureWindow(h1,h2);
+xlabel('\theta'); ylabel('p(\theta|x)');
+grid on; box on
