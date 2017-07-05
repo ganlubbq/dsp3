@@ -49,4 +49,4 @@ psd = spectrumAnalyzer(x, fs);
 % summing up does not work anymore!
 prms = sum(psd(1:nsample/2)) - psd(nsample/4 + 1);
 fprintf('estimated power of phase noise %.4f\n', prms);
-hold off;
+box on; hold off;
