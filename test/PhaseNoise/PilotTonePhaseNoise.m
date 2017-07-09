@@ -44,10 +44,24 @@ figure(1); spectrumAnalyzer(xc, fs);
 legend('seperated WGN', 'seperated WGN with lower PSD', 'pilot with WGN with lower PSD');
 % filter out the signal in the filtering zone
 xcf = ifft(fft(xc) .* H.');
-scatterplot(nc); grid on; title('seperated WGN after phase recovery');
 scatterplot(xcf); grid on; title('pilot with WGN after phase recovery');
+scatterplot(nc); grid on; title('seperated WGN after phase recovery');
 
-%% filter the pilot tone
+% interestingly, the (phase) noise power remains in the pilot is nonzero
+% after phase recovery, the power of seperated WGN remains the same,
+% however the combined noise power in the filtering zone is reduced after
+% phase recovery, indicating that although the phase recovery is a linear
+% process to the data mode (d * exp(ip) + w), the residual noise in the data
+% and WGN part is correlated.
+pc = exp(1i*pn) .* conj(xf) ./ abs(xf);
+scatterplot(pc); grid on; title('seperated pilot after phase recovery');
+
+% so, if thers is another signal aside the pilot-tone waiting for the phase
+% noise compensation, it's better not to be too close to the pilot-tone
+% otherwise part of the singal will be reduced to one dimension as well.
+% Although one can observe a noise power reduction in the signal......
+
+%% optimal filter for phase estimation based on pilot-tone
 % moving average
 % ntaps = 5;
 % taps = ones(1, ntaps) / ntaps;
