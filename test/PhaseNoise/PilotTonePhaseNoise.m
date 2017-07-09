@@ -1,4 +1,4 @@
-% Try out different lowpass filtering applied to the pilot-tone with phase
+%% Try out different lowpass filtering applied to the pilot-tone with phase
 % noise. Observe the spectrum line shape and the remaining phase noise
 clear
 % close all
@@ -20,6 +20,7 @@ x = exp(1i * pn) + an;
 ntaps = 10;
 taps = ones(1, ntaps) / ntaps;
 xf = filter(taps, 1, x);
+pf = filter(taps, 1, exp(1i*pn));
 anf = filter(taps, 1, an);
 
 %% gaussian snr with signal power of 1
@@ -40,7 +41,7 @@ box on; hold off
 % scatterplot(xc)
 
 figure(10); clf; hold on
-plot(pn(1:150));
+plot(pn(1:150), 'LineWidth', 2);
 plot(unwrap(angle(xf(1:150)))); 
 legend('Actual phase noise', 'Estimated phase noise');
 grid on; box on;

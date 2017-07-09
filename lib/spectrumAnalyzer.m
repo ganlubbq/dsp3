@@ -17,16 +17,20 @@ function [psd, freqVect] = spectrumAnalyzer(x, fs)
 %
 % However, the psd is not power per Hz, rather power per frequency slot of
 % spectrum analyzer, varying with the frequency resolution
-nSamples = length(x);
+nsample = length(x);
 if nargin < 2
     fs = 1.0;
 end
-freqVect = [(0:nSamples/2-1)'; flipud(-(1:(nSamples/2))')] * fs / nSamples;
+if mod(nsample, 2)
+  freqVect = [(0 : 1 : (nsample-1)/2), (-(nsample-1)/2 : 1 : -1)] * fs / nsample;
+else
+  freqVect = [(0 : 1 : nsample/2-1), (-nsample/2 : 1 : -1)] * fs / nsample;
+end
 
-freqResolution = (max(freqVect) - min(freqVect)) / (nSamples - 1);
+freqResolution = (max(freqVect) - min(freqVect)) / (nsample - 1);
 
 % power in one freq slot
-psd = abs(fft(x)) .^ 2 / (nSamples * nSamples);
+psd = abs(fft(x)) .^ 2 / (nsample * nsample);
 
 % figure(99);
 plot(fftshift(freqVect), 10*log10(fftshift(psd)));
