@@ -5,7 +5,8 @@
 % exp(i*pn), and according to the theory of matched filtering, we should
 % use a filter with the same shape as the data part. However, the true
 % spectrum shape of data part is unknown and one could adapt the width of
-% the LPF towards the maximal dc component of the filtered data part.
+% the LPF towards the maximal dc component of the filtered data part, which
+% is NOT PRACTICAL in real cases...
 
 clear
 close all
@@ -22,7 +23,7 @@ an = genWGN(1, nsample, .3, 'linear', 'complex');
 % data model with zero freq pilot tone
 x = exp(1i * pn) + an;
 
-%% adapt the width of filter
+%% test the best width of filter
 
 filtbw = 10 .^ (5 : 0.1 : log10(fs));
 
@@ -57,7 +58,25 @@ plot(log10(filtbw), mp, 's-'); grid on
 xlabel('Log frequency'); ylabel('DC power');
 legend('data with noise part', 'data part only');
 
+%% adapt using PID loops
 
+filtbw = 1E5;
+stepsize = 10;
+mp = 0;
+err = [];
+
+for ii = 2 : 300
+    H = calcFilterFreqResp(nsample, fs, 0.1, filtbw, 'rc');
+    xf = ifft(fft(x) .* H.');
+    pc = exp(1i * pn) .* conj(xf) ./ abs(xf);
+    % towards the maximal dc power in data part
+    mp(ii) = abs(mean(pc))^2;
+    err(ii - 1) = abs(mean(pc))^2 - mp(ii - 1);
+    filtbw = filtbw + stepsize * err(ii - 1) * 1E5; % + 0.1 * sum(err) * 1E5;
+end
+
+figure; plot(err, 'o-'); hold on
+plot(mp, 's-'); grid on
     
 % pn_est = calcrms(xc - mean(xc)).^2;
 % fprintf('estimated power of noise is %.4g \n', pn_est)
