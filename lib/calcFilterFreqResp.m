@@ -13,8 +13,10 @@ function H = calcFilterFreqResp(nsample, fs, order, bandwidth, type)
 %       type        - filter type
 %
 % Reference:
+% [1] Martin Pfennigbauer et al "Choice of MUX/DEMUX filter
+% characteristics for NRZ RZ and CSRZ..." JLT 2006
 %
-% Note:
+% Note: The PSD = H.^2
 %
 % See also: calcDispResponse, calcOptGaussFlt
 
