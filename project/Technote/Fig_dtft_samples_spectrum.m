@@ -4,10 +4,10 @@ close all
 x = -6 : 0.01 : 6;
 y = sinc(x);
 
-figure; plot(x/2,y); grid on; box on; hold on
-x = -6 : 2 :6;
+figure; plot(x,y); grid on; box on; hold on
+x = -6 : 1 :6;
 y = sinc(x);
-stem(x/2,y); grid on; box on
+stem(x,y); grid on; box on
 
 
 x = -6 : 0.01 : 6;
@@ -58,4 +58,4 @@ plot(fftshift(freq), fftshift(H), 'k-.');
 
 ylim([-0.2, 1.2]);
 
-legend('Perfect SINC', 'Raised Cosine 0.2', 'Raised Cosine 0.35');
+legend('Perfect Rectangular', 'Raised Cosine 0.2', 'Raised Cosine 0.35');

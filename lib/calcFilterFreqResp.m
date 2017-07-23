@@ -91,6 +91,11 @@ switch lower(type)
         
         H = H ./ HSINC;
         
+    case 'rect'
+        freq = getFFTGrid(nsample, fs);
+        H = zeros(size(freq)) + eps;
+        H(abs(freq) <= bandwidth) = 1;
+        
     otherwise
         keyboard;
 end
