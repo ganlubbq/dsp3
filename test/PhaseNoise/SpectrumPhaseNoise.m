@@ -41,6 +41,7 @@ fprintf('estimated power of phase noise %.4f\n', prms);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % random walk phase noise, the spectrum of random walk has Lorentzian shape
+% todo: the maximum has a formula
 pn = genLaserPhaseNoise(nsample, 1e-4, 0);
 % data model
 x = 2 * cos(2 * pi * fc * t + pn);
