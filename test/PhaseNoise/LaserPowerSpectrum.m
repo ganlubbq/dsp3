@@ -1,18 +1,30 @@
 % Ref: 
+%
 % Magarini, Maurizio, et al. "Empirical modeling and simulation of
 % phase noise in long-haul coherent optical transmission systems." Optics
 % Express 19.23 (2011): 22455-22461.
+%
+% Di Domenico, Gianni, Stéphane Schilt, and Pierre Thomann. "Simple
+% approach to the relation between laser frequency noise and laser line
+% shape." Applied optics 49.25 (2010): 4801-4807.
+%
+% 
+% Try sigma2 = 2. The spectral line shape looks gaussian.
+% Try sigma2 = 2e-3. The spectral line shape looks lorentzian.
+% Try even smaller sigma2 = 2e-6. Bad model.
+%
+%
 
 clear
 close all
 
-fc = 1e6;
 fs = 4e6;
 nsample = 10^5;
 t = 0 : (1/fs) : (nsample-1)/fs;
 freq = getFFTGrid(nsample, fs);
 
-sigma2 = 1e-2;
+sigma2 = 2;
+% sigma2 = 2e-3;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for ii = 1 : 100
     % random walk phase noise, the spectrum of random walk has Lorentzian shape
