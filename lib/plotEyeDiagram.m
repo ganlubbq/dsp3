@@ -10,9 +10,7 @@ if ~iscolumn(x)
     error('input has to be a column vector');
 end
 
-offset = 0;
-
-% fancy one
+% fancy one...
 % h = commscope.eyediagram(...
 %     'SamplingFrequency', samplingRate, ...
 %     'SamplesPerSymbol', sps * upfactor, ...
@@ -25,22 +23,21 @@ offset = 0;
 
 % get rid of extra data
 tmp = mod(length(x), period);
-x = x(1 : end-tmp);
-
-x = reshape(x, period, []);
+xds = x(1 : end - tmp);
+xrs = reshape(xds, period, []);
 
 switch xMode
     case 'o'
-        h = figure;
-        plot(abs(x).^2, 'b'); grid on
+        h = figure; plot(0 : period - 1, abs(xrs).^2, 'b'); grid on
+        xlim([0, period]);
     case 'e'
         if isreal(x)
-            h = figure;
-            plot(x, 'b'); grid on
+            h = figure; plot(0 : period - 1, xrs, 'b'); grid on
+            xlim([0, period]);
         else
             h = figure;
-            subplot(211); plot(real(x), 'b'); grid on
-            subplot(212); plot(imag(x), 'g'); grid on
+            subplot(211); plot(0 : period - 1, real(xrs), 'b'); grid on; xlim([0, period]);
+            subplot(212); plot(0 : period - 1, imag(xrs), 'g'); grid on; xlim([0, period]);
         end
     otherwise
         warning('input data mode not supported'); keyboard;
