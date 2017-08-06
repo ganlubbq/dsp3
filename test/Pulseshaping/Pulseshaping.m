@@ -48,7 +48,7 @@ pwr_sig = Ts * sum(abs(symseq).^2) / (Ts * nsample);
 % period of time, i.e., the sampling interval. Therefore, a smaller signal
 % energy is concluded.
 
-% Luckily, the zero-padded symbol sequence is an extremely non-practical in
+% Luckily, the zero-padded symbol sequence is extremely non-practical in
 % the real world as it has infinite bandwidth and there is no way to sample
 % it properly. Signals in the real world are inevitably band-limited and
 % therefore exhibit smoothness in time domain to some extent. Hence, a
