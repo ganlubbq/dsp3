@@ -11,3 +11,4 @@ quantization noise
 Timing jitter
 Skew
 Theoretical BER of m-QAM
+DFT -> spectrum leakage and windowing, pre-sum DFT, spectrum estimation
