@@ -32,6 +32,9 @@ freqResolution = (max(freqVect) - min(freqVect)) / (nsample - 1);
 % power in one freq slot
 psd = abs(fft(x)) .^ 2 / (nsample * nsample);
 
+% periodogram is the true power density
+prd = psd / (fs / nsample);
+
 % figure(99);
 plot(fftshift(freqVect), 10*log10(fftshift(psd)));
 xlim([min(freqVect), max(freqVect)]);
