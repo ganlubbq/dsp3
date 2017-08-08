@@ -40,7 +40,9 @@ figure; plot(0 : N/2 - 1, dbw(psd)); grid on; legend('original DFT');
 
 
 %% zero-padding the data samples will not increase the actual frequency
-% resolution, but only to show more details of window pattern...
+% resolution, but only to show more details of window pattern...even if
+% frequency 2 falls exactly on one of the DFT grid, spectral leakage still
+% can be observed
 signal = [signal_1 + signal_2, zeros(1, 8000 - N)];
 N = 8000;
 
