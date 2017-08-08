@@ -16,11 +16,16 @@ function [psd, freqVect] = spectrumAnalyzer(x, fs)
 %   total_power = sum(psd_on_sa)
 %
 % However, the psd is not power per Hz, rather power per frequency slot of
-% spectrum analyzer, varying with the frequency resolution
-nsample = length(x);
+% spectrum analyzer, varying with the frequency resolution.
+%
+% To show the true PSD, the psd should be divided further by the frequency
+% resolution.
+
 if nargin < 2
     fs = 1.0;
 end
+
+nsample = length(x);
 if mod(nsample, 2)
   freqVect = [(0 : 1 : (nsample-1)/2), (-(nsample-1)/2 : 1 : -1)] * fs / nsample;
 else
@@ -40,7 +45,7 @@ plot(fftshift(freqVect), 10*log10(fftshift(psd)));
 xlim([min(freqVect), max(freqVect)]);
 ylim([10*log10(eps), 10]);
 xlabel('Frequency (Hz)');
-ylabel('PSD (dB)');
+ylabel('Power (dB)');
 grid on;
 
 if freqResolution > 1e6
