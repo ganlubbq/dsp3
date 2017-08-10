@@ -45,7 +45,7 @@ plot(fftshift(freqVect), 10*log10(fftshift(psd)));
 xlim([min(freqVect), max(freqVect)]);
 ylim([10*log10(eps), 10]);
 xlabel('Frequency (Hz)');
-ylabel('Power (dB)');
+ylabel('Power per sample (dB)');
 grid on;
 
 if freqResolution > 1e6
