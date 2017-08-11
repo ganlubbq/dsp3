@@ -17,6 +17,8 @@ f2 = 1000;
 % sampling speed
 fs = 8000;
 
+freq = getFFTGrid(N, fs);
+
 % the maximal energy in frequency, fm1 is off grid, fm2 is on grid
 fm1 = N * f1 / fs
 fm2 = N * f2 / fs
@@ -29,9 +31,14 @@ signal_1 = cos(2 * pi * f1 * (0 : N-1) ./ fs);
 
 % get the periodogram
 temp = fft(signal_1);
-psd = abs(temp(1 : N/2)).^2 / N /fs;
-% psd = abs(temp(1 : N/2)).^2 / N / N;
-figure; plot(0 : N/2 - 1, dbw(psd)); grid on; legend('nfft = 2048');
+% psd = abs(temp(1 : N/2)).^2 / N /fs;
+% to reveal more details of DTFT estimation only
+psd = 2 * abs(temp).^2 / N / N;
+
+figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 2); grid on; 
+xlabel('Frequency (Hz)'); ylabel('Power per sample (dB)');
+legend('nfft = 2048');
+xlim([0, max(freq)]);
 
 
 %% signal on grid
@@ -42,9 +49,14 @@ signal_2 = cos(2 * pi * f2 * (0 : N-1) ./ fs);
 
 % get the periodogram
 temp = fft(signal_2);
-psd = abs(temp(1 : N/2)).^2 / N /fs;
-% psd = abs(temp(1 : N/2)).^2 / N / N;
-figure; plot(0 : N/2 - 1, dbw(psd)); grid on; legend('nfft = 2048');
+% psd = abs(temp(1 : N/2)).^2 / N /fs;
+% to reveal more details of DTFT estimation only
+psd = 2 * abs(temp).^2 / N / N;
+
+figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 2); grid on; 
+xlabel('Frequency (Hz)'); ylabel('Power per sample (dB)');
+legend('nfft = 2048');
+xlim([0, max(freq)]);
 
 
 %% zero-padding the data samples will not increase the actual frequency
@@ -52,24 +64,33 @@ figure; plot(0 : N/2 - 1, dbw(psd)); grid on; legend('nfft = 2048');
 % frequency 2 falls exactly on one of the DFT grid, spectral leakage still
 % can be observed
 L = 8000;
+freq = getFFTGrid(L, fs);
 signal = [signal_1, zeros(1, L - N)];
 
 % get the periodogram
 temp = fft(signal);
-psd = abs(temp(1 : L/2)).^2 / N /fs;
-% psd = abs(temp(1 : N/2)).^2 / N / L;
+% psd = abs(temp(1 : L/2)).^2 / N /fs;
+% to reveal more details of DTFT estimation only
+psd = 2 * abs(temp).^2 / N / N;
 
-figure; plot(0 : L/2 - 1, dbw(psd)); grid on; legend('N = 2048, zero-padded to 8000');
+figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 1); grid on; 
+xlabel('Frequency (Hz)'); ylabel('Power per sample (dB)');
+legend('nfft = 8000 with zero-padding');
+xlim([0, max(freq)]);
 
 L = 8000;
 signal = [signal_2, zeros(1, L - N)];
 
 % get the periodogram
 temp = fft(signal);
-psd = abs(temp(1 : L/2)).^2 / N /fs;
-% psd = abs(temp(1 : N/2)).^2 / N / L;
+% psd = abs(temp(1 : L/2)).^2 / N /fs;
+% to reveal more details of DTFT estimation only
+psd = 2 * abs(temp).^2 / N / N;
 
-figure; plot(0 : L/2 - 1, dbw(psd)); grid on; legend('N = 2048, zero-padded to 8000');
+figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 1); grid on; 
+xlabel('Frequency (Hz)'); ylabel('Power per sample (dB)');
+legend('nfft = 8000 with zero-padding');
+xlim([0, max(freq)]);
 
 
 %% increas nfft
