@@ -1,4 +1,4 @@
-function [psd, freqVect] = spectrumAnalyzer(x, fs)
+function [psd, pxx, freq] = spectrumAnalyzer(x, fs)
 % According to parseval's theorem, the signal power in time domain equals
 % the signal power in frequency domain. However, due to normalization used
 % in Matlab, the power integrated in frequency domain via fft should be
@@ -22,38 +22,38 @@ function [psd, freqVect] = spectrumAnalyzer(x, fs)
 % resolution.
 
 if nargin < 2
-    fs = 1.0;
+    fs = 2.0;
 end
 
 nsample = length(x);
 if mod(nsample, 2)
-  freqVect = [(0 : 1 : (nsample-1)/2), (-(nsample-1)/2 : 1 : -1)] * fs / nsample;
+  freq = [(0 : 1 : (nsample - 1)/2), (-(nsample - 1)/2 : 1 : -1)] * fs / nsample;
 else
-  freqVect = [(0 : 1 : nsample/2-1), (-nsample/2 : 1 : -1)] * fs / nsample;
+  freq = [(0 : 1 : nsample/2 - 1), (-nsample/2 : 1 : -1)] * fs / nsample;
 end
 
-freqResolution = (max(freqVect) - min(freqVect)) / (nsample - 1);
+resolution = (max(freq) - min(freq)) / (nsample - 1);
 
 % power in one freq slot
 psd = abs(fft(x)) .^ 2 / (nsample * nsample);
 
 % periodogram is the true power density
-prd = psd / (fs / nsample);
+pxx = psd / (fs / nsample);
 
 % figure(99);
-plot(fftshift(freqVect), 10*log10(fftshift(psd)));
-xlim([min(freqVect), max(freqVect)]);
+plot(fftshift(freq), 10*log10(fftshift(psd)));
+xlim([min(freq), max(freq)]);
 ylim([10*log10(eps), 10]);
 xlabel('Frequency (Hz)');
 ylabel('Power per sample (dB)');
 grid on;
 
-if freqResolution > 1e6
-    title(sprintf('Spectrum Analyzer: FR %.2f MHz', freqResolution/1e6));
-elseif freqResolution > 1e3
-    title(sprintf('Spectrum Analyzer: FR %.2f KHz', freqResolution/1e3));
+if resolution >= 1e6
+    title(sprintf('Spectrum Analyzer: Resolution %.2f MHz', resolution/1e6));
+elseif resolution >= 1e3
+    title(sprintf('Spectrum Analyzer: Resolution %.2f KHz', resolution/1e3));
 else
-    title(sprintf('Spectrum Analyzer: FR %.2f Hz', freqResolution));
+    title(sprintf('Spectrum Analyzer: Resolution %.2f Hz', resolution));
 end
 
 return

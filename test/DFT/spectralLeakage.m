@@ -22,28 +22,29 @@ fm1 = N * f1 / fs
 fm2 = N * f2 / fs
 
 
-%% signal with 2 distinct frequencies
+%% signal off grid
+% due to finite resolution of DFT, the maximal energy of frequency that is
+% not falling on the grid on DFT leaks into frequency bins around fm
 signal_1 = cos(2 * pi * f1 * (0 : N-1) ./ fs);
 
 % get the periodogram
 temp = fft(signal_1);
 psd = abs(temp(1 : N/2)).^2 / N /fs;
 % psd = abs(temp(1 : N/2)).^2 / N / N;
+figure; plot(0 : N/2 - 1, dbw(psd)); grid on; legend('nfft = 2048');
 
-% however, due to finite resolution of DFT, the maximal energy of frequency
-% that is not falling on the grid on DFT leaks into frequency bins around
-% fm
-% the spectral leakage is frequency dependent, for certain frequencies
-% there is no spectral leakage as the fm coincides with one of the DFT
-% bins
-figure; plot(0 : N/2 - 1, dbw(psd)); grid on; legend('original DFT');
 
+%% signal on grid
+% however, the spectral leakage is frequency dependent, for certain
+% frequencies there is no spectral leakage as the fm coincides with one of
+% the DFT bins
 signal_2 = cos(2 * pi * f2 * (0 : N-1) ./ fs);
+
 % get the periodogram
 temp = fft(signal_2);
 psd = abs(temp(1 : N/2)).^2 / N /fs;
 % psd = abs(temp(1 : N/2)).^2 / N / N;
-figure; plot(0 : N/2 - 1, dbw(psd)); grid on; legend('original DFT');
+figure; plot(0 : N/2 - 1, dbw(psd)); grid on; legend('nfft = 2048');
 
 
 %% zero-padding the data samples will not increase the actual frequency
