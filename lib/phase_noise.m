@@ -1,7 +1,5 @@
-function phase_noise = genLaserPhaseNoise(nSample,pnvar,p0)
+function phase_noise = phase_noise(nSample,pnvar,p0)
 % Generate laser phase noise with certain variance
-% 
-% Example: phase_noise = genLaserPhaseNoise(nSample,pnvar,p0)
 % 
 % Input: 
 % 

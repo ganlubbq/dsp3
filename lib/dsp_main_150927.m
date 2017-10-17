@@ -13,7 +13,7 @@
 % 
 % Copyright 2015 Default
 
-function [dspOut1,dspOut2,dspState] = dspMain_built_150927( xi, xq, yi, yq,dspParam)
+function [dspOut1,dspOut2,dspState] = dsp_main_150927( xi, xq, yi, yq,dspParam)
 
 dspState = [];
 

@@ -1,4 +1,4 @@
-function [dspOut1, dspOut2, dspState] = dspMain_built_151229(xi, xq, yi, yq, dspParam)
+function [dspOut1, dspOut2, dspState] = dsp_main_151229(xi, xq, yi, yq, dspParam)
 % Main testing funtion for offline processing. Using circular boundary
 % condition for adaptive equalizer convergence. 
 % 

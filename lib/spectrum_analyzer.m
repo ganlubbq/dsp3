@@ -1,4 +1,4 @@
-function [psd, pxx, freq] = spectrumAnalyzer(x, fs)
+function [psd, pxx, freq] = spectrum_analyzer(x, fs)
 % According to parseval's theorem, the signal power in time domain equals
 % the signal power in frequency domain. However, due to normalization used
 % in Matlab, the power integrated in frequency domain via fft should be

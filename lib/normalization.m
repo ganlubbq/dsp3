@@ -1,12 +1,10 @@
-function y = normalizeQam(x, mn)
+function y = normalization(x, mn)
 % Normalize m-QAM signal to its canonical form
-% 
-% Example: y = normalizeQam (x, mn)
 % 
 % See Also: 
 
-% get the scaling factor for canonical form, i.e., the average power of canonical
-% form. Note that the scaling factor is 2/3*(mn-1) for square QAM
+% get the scaling factor for canonical form, i.e., the average power of
+% canonical form. Note that the scaling factor is 2/3*(mn-1) for square QAM
 scale_factor = getPowerFactorQAM(mn);
 
 % first normalize signal to UNIT average symbol energy

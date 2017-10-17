@@ -1,7 +1,5 @@
-function [newstate] = fifoBuffer(state, data)
+function [newstate] = fifo_buffer(state, data)
 % FIFO buffering data in rows
-%
-% Example: [newstate] = fifoBuffer(state,data)
 % 
 % Input: 
 %       state       - current buffer

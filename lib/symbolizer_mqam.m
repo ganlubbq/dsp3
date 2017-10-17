@@ -1,9 +1,7 @@
-function sym = symbolizerGrayQam(bit)
+function sym = symbolizer_mqam(bit)
 % Convert bits in rows to square mQAM symbols according to gray mapping.
 % The decimal order of uncoded symbol in contellation is from topleft to
 % bottomright by columns
-% 
-% Example: sym = symbolizerGrayQam(bit)
 % 
 % Input: bit - input bits in rows, the number of rows reps number of bit
 % per symbol
