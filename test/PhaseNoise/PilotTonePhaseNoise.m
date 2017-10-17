@@ -14,9 +14,9 @@ nsample = 10^7;
 t = 0 : (1/fs) : (nsample-1)/fs;
 
 %% random walk phase noise
-pn = genLaserPhaseNoise(nsample, 2*pi*1E-3, 0);
+pn = phase_noise(nsample, 2*pi*1E-3, 0);
 % a white gaussian additive noise
-an = genWGN(1, nsample, .3, 'linear', 'complex');
+an = gaussian_noise(1, nsample, .3, 'linear', 'complex');
 % data model with zero freq pilot tone
 x = exp(1i * pn) + an;
 
@@ -32,8 +32,8 @@ xc = x .* conj(xf) ./ abs(xf);
 nc = an .* conj(xf) ./ abs(xf);
 
 % observe there is a peak in the noise after compensation
-figure(1); spectrumAnalyzer(an, fs); hold on
-figure(1); spectrumAnalyzer(nc, fs);
+figure(1); spectrum_analyzer(an, fs); hold on
+figure(1); spectrum_analyzer(nc, fs);
 
 % in this section, i want to show that the phase recovery process based on
 % a pilot-tone will lower even more of the PSD of WGN added to that
@@ -45,7 +45,7 @@ figure(1); spectrumAnalyzer(nc, fs);
 % domain, we can observe that everything including the noise is REDUCED TO
 % ONE DIMENSION, while the seperated WGN remains two dimension after phase
 % recovery.
-figure(1); spectrumAnalyzer(xc, fs);
+figure(1); spectrum_analyzer(xc, fs);
 legend('Seperated WGN', 'Seperated WGN with lower PSD', 'Pilot with WGN with lower PSD');
 % filter out the signal in the filtering zone
 xcf = ifft(fft(xc) .* H.');

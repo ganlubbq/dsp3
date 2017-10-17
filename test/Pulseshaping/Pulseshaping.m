@@ -19,7 +19,7 @@ nsample = sps * nsymbol;
 
 k = 2;
 refbit = randi([0 1], k, nsymbol);
-symseq = symbolizerGrayQam(refbit);
+symseq = symbolizer_mqam(refbit);
 % symseq = ones(1,nSymbol) - 1i * ones(1,nSymbol);
 
 % energy and power of symbol sequence

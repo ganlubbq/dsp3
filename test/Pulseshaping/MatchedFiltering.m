@@ -18,7 +18,7 @@ k = input_k;
 refbit = randi([0 1], k, nSymbols);
 
 % mapping bit to symbol
-sym = symbolizerGrayQam(refbit);
+sym = symbolizer_mqam(refbit);
 
 % pulse-shaping using frequency domain method
 % get a freq domain raised cosine filter response
@@ -44,14 +44,14 @@ for ndx = 1 : length(snr)
     pn = symbol_power * sps / idbw(snr(ndx));
     
     % awgn
-    rxSignal = txSignal + genWGN(size(txSignal,1), size(txSignal,2), pn, 'linear', 'complex');
+    rxSignal = txSignal + gaussian_noise(size(txSignal,1), size(txSignal,2), pn, 'linear', 'complex');
 
     % matched filtering
     signal_i = real(ifft(fft(real(rxSignal)) .* H));
     signal_q = real(ifft(fft(imag(rxSignal)) .* H));
     rxSym = signal_i(1:sps:end) + 1i * signal_q(1:sps:end);
     
-    bit = slicerGrayQam(rxSym, 2^k);
+    bit = slicer_mqam(rxSym, 2^k);
    
     ber(ndx) = sum(abs(bit(:) - refbit(:))) / numel(refbit);
     

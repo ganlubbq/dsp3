@@ -35,10 +35,10 @@ sigma2 = 2e-4
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for ii = 1 : 2
     % random walk phase noise, the spectrum of random walk has Lorentzian shape
-    pn = genLaserPhaseNoise(nsample, sigma2, 0);
+    pn = phase_noise(nsample, sigma2, 0);
     
     % WGN
-    w = genWGN(size(pn,1), size(pn,2), .1, 'linear', 'complex');
+    w = gaussian_noise(size(pn,1), size(pn,2), .1, 'linear', 'complex');
     
     % data model
     x = exp(1i * pn) + w;

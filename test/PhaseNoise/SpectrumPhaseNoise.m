@@ -25,15 +25,15 @@ pn = an * cos(2 * pi * 100e3 * t);
 x = 2 * cos(2 * pi * fc * t + pn);
 mf = max(abs(fft(x)).^2) / (nsample * nsample);
 figure(90); hold on;
-spectrumAnalyzer(x, fs);
+spectrum_analyzer(x, fs);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % white gaussian phase noise
-pn = genWGN(1, nsample, 0.02, 'linear', 'real');
+pn = gaussian_noise(1, nsample, 0.02, 'linear', 'real');
 % data model
 x = 2 * cos(2 * pi * fc * t + pn);
 % the signal has white spectrum outside the carrier
-psd = spectrumAnalyzer(x, fs);
+psd = spectrum_analyzer(x, fs);
 % sum all the freq. components from 0 to fs/2, excluding the carrier, will
 % give the power of phase noise
 prms = sum(psd(1:nsample/2)) - psd(nsample/4 + 1);
@@ -42,11 +42,11 @@ fprintf('estimated power of phase noise %.4f\n', prms);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % random walk phase noise, the spectrum of random walk has Lorentzian shape
 % todo: the maximum has a formula
-pn = genLaserPhaseNoise(nsample, 1e-4, 0);
+pn = phase_noise(nsample, 1e-4, 0);
 % data model
 x = 2 * cos(2 * pi * fc * t + pn);
 % the signal has another Lorentzian spectrum line shape
-psd = spectrumAnalyzer(x, fs); 
+psd = spectrum_analyzer(x, fs); 
 % summing up does not work anymore!
 prms = sum(psd(1:nsample/2)) - psd(nsample/4 + 1);
 fprintf('estimated power of phase noise %.4f\n', prms);
