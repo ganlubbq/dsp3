@@ -24,7 +24,7 @@ for pp = 1 : length(snr)
 	th2ln = 10^(th2db/10);
     
     % add gaussian real noise
-	z = genWGN(1, symlen, th2db, 'dbw', 'real');
+	z = gaussian_noise(1, symlen, th2db, 'dbw', 'real');
 	
 	for kk = 1 : mn
 		for ii = 1 : mn

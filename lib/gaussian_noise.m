@@ -1,7 +1,5 @@
-function y = genWGN(nrow,ncol,p,pmod,dmod)
+function w = gaussian_noise(nrow, ncol, p, pmod, dmod)
 % Generate real or complex white Gaussian noise
-% 
-% Example: y = genWGN(nrow,ncol,p,pmod,dmod)
 % 
 % Input: 
 %       len     - length of data
@@ -17,7 +15,7 @@ function y = genWGN(nrow,ncol,p,pmod,dmod)
 
 % default impedance
 imp = 1;
-y = zeros(nrow,ncol);
+w = zeros(nrow,ncol);
 
 switch lower(pmod)
     case 'linear'
@@ -36,25 +34,25 @@ switch lower(dmod)
             for ii = 1:ncol
                 rnd0 = randn(nrow,1); rnd0n = rnd0/sqrt(mean(rnd0.^2));
                 rnd1 = randn(nrow,1); rnd1n = rnd1/sqrt(mean(rnd1.^2));
-                y(:,ii) = (sqrt(imp*noisePower/2))*(rnd0n+1j*rnd1n);
+                w(:,ii) = (sqrt(imp*noisePower/2))*(rnd0n+1j*rnd1n);
             end
         else
             for ii = 1:nrow
                 rnd0 = randn(1,ncol); rnd0n = rnd0/sqrt(mean(rnd0.^2));
                 rnd1 = randn(1,ncol); rnd1n = rnd1/sqrt(mean(rnd1.^2));
-                y(ii,:) = (sqrt(imp*noisePower/2))*(rnd0n+1j*rnd1n);
+                w(ii,:) = (sqrt(imp*noisePower/2))*(rnd0n+1j*rnd1n);
             end
         end
     case 'real'
         if ss
             for ii = 1:ncol
                 rnd0 = randn(nrow,1); rnd0n = rnd0/sqrt(mean(rnd0.^2));
-                y(:,ii) = (sqrt(imp*noisePower))*rnd0n;
+                w(:,ii) = (sqrt(imp*noisePower))*rnd0n;
             end
         else
             for ii = 1:nrow
                 rnd0 = randn(1,ncol); rnd0n = rnd0/sqrt(mean(rnd0.^2));
-                y(ii,:) = (sqrt(imp*noisePower))*rnd0n;
+                w(ii,:) = (sqrt(imp*noisePower))*rnd0n;
             end
         end
     otherwise

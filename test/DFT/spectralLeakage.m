@@ -10,12 +10,12 @@ close all
 
 %% global parameters
 % number of DFT
-N = 2048;
+N = 256;
 % freq of signal
-f1 = 400;
-f2 = 1000;
+f1 = 40;
+f2 = 100;
 % sampling speed
-fs = 8000;
+fs = 800;
 
 freq = getFFTGrid(N, fs);
 
@@ -36,8 +36,8 @@ temp = fft(signal_1);
 psd = 2 * abs(temp).^2 / N / N;
 
 figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 2); grid on; 
-xlabel('Frequency (Hz)'); ylabel('Power per sample (dB)');
-legend('nfft = 2048');
+xlabel('Frequency (Hz)'); ylabel('|DFT|^2 / N (dB)');
+legend('N = 256');
 xlim([0, max(freq)]);
 
 
@@ -54,8 +54,8 @@ temp = fft(signal_2);
 psd = 2 * abs(temp).^2 / N / N;
 
 figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 2); grid on; 
-xlabel('Frequency (Hz)'); ylabel('Power per sample (dB)');
-legend('nfft = 2048');
+xlabel('Frequency (Hz)'); ylabel('|DFT|^2 / N (dB)');
+legend('N = 256');
 xlim([0, max(freq)]);
 
 
@@ -63,7 +63,7 @@ xlim([0, max(freq)]);
 % resolution, but only to show more details of window pattern...even if
 % frequency 2 falls exactly on one of the DFT grid, spectral leakage still
 % can be observed
-L = 8000;
+L = 800;
 freq = getFFTGrid(L, fs);
 signal = [signal_1, zeros(1, L - N)];
 
@@ -74,11 +74,11 @@ temp = fft(signal);
 psd = 2 * abs(temp).^2 / N / N;
 
 figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 1); grid on; 
-xlabel('Frequency (Hz)'); ylabel('Power per sample (dB)');
-legend('nfft = 8000 with zero-padding');
+xlabel('Frequency (Hz)'); ylabel('|DFT|^2 / N (dB)');
+legend('N = 256, M = 800');
 xlim([0, max(freq)]);
 
-L = 8000;
+L = 800;
 signal = [signal_2, zeros(1, L - N)];
 
 % get the periodogram
@@ -88,8 +88,8 @@ temp = fft(signal);
 psd = 2 * abs(temp).^2 / N / N;
 
 figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 1); grid on; 
-xlabel('Frequency (Hz)'); ylabel('Power per sample (dB)');
-legend('nfft = 8000 with zero-padding');
+xlabel('Frequency (Hz)'); ylabel('|DFT|^2 / N (dB)');
+legend('N = 256, M = 800');
 xlim([0, max(freq)]);
 
 

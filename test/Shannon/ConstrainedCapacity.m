@@ -38,7 +38,7 @@ for qq = 1 : length(bitpersym)
         th2 = 10*log10(sp) - snr(pp);
         
         % _TWO DIMENSION COMPLEX GAUSSIAN NOISE_
-        z = wgn(1, symlen, th2, 'dbw', 'complex');
+        z = gaussian_noise(1, symlen, th2, 'dbw', 'complex');
         
         for kk = 1:mn
             for ii = 1:mn
