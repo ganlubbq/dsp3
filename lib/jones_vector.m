@@ -1,16 +1,6 @@
-function jv = calcJonesVector(azi, ell)
+function jv = jones_vector(azi, ell)
 % Calculate Jones vector with parameter of azimuth and ellipticity in
 % degree
-% 
-% Example: jv = calcJonesVector(azi,ell)
-% 
-% Input: 
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
 % 
 % Copyright 2015 Default
 
@@ -21,7 +11,7 @@ while abs(ell) > 45
     ell = (abs(ell) - 90) * sign(ell);
 end
 
-% convert to radius
+% convert degree to radius
 ita = azi / 180 * pi;
 eps = ell / 180 * pi;
 
@@ -35,7 +25,8 @@ else
     d = asin(sin(2*eps) / 2 / sqrt(k * (1 - k)));
 end
 
-jv = [sqrt(1 - k); sqrt(k) * exp(1i * d)];
+jv = [sqrt(1 - k); ...
+    sqrt(k) * exp(1i * d)];
 
 % if it is in Western Hemisphere %
 if ita < 0

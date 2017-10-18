@@ -1,9 +1,6 @@
-function H = calcFilterFreqResp(nsample, fs, order, bandwidth, type)
+function H = frequency_response(nsample, fs, order, bandwidth, type)
 % Calculate the frequency response of digital filter with input order and
 % 3dB bandwidth
-%
-% Example:
-%   H = calcFilterFreqResp(nsample, fs, order, bandwidth, type)
 %
 % Input:
 %       nsample     - number of samples
@@ -26,13 +23,13 @@ end
 
 switch lower(type)
     case 'bessel'
-        vAlpha = [1.0, 1.361654129, 1.755672389, 2.113917675, 2.427410702, 2.703395061];
+        alpha = [1.0, 1.361654129, 1.755672389, 2.113917675, 2.427410702, 2.703395061];
         
         % frequency grid in Hz
-        freqGrid = getFFTGrid(nsample, fs);
+        freq = getFFTGrid(nsample, fs);
         
         % Laplace transformation
-        s = 1i * freqGrid / bandwidth * vAlpha(order);
+        s = 1i * freq / bandwidth * alpha(order);
         
         % Order coeff
         n = order;
@@ -45,19 +42,19 @@ switch lower(type)
         H = D(1,:) ./ sum(D);
         
         % Remove group delay
-        ndxFreq = find(freqGrid >= 0 & freqGrid < bandwidth / vAlpha(order));
-        pp = polyfit(freqGrid(ndxFreq) / 1e9, unwrap(angle(H(ndxFreq))), 1);
-        H = H .* exp(-1i * polyval(pp, freqGrid/1e9));
+        ndxFreq = find(freq >= 0 & freq < bandwidth / alpha(order));
+        pp = polyfit(freq(ndxFreq) / 1e9, unwrap(angle(H(ndxFreq))), 1);
+        H = H .* exp(-1i * polyval(pp, freq/1e9));
         
         % normalize
         H = H / abs(H(1));
         
     case 'gaussian'
         % frequency grid in Hz
-        freqGrid = getFFTGrid(nsample, fs);
+        freq = getFFTGrid(nsample, fs);
         
         % frequency response, amplitude spetrum
-        H = exp(-0.5 * log(2) * (freqGrid / bandwidth) .^ (2 * order));
+        H = exp(-0.5 * log(2) * (freq / bandwidth) .^ (2 * order));
         
     case 'rc'
         freq = getFFTGridPos(nsample, fs);

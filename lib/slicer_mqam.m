@@ -32,7 +32,7 @@ end
 k = log2(M);
 
 % normalize symbols
-sym = normalizeQam(sym, M);
+sym = normalization(sym, M);
 
 % convert symbol to decimal index from topleft to bottomright by columns,
 % i.e. sym->[I,~Q]
