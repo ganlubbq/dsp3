@@ -1,12 +1,25 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A block of data samples can be obtained by multiplying the infinite long
 % input discrete signal by a rectangular window function, corresponding to
-% convolute the Fourier transform of input siganl with a sinc function in
-% frequency domain, which is the cause of so-called "spectral leakage".
-% A Dirac delta in frequency domain will become the frequency response of
-% the window function, hence the energy leaks into other frequencies.
+% convoluting the Fourier transform of input siganl with a sinc function,
+% which causes a "blurred" DTFT and the so-called "spectral leakage". 
+% 
+% Due to the convolution, a Dirac delta in DTFT will be broadened into the
+% frequency response of the window function and therefore the energy of
+% single frequency component leaks into other frequencies. 
+%
+% DFT is a sampled version of the blurred version of DTFT. A longer time
+% window will produce a less blurred DTFT and therefore increase the DFT
+% sampling resolution. For a given time window, zero-padding the time
+% sequence will produce more details of the blurred DTFT, but will not
+% increase the effective frequency resolution. Therefore, zero-padding is
+% equivalent to oversampling a given DTFT but can not make the DTFT less
+% blurred.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
 close all
+
 
 %% global parameters
 % number of DFT
@@ -35,10 +48,10 @@ temp = fft(signal_1);
 % to reveal more details of DTFT estimation only
 psd = 2 * abs(temp).^2 / N / N;
 
-figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 2); grid on; 
+figure(1); 
+plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 2); 
+hold on; grid on; 
 xlabel('Frequency (Hz)'); ylabel('|DFT|^2 / N (dB)');
-legend('N = 256');
-xlim([0, max(freq)]);
 
 
 %% signal on grid
@@ -53,13 +66,13 @@ temp = fft(signal_2);
 % to reveal more details of DTFT estimation only
 psd = 2 * abs(temp).^2 / N / N;
 
-figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 2); grid on; 
+figure(2); 
+plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 2); 
+hold on; grid on; 
 xlabel('Frequency (Hz)'); ylabel('|DFT|^2 / N (dB)');
-legend('N = 256');
-xlim([0, max(freq)]);
 
 
-%% zero-padding the data samples will not increase the actual frequency
+%% zero-padding the data samples will NOT increase the actual frequency
 % resolution, but only to show more details of window pattern...even if
 % frequency 2 falls exactly on one of the DFT grid, spectral leakage still
 % can be observed
@@ -73,9 +86,10 @@ temp = fft(signal);
 % to reveal more details of DTFT estimation only
 psd = 2 * abs(temp).^2 / N / N;
 
-figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 1); grid on; 
+figure(1); 
+plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 1); 
 xlabel('Frequency (Hz)'); ylabel('|DFT|^2 / N (dB)');
-legend('N = 256, M = 800');
+legend('nfft = 256', 'nfft = 256, zero-padding = 800');
 xlim([0, max(freq)]);
 
 L = 800;
@@ -87,13 +101,15 @@ temp = fft(signal);
 % to reveal more details of DTFT estimation only
 psd = 2 * abs(temp).^2 / N / N;
 
-figure; plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 1); grid on; 
+figure(2); 
+plot(fftshift(freq), dbw(fftshift(psd)), 'LineWidth', 1);
 xlabel('Frequency (Hz)'); ylabel('|DFT|^2 / N (dB)');
-legend('N = 256, M = 800');
+legend('nfft = 256', 'nfft = 256, zero-padding = 800');
 xlim([0, max(freq)]);
+ylim([-60, 0]);
 
 
-%% increas nfft
+%% increase nfft will increase the actual frequency resolution
 N = 8000;
 
 % the maximal energy in frequency

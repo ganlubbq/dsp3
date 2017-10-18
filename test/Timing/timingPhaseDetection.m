@@ -23,7 +23,7 @@ signal = [signal_1, zeros(1, nfft - nsample)];
 
 %
 freq = getFFTGrid(nfft, fs);
-psd = spectrumAnalyzer(signal, fs);
+psd = spectrum_analyzer(signal, fs);
 
 
 %%

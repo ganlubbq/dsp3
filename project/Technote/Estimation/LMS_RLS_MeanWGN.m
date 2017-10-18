@@ -1,13 +1,14 @@
-%% Estimate the mean of WGN using LMS filter and RLS filter. The two filters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Estimate the mean of WGN using LMS filter and RLS filter. The two filters
 % can be considered as stochastic version of gradien descent and Gauss
 % method, respectively.
-
+% 
 % The mean of WGN is assumed to be deterministic and hence this is classic
 % estimation.
-
+% 
 % As expected, RLS filter converges much faster than LMS filter at expense
 % of high computation complexity.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear
 
 A = 10; % the true mean

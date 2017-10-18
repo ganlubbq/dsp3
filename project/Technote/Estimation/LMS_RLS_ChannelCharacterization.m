@@ -1,6 +1,7 @@
-%% Chracterize (estimate) the channel impulse response by sending known 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Chracterize (estimate) the channel impulse response by sending known 
 % sequence and using LMS and RLS filters.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear
 
 nsample = 2000; % sample size
