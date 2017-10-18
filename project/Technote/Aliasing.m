@@ -5,8 +5,7 @@ nsample = 3999;
 fs = 200;
 order = 0.35;
 bandwidth = 2;
-type = 'rc';
-H = calcFilterFreqResp(nsample, fs, order, bandwidth, type);
+H = frequency_response(nsample, fs, order, bandwidth, 'rc');
 freq = getFFTGrid(nsample, fs);
 % figure; plot(fftshift(freq), fftshift(H), 'k-'); grid on; hold on; box on;
 
@@ -21,7 +20,7 @@ hs = h(1 : fs/ac_fs : end);
 stem(1 : fs/ac_fs : nsample, hs);
 
 % low pass filter with bw of 1.35
-H1 = calcFilterFreqResp(nsample, fs, [], 1.35, 'rect');
+H1 = frequency_response(nsample, fs, [], 1.35, 'rect');
 hs = upSampInsertZeros(hs, fs/ac_fs);
 hr = ifft(fft(hs(1:nsample)) .* H1);
 hr = hr .* (max(h) / max(hr));
@@ -36,7 +35,7 @@ hs = h(1 : fs/ac_fs : end);
 stem(1 : fs/ac_fs : nsample, hs);
 
 % low pass filter with bw of 0.5 ~ 2
-H1 = calcFilterFreqResp(nsample, fs, [], 0.7, 'rect');
+H1 = frequency_response(nsample, fs, [], 0.7, 'rect');
 hs = upSampInsertZeros(hs, fs/ac_fs);
 hr = ifft(fft(hs(1:nsample)) .* H1);
 hr = hr .* (max(h) / max(hr));
@@ -51,7 +50,7 @@ hs = h(1 : fs/ac_fs : end);
 stem(1 : fs/ac_fs : nsample, hs);
 
 % low pass filter with bw of 0.25
-H1 = calcFilterFreqResp(nsample, fs, [], 0.25, 'rect');
+H1 = frequency_response(nsample, fs, [], 0.25, 'rect');
 hs = upSampInsertZeros(hs, fs/ac_fs);
 hr = ifft(fft(hs(1:nsample)) .* H1);
 hr = hr .* (max(h) / max(hr));

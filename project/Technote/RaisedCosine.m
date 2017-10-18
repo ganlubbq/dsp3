@@ -38,21 +38,21 @@ fs = 2;
 order = 0.00002;
 bandwidth = 1;
 type = 'rc';
-H = calcFilterFreqResp(nsample, fs, order, bandwidth, type);
+H = frequency_response(nsample, fs, order, bandwidth, type);
 freq = getFFTGrid(nsample, fs);
 figure; plot(fftshift(freq), fftshift(H), 'k-'); grid on; hold on; box on;
 
 order = 0.2;
 bandwidth = 1;
 type = 'rc';
-H = calcFilterFreqResp(nsample, fs, order, bandwidth, type);
+H = frequency_response(nsample, fs, order, bandwidth, type);
 freq = getFFTGrid(nsample, fs);
 plot(fftshift(freq), fftshift(H), 'k--'); 
 
 order = 0.35;
 bandwidth = 1;
 type = 'rc';
-H = calcFilterFreqResp(nsample, fs, order, bandwidth, type);
+H = frequency_response(nsample, fs, order, bandwidth, type);
 freq = getFFTGrid(nsample, fs);
 plot(fftshift(freq), fftshift(H), 'k-.'); 
 
