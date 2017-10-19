@@ -1,5 +1,4 @@
-% Ref: 
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Magarini, Maurizio, et al. "Empirical modeling and simulation of
 % phase noise in long-haul coherent optical transmission systems." Optics
 % Express 19.23 (2011): 22455-22461.
@@ -21,6 +20,7 @@
 %
 % The Wiener is not practical as it requires precise knowledge of target
 % PSD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
 close all

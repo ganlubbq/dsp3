@@ -75,10 +75,10 @@ switch lower(type)
         H = [H(1 : end - 1 + mod(nsample, 2)), conj(fliplr(H(2 : end)))];
         
     case 'rrc'
-        H = sqrt(calcFilterFreqResp(nsample, fs, order, bandwidth, 'rc'));
+        H = sqrt(frequency_response(nsample, fs, order, bandwidth, 'rc'));
         
     case 'nyquist'
-        H = calcFilterFreqResp(nsample, fs, order, bandwidth, 'rc');
+        H = frequency_response(nsample, fs, order, bandwidth, 'rc');
         
         freq = getFFTGrid(nsample, fs);
         f_high = (1 + order) * 0.5 * bandwidth;

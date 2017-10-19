@@ -212,24 +212,24 @@ receiver.psdRIN     = (receiver.detectorResponsivity).^2 * (10.^(-receiver.CMRR/
 
 %% Preparing filter responses
 txPulseShapeFilter.RollOffFactor = 0.35;
-txPulseShapeFilter.freqRespRC = calcFilterFreqResp(nsamples, sampling_freq, txPulseShapeFilter.RollOffFactor, baudrate, 'rc');
-txPulseShapeFilter.freqRespRRC = calcFilterFreqResp(nsamples, sampling_freq, txPulseShapeFilter.RollOffFactor, baudrate, 'rrc');
+txPulseShapeFilter.freqRespRC = frequency_response(nsamples, sampling_freq, txPulseShapeFilter.RollOffFactor, baudrate, 'rc');
+txPulseShapeFilter.freqRespRRC = frequency_response(nsamples, sampling_freq, txPulseShapeFilter.RollOffFactor, baudrate, 'rrc');
 
-txPulseShapeFilter.freqRespBessel = calcFilterFreqResp(nsamples, sampling_freq, transmtter.lpfOrder, transmtter.bandwidth, 'bessel');
-txPulseShapeFilter.freqRespNyquist = calcFilterFreqResp(nsamples, sampling_freq, 0.1, baudrate, 'nyquist');
-txPulseShapeFilter.freqRespGaussian = calcFilterFreqResp(nsamples, sampling_freq, transmtter.lpfOrder, transmtter.bandwidth, 'gaussian');
+txPulseShapeFilter.freqRespBessel = frequency_response(nsamples, sampling_freq, transmtter.lpfOrder, transmtter.bandwidth, 'bessel');
+txPulseShapeFilter.freqRespNyquist = frequency_response(nsamples, sampling_freq, 0.1, baudrate, 'nyquist');
+txPulseShapeFilter.freqRespGaussian = frequency_response(nsamples, sampling_freq, transmtter.lpfOrder, transmtter.bandwidth, 'gaussian');
 
 
 rxPulseShapeFilter.RollOffFactor = 0.35;
-rxPulseShapeFilter.freqRespRC = calcFilterFreqResp(nsamples, sampling_freq, rxPulseShapeFilter.RollOffFactor, baudrate, 'rc');
-rxPulseShapeFilter.freqRespRRC = calcFilterFreqResp(nsamples, sampling_freq, rxPulseShapeFilter.RollOffFactor, baudrate, 'rrc');
+rxPulseShapeFilter.freqRespRC = frequency_response(nsamples, sampling_freq, rxPulseShapeFilter.RollOffFactor, baudrate, 'rc');
+rxPulseShapeFilter.freqRespRRC = frequency_response(nsamples, sampling_freq, rxPulseShapeFilter.RollOffFactor, baudrate, 'rrc');
 
-rxPulseShapeFilter.freqRespBessel = calcFilterFreqResp(nsamples, sampling_freq, receiver.lpfOrder, receiver.bandwidth, 'bessel');
-rxPulseShapeFilter.freqRespNyquist = calcFilterFreqResp(nsamples, sampling_freq, 0.1, baudrate, 'nyquist');
-rxPulseShapeFilter.freqRespGaussian = calcFilterFreqResp(nsamples, sampling_freq, receiver.lpfOrder, receiver.bandwidth, 'gaussian');
+rxPulseShapeFilter.freqRespBessel = frequency_response(nsamples, sampling_freq, receiver.lpfOrder, receiver.bandwidth, 'bessel');
+rxPulseShapeFilter.freqRespNyquist = frequency_response(nsamples, sampling_freq, 0.1, baudrate, 'nyquist');
+rxPulseShapeFilter.freqRespGaussian = frequency_response(nsamples, sampling_freq, receiver.lpfOrder, receiver.bandwidth, 'gaussian');
 
 
-optGaussianFilter = calcFilterFreqResp(nsamples, sampling_freq, optFilterOrder, optFilterBw, 'gaussian');
+optGaussianFilter = frequency_response(nsamples, sampling_freq, optFilterOrder, optFilterBw, 'gaussian');
 
 % Initialize buffer
 buffer.txBitsX = randi([0 1], bitpersym, FRAME_WINDOW*symperframe);
@@ -510,7 +510,7 @@ for RUN = 1 : MAX_RUN_NUMBER
     
     % RX laser
     % polarization control
-    loJonesVector = calcJonesVector(rxLaser.azimuth, rxLaser.ellipticity);
+    loJonesVector = jones_vector(rxLaser.azimuth, rxLaser.ellipticity);
     
     % generate new phase noise for new frame
     tmpPN = phase_noise(samplesPerFrame, rxLaser.phaseNoiseVar, buffer.rxPhaseNoise(end));
