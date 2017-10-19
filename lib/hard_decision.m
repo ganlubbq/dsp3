@@ -7,7 +7,7 @@ if ~iscolumn(x)
     error('first input has to be a column vector');
 end
 
-xnorm = normalizeQam(x, mn);
+xnorm = normalization(x, mn);
 
 switch mn % MSB first
     case 2
@@ -46,29 +46,25 @@ switch mn % MSB first
 end
 
 % convert bit in rows to dec by MSB to LSB order
-twos = 2.^(log2(mn)-1:-1:0);
-twos = ones(length(xnorm),1) * twos;
+twos = 2 .^ (log2(mn) - 1 : -1 : 0);
+twos = ones(length(xnorm), 1) * twos;
 
 % index of symbols from topleft to bottomright by columns
-ndx = sum(bit.*twos,2) + 1;
+ndx = sum(bit.*twos, 2) + 1;
 
 % symbols from topleft to bottomright by columns
 c = constellation(mn);
-
 symbol = c(ndx);
-
 return
+
 
 % return 1 if x>0 and 0 if x<=0
 function s = msign(x)
-
-s = (x>0);
-
+s = (x > 0);
 return
 
-% return 1 if x>0 and -1 if x<=0
+
+% return 1 if x > 0 and -1 if x <= 0
 function s = ksign(x)
-
-s = (x>0)*2-1;
-
+s = (x > 0) * 2 - 1;
 return
