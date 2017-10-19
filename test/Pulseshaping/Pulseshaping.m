@@ -59,12 +59,12 @@ pwr_sig = Ts * sum(abs(symseq).^2) / (Ts * nsample);
 beta = 0.65;
 
 % upsampling
-sym_upsampled = upSampInsertZeros(symseq(:), sps);
+sym_upsampled = upsampling(symseq(:), sps, 1);
 
 % freq response of raised cosine filter with unit energy, i.e.,
 % sum(ifft(H).^2) == 1
 % such that the signal after pulse-shaping will have the same average power
-H = calcFilterFreqResp(nsample, sps, beta, 1, 'rc');
+H = frequency_response(nsample, sps, beta, 1, 'rc');
 H = H./sqrt(sum(H.^2)/nsample);
 
 % filtering signal in frequency domain

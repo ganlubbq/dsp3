@@ -12,15 +12,11 @@
 %
 % m-QAM
 function ConstrainedCapacity(bitpersym)
-
 if nargin < 1
     bitpersym = 2;
 end
-
 RandStream.setGlobalStream(RandStream('mt19937ar','Seed',199));
-
 symlen = 2^13;
-
 for qq = 1 : length(bitpersym)
     mn = 2 .^ bitpersym(qq);
     
@@ -48,8 +44,7 @@ for qq = 1 : length(bitpersym)
         end
         % the second term
         c2 = sum(mean(ss,2));
-        
-        chc(pp,qq) = log2(mn) - c2/mn;
+        chc(pp, qq) = log2(mn) - c2 / mn;
     end
 end
 
@@ -58,12 +53,11 @@ lcc = log2(1 + idbw(snr));
 
 figure(67);
 hold on; 
-plot(snr,lcc,'k-','LineWidth',2); 
-plot(snr,chc,'LineWidth',2); 
+plot(snr, lcc, 'k-', 'LineWidth', 2); 
+plot(snr, chc, 'LineWidth', 2); 
 grid on
-ylim([1,10]);
+ylim([1, 10]);
 xlabel('SNR (dB)'); 
 ylabel('Capacity (bit/symbol)'); 
 legend('Gaussian','QPSK','8-QAM','16-QAM','32-QAM','64-QAM');
-
 return

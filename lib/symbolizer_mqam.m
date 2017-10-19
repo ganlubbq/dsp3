@@ -9,12 +9,9 @@ function sym = symbolizer_mqam(bit)
 % Reference: 
 % 
 % Note: Gray mapping only
-% 
-% See Also: slicerGrayQam
 
 % size of alphabet
 M = 2 ^ size(bit,1);
-
 nSample = size(bit,2);
 
 % topleft to bottomright by columns
@@ -35,12 +32,11 @@ mapper = mapint(M);
 
 % put dec through int mapper then do constellation mapping
 sym = c(mapper(dec));
-
 return
+
 
 % gray integer mapper for m-qam
 function order = mapint(mn)
-
 switch mn
     case 4
         order = [1,2,3,4;];
@@ -56,5 +52,4 @@ switch mn
         warning('unsupported format');
         keyboard;
 end
-
 return

@@ -381,10 +381,10 @@ for RUN = 1 : MAX_RUN_NUMBER
     
     % Pulse shaping
     % DAC - simple oversampling by inserting zeros
-    txDrvIxUps = upSampInsertZeros(txBaudRealX, samplePerSymbol);
-    txDrvQxUps = upSampInsertZeros(txBaudImagX, samplePerSymbol);
-    txDrvIyUps = upSampInsertZeros(txBaudRealY, samplePerSymbol);
-    txDrvQyUps = upSampInsertZeros(txBaudImagY, samplePerSymbol);
+    txDrvIxUps = upsampling(txBaudRealX, samplePerSymbol, 1);
+    txDrvQxUps = upsampling(txBaudImagX, samplePerSymbol, 1);
+    txDrvIyUps = upsampling(txBaudRealY, samplePerSymbol, 1);
+    txDrvQyUps = upsampling(txBaudImagY, samplePerSymbol, 1);
     
     % filtering
     txDrvIxWfm = real(ifft(fft(txDrvIxUps) .* txPulseShapeFilter.freqRespRRC));
@@ -788,7 +788,7 @@ end %% End of main loop
 if VERBOSE
     fprintf('Starting DSP...\n');
 end
-[dspout1, dspout2] = dsp_main_151229(memory1, memory2, memory3, memory4, dspParam);
+[dspout1, dspout2] = dsp_main(memory1, memory2, memory3, memory4, dspParam);
 
 h1 = figure(34); plot(dspout1,'.'); grid on;
 h2 = figure(35); plot(dspout2,'.'); grid on;

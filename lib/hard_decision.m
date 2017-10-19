@@ -1,4 +1,4 @@
-function [symbol] = makeHardDecision(x, mn)
+function [symbol] = hard_decision(x, mn)
 %MAKEDECISION % slice columns of input into symbols 
 %
 %   Copyright 2012

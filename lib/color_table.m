@@ -1,4 +1,4 @@
-function [ct] = getColorTable()
+function [ct] = color_table()
 
 ct = [...
          0    0.4470    0.7410;
