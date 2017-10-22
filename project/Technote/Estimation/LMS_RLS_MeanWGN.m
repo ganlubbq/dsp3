@@ -12,11 +12,9 @@
 clear
 
 A = 10; % the true mean
-nsample = 2000; % sample size
-
+nsample = 1000; % sample size
 sigma2 = 1; % noise power
 w = gaussian_noise(nsample, 1, sigma2, 'linear', 'real');
-
 x = A + w;
 
 
@@ -31,13 +29,13 @@ variance = zeros(size(x)); % variance of estimation
 for ii = 1 : nsample
     if ii == 1
         xe_lms(ii) = x(1);
-        
         xe_rls(ii) = x(1);
         variance(ii) = sigma2;
     else
+        % LMS
         xe_lms(ii) = xe_lms(ii-1) + mu * (x(ii) - xe_lms(ii-1));
-        
-        gain(ii) = variance(ii-1) / (variance(ii-1) + 1);
+        % RLS
+        gain(ii) = variance(ii-1) / (variance(ii-1) + sigma2);
         xe_rls(ii) = xe_rls(ii-1) + gain(ii) * (x(ii) - xe_rls(ii-1));
         variance(ii) = (1 - gain(ii)) * variance(ii-1);
     end
