@@ -18,7 +18,7 @@ c3 = filter(h, 1, s);
 x = zeros(size(c3));
 p = length(h);
 for ii = 1 : nsample - p
-    ss = s((1:p) + (ii-1));
+    ss = s((1 : p) + (ii - 1));
     x(ii) = fliplr(h) * ss;
 end
 x = x(:);
@@ -34,7 +34,7 @@ mu = 0.01;
 he_lms = zeros(p, 1);
 
 for ii = 1 : nsample - p
-    xx = x((1:p) + (ii-1));
+    xx = x((1 : p) + (ii - 1));
     he_lms = he_lms - mu * (transpose(he_lms) * xx - s(ii)) * conj(xx);
     err_lms(ii) = transpose(he_lms) * xx - s(ii);
 end
@@ -44,7 +44,7 @@ he_rls = zeros(p, 1);
 Sigma = 100 * eye(p); % covariance matrix of estimation
 
 for ii = 1 : nsample - p
-    xx = x((1:p) + (ii-1));
+    xx = x((1 : p) + (ii - 1));
     gain = Sigma * xx / (1 + transpose(xx) * Sigma * xx);
     he_rls = he_rls + gain * (s(ii) - transpose(xx) * he_rls);
     err_rls(ii) = s(ii) - transpose(xx) * he_rls;
