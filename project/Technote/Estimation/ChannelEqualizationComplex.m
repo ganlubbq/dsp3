@@ -8,7 +8,7 @@ refbit = randi([0 1], 2, nsample);
 % mapping bit to symbol
 sym = symbolizer_mqam(refbit);
 % channel impulse response
-h = [0.01, 0.2, 0.25, 0.5, 1.0] + 1i * [0.03, 0.05, 0.025, 0.02, 0.01];
+h = [0.01, 0.2, 0.25, 0.5, 1.0]% + 1i * [0.03, 0.05, 0.025, 0.02, 0.01];
 % h = h ./ sum(h);
 
 % x = conv(sym, h, 'same');
@@ -19,7 +19,7 @@ h = [0.01, 0.2, 0.25, 0.5, 1.0] + 1i * [0.03, 0.05, 0.025, 0.02, 0.01];
 x = zeros(size(sym));
 p = length(h);
 sym_ext = [zeros(p - 1, 1); sym];
-for ii = 1 : nsample - p
+for ii = 1 : nsample
     x(ii) = h * sym_ext((1 : p) + (ii - 1));
 end
 x = x(:);
@@ -53,12 +53,12 @@ for ii = 1 : nsample
     Sigma = (eye(p) - gain * xx.') * Sigma;
     err_rls(ii) = sym(ii) - xx.' * he_rls;
     yy_rls(ii) = he_rls.' * xx;
-    gain_mag(ii) = calcrms(gain);
 end
 
 figure;
-plot(abs(err_lms)); hold on; xlabel('samples'); ylabel('error');
+plot(abs(err_lms)); hold on; 
 plot(abs(err_rls)); grid on;
+xlabel('samples'); ylabel('error');
 legend('LMS', 'RLS');
 
 figure;
