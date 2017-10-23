@@ -22,32 +22,12 @@ for ii = 1 : nsample
 end
 x = x(:);
 sigma2 = calcrms(x)^2 / 100; % noise power
-w = gaussian_noise(nsample, 1, sigma2, 'linear', 'real');
-x = x + w;
+x = x + gaussian_noise(nsample, 1, sigma2, 'linear', 'real');
 
-
-% estimation initialization - lms
-mu = 0.01;
-he_lms = zeros(p, 1);
-err_lms = zeros(nsample, 1);
-x_ext = [zeros(p - 1, 1); x];
-for ii = 1 : nsample
-    xx = x_ext((1 : p) + (ii - 1));
-    he_lms = he_lms - mu * (transpose(he_lms) * xx - s(ii)) * conj(xx);
-    err_lms(ii) = transpose(he_lms) * xx - s(ii);
-end
-
-% estimation initialization - rls
-he_rls = zeros(p, 1);
-Sigma = 1e5 * eye(p); % covariance matrix of estimation
-err_rls = zeros(nsample, 1);
-for ii = 1 : nsample
-    xx = x_ext((1 : p) + (ii - 1));
-    gain = Sigma * xx / (sigma2 + transpose(xx) * Sigma * xx);
-    he_rls = he_rls + gain * (s(ii) - transpose(xx) * he_rls);
-    Sigma = (eye(p) - gain * transpose(xx)) * Sigma;
-    err_rls(ii) = s(ii) - transpose(xx) * he_rls;
-end
+yy_lms = least_squares_filter(x, s, 'LMS', .01, [], 2*p);
+err_lms = yy_lms - s;
+yy_rls = least_squares_filter(x, s, 'RLS', [], .95, 2*p);
+err_rls = yy_rls - s;
 
 figure;
 plot(err_lms); hold on; 
