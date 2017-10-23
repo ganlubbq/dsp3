@@ -10,11 +10,10 @@ scale_factor = getPowerFactorQAM(mn);
 % first normalize signal to UNIT average symbol energy
 % then, multiply by scaling factor
 y = x / sqrt(mean(abs(x).^2)) * sqrt(scale_factor);
-
 return
 
-function [p] = getPowerFactorQAM(M)
 
+function [p] = getPowerFactorQAM(M)
 if M == 2
 	p = 1;
 elseif M == 8
@@ -24,5 +23,4 @@ elseif M == 32
 else % for square mQAM
 	p = 2/3 * (M - 1); 
 end
-
 return

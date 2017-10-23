@@ -21,9 +21,7 @@ function [psd, pxx, freq] = spectrum_analyzer(x, fs)
 % To show the true PSD, the psd should be divided further by the frequency
 % resolution.
 
-if nargin < 2
-    fs = 2.0;
-end
+if nargin < 2, fs = 2.0; end
 
 nsample = length(x);
 if mod(nsample, 2)

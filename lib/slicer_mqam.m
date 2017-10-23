@@ -19,9 +19,7 @@ function bit = slicer_mqam(sym, M)
 % b = h.Constellation(bint+1);
 
 % special case of bpsk
-if M == 2
-    bit = real(sym) > 0; return
-end
+if M == 2, bit = real(sym) > 0; return; end
 
 % number of rows of output bit
 k = log2(M);
@@ -38,12 +36,10 @@ mapper = mapint(M);
 
 % put dec through mapper than do dec2bin
 bit = dec2bin(mapper(decndx), k);
-
 return
 
 
 function order = mapint(mn)
-
 switch mn
     case 4
         order = [0,1,2,3;];
@@ -72,43 +68,35 @@ switch mn
             159,158,154,155,153,152,128,129,131,130,134,135,133,132,140,...
             141,143,142,138,139,137,136;];
     otherwise
-        error('unsupported format');
+        warning('map::modulation format'); keyboard;
 end
-
 return
 
 
-function [ndx] = slicer(x,mn)
+function [ndx] = slicer(x, mn)
 x = x(:);
 switch mn % MSB first
     case 4
-        bit = [msign(real(x)), ~msign(imag(x))];
-        
+        bit = [real(x) > 0, ~(imag(x) > 0)];
     case 16
         bound = 2;
         bit = [msign(real(x)), msign(real(x) - ksign(real(x)) * bound),...
               ~msign(imag(x)), ~msign(imag(x) - ksign(imag(x)) * bound)];
-          
     case 64 % 64qam slicing is combination of qpsk and 16qam, i.e.
     % [4qam 16qam 16qam 4qam 16qam 16qam]
         bound = 2;
-        
         % 4qam header
         bit1 = [msign(real(x)), ~msign(imag(x))];
-        
         % convert 64qam symbol in one quater to 16qam
         x = x - (ksign(real(x)) * 4 + ksign(imag(x)) * 4i);
-        
         % slicing 16qam
         bit2 = [msign(real(x)), msign(real(x) - ksign(real(x)) * bound),...
             ~msign(imag(x)), ~msign(imag(x) - ksign(imag(x)) * bound)];
-        
         bit = [bit1(:, 1), bit2(:, 1:2), bit1(:, 2), bit2(:, 3:4)];
-    
     case 256
         % TBA
     otherwise
-        error('unsupported format');
+        warning('slicer::modulation format'); keyboard;
 end
 
 % convert bit in rows to dec by MSB to LSB order

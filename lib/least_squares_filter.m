@@ -1,3 +1,4 @@
+function y = least_squares_filter(x, ts, alg, gain, lambda, filter_len)
 % Linear adaptive filter with least squares principle.
 % Two specific algorithms are implemented, i.e., least mean squares (LMS),
 % recursive least squares (RLS).
@@ -12,7 +13,7 @@
 %
 % Note the numerical stability problem of conventional RLS algorithm
 % Note the normalization realization of LMS algorithm
-function y = least_squares_filter(x, ts, alg, gain, lambda, filter_len)
+
 % check the size of inputs
 if length(x) ~= length(ts), keyboard; end
 if ~iscolumn(x), warning('input::column vector'); keyboard; end
@@ -26,7 +27,6 @@ filter_coef = zeros(filter_len, 1);
 sigma = 1e5 * eye(filter_len);
 
 y = zeros(size(x));
-
 switch lower(alg)
     case 'lms'
         for ii = 1 : length(x) - filter_len + 1

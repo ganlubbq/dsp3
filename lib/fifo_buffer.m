@@ -1,27 +1,17 @@
 function [newstate] = fifo_buffer(state, data)
 % FIFO buffering data in rows
 % 
-% Input: 
-%       state       - current buffer
-%       data        - for buffering
-% 
-% Reference: 
-% 
-% Note: 
-% 
-% See Also: 
-% 
-% Copyright default
+% [newstate] = fifo_buffer(state, data)
+%	state : current buffer
+%   data  : for buffering
 
 % number of columns, data length
-N = size(data,2);
-
-if N > size(state,2)
+ncol = size(data, 2);
+if ncol > size(state,2)
     warning('data length larger than buffer length, lossing data');
-    N = size(state,2);
+    ncol = size(state,2);
 end
 
 % fifo
-newstate = [state(:,N+1:end) data(:,1:N)];
-
+newstate = [state(:, ncol+1:end), data(:, 1:ncol)];
 return

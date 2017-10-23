@@ -15,8 +15,6 @@ switch lower(dmod)
     case 'real'
         snr = osnr - 10*log10(sps) - 10*log10(rs/12.5e9) + 10*log10(2);
     otherwise
-        warning('date mode not supported');
-        keyboard;
+        warning('SNR::date mode'); keyboard;
 end
-
 return
