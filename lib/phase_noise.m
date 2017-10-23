@@ -1,12 +1,8 @@
-function phase_noise = phase_noise(nsample, pnvar, p_ini)
-% Generate random walk phase noise
-
+function phase_noise = phase_noise(nsample, pvar, pini)
+% Generate random walk discrete phase noise
 tmp = randn(1, nsample);
-
-% remove dc component
+% remove dc component followed by normalization
 tmp = tmp - mean(tmp);
-
-% normalize
 tmp = tmp ./ calcrms(tmp);
-phase_noise = p_ini + cumsum(tmp .* sqrt(pnvar));
+phase_noise = pini + cumsum(tmp .* sqrt(pvar));
 return
