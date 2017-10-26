@@ -26,7 +26,7 @@ x = exp(1i * pn) + an;
 % by shifting energy to the zero frequency component
 
 % raised cosine
-H = calcFilterFreqResp(nsample, fs, 0.01, 10e6, 'rc');
+H = frequency_response(nsample, fs, 0.01, 10e6, 'rc');
 xf = ifft(fft(x) .* H.');
 xc = x .* conj(xf) ./ abs(xf);
 nc = an .* conj(xf) ./ abs(xf);
