@@ -46,13 +46,10 @@ legend('LMS', 'RLS');
 hold off;
 
 figure;
-plot(transpose(h * ones(1, size(h_lms, 2)))); hold on
-plot(h_lms.'); grid on
+plot(transpose(h * ones(1, size(h_lms, 2))), 'k'); hold on
+plot(h_lms.', 'Color', color_table(1), 'LineWidth', 4); grid on
+plot(h_rls.', 'Color', color_table(2), 'LineWidth', 2); grid on
 xlabel('samples'); ylabel('filter taps');
+ylim([-0.1, 0.6]);
 hold off
 
-figure;
-plot(transpose(h * ones(1, size(h_lms, 2)))); hold on
-plot(h_rls.'); grid on
-xlabel('samples'); ylabel('filter taps');
-hold off

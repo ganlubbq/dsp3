@@ -10,7 +10,7 @@ refbit = randi([0, 1], 2, nsample);
 % mapping bit to symbol
 sym = symbolizer_mqam(refbit);
 % channel impulse response
-h = [0.01, 0.2, 0.25, 0.5, 1.0] + 1i * [0.01, 0.2, 0.25, 0.5, 1.0];
+h = [-0.2, 0.5, 1.0];
 % h = h ./ sum(h);
 
 % x = conv(sym, h, 'same');
@@ -28,13 +28,13 @@ x = x(:);
 sigma2 = calcrms(x)^2 / 100; % noise power
 x = x + gaussian_noise(nsample, 1, sigma2, 'linear', 'complex');
 
-[x_lms, w_lms] = least_squares_filter(x, sym, 'LMS', .01, [], 2*p);
-[x_rls, w_rls] = least_squares_filter(x, sym, 'RLS', [], 1.0, 2*p);
+[x_lms, w_lms] = least_squares_filter(x, sym, 'LMS', .01, [], 5);
+[x_rls, w_rls] = least_squares_filter(x, sym, 'RLS', [], 1.0, 5);
 err_lms = x_lms - sym;
 err_rls = x_rls - sym;
 
-sym_dec = hard_decision(x_rls, 4);
-figure; plot(abs(sym - sym_dec), 'o'); grid on; ylim([-2 2]);
+% sym_dec = hard_decision(x_rls, 4);
+% figure; plot(abs(sym - sym_dec), 'o'); grid on; ylim([-2 2]);
 
 figure;
 plot(real(err_lms)); hold on; 
@@ -46,9 +46,9 @@ legend('LMS', 'RLS');
 figure;
 plot(x_lms, 'b.'); hold on;
 plot(x_rls, 'r.'); grid on;
-xlim([-2 2]); ylim([-2 2]);
+xlim([-3 3]); ylim([-3 3]);
 
 figure;
-plot(real(w_lms.')); hold on
-plot(real(w_rls.')); grid on
+plot(real(w_lms.'), 'Color', color_table(1)); hold on
+plot(real(w_rls.'), 'Color', color_table(2)); grid on
 hold off

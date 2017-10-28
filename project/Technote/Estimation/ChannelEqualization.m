@@ -4,9 +4,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear
 
-nsample = 4000; % sample size
+nsample = 1000; % sample size
 s = 2 * (randi([0, 1], nsample, 1) - 0.5);
-h = [0.01, 0.2, 0.25, 0.5, 1.0];
+h = [-0.2, 0.5, 1.0];
 h = h ./ sum(h);
 p = length(h);
 
@@ -24,9 +24,9 @@ x = x(:);
 sigma2 = calcrms(x)^2 / 100; % noise power
 x = x + gaussian_noise(nsample, 1, sigma2, 'linear', 'real');
 
-[x_lms, w_lms] = least_squares_filter(x, s, 'LMS', .01, [], 2*p);
+[x_lms, w_lms] = least_squares_filter(x, s, 'LMS', .02, [], 5);
+[x_rls, w_rls] = least_squares_filter(x, s, 'RLS', [], 1.0, 5);
 err_lms = x_lms - s;
-[x_rls, w_rls] = least_squares_filter(x, s, 'RLS', [], 1.0, 2*p);
 err_rls = x_rls - s;
 
 figure;
@@ -38,6 +38,9 @@ xlabel('samples'); ylabel('error');
 legend('LMS', 'RLS');
 
 figure;
-plot(w_lms.'); hold on
-plot(w_rls.'); grid on
+plot(w_lms.', 'Color', color_table(1), 'LineWidth', 6); hold on
+plot(w_rls.', 'Color', color_table(2), 'LineWidth', 2); grid on
+ylim([-1, 2]);
+xlabel('samples'); ylabel('equalizer coeff.');
+legend('LMS');
 hold off
