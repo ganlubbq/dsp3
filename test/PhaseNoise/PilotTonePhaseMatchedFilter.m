@@ -16,26 +16,25 @@ fs = 20e6;
 nsample = 10^6;
 t = 0 : (1/fs) : (nsample-1)/fs;
 
+
 %% random walk phase noise
-pn = genLaserPhaseNoise(nsample, 2*pi*1E-3, 0);
+pn = phase_noise(nsample, 2*pi*1E-3, 0);
 % a white gaussian additive noise
-an = genWGN(1, nsample, .3, 'linear', 'complex');
+an = gaussian_noise(1, nsample, .3, 'linear', 'complex');
 % data model with zero freq pilot tone
 x = exp(1i * pn) + an;
 
+
 %% test the best width of filter
-
 filtbw = 10 .^ (5 : 0.1 : log10(fs));
-
 for ii = 1 : length(filtbw)
-    
 %     % moving average
 %     ntaps = 5;
 %     taps = ones(1, ntaps) / ntaps;
 %     xf = filter(taps, 1, x);
 
     % raised cosine
-    H = calcFilterFreqResp(nsample, fs, 0.1, filtbw(ii), 'rc');
+    H = frequency_response(nsample, fs, 0.1, filtbw(ii), 'rc');
     xf = ifft(fft(x) .* H.');
 
     % gaussian snr with signal power of 1
@@ -46,35 +45,32 @@ for ii = 1 : length(filtbw)
     fprintf('SNR is %.2f dB \n', snr);
     
     % remove the phase noise
-    xc = x .* conj(xf) ./ abs(xf);
-    pc = exp(1i * pn) .* conj(xf) ./ abs(xf);
+    xc = x .* conj(sign(xf));
+    pc = exp(1i * pn) .* conj(sign(xf));
     
     mx(ii) = abs(mean(xc))^2;
     mp(ii) = abs(mean(pc))^2;
 end
-
 figure; plot(log10(filtbw), mx, 'o-'); hold on
 plot(log10(filtbw), mp, 's-'); grid on
 xlabel('Log frequency'); ylabel('DC power');
 legend('data with noise part', 'data part only');
 
-%% adapt using PID loops
 
+%% adapt using PID loops
 filtbw = 1E5;
 stepsize = 10;
 mp = 0;
 err = [];
-
 for ii = 2 : 300
-    H = calcFilterFreqResp(nsample, fs, 0.1, filtbw, 'rc');
+    H = frequency_response(nsample, fs, 0.1, filtbw, 'rc');
     xf = ifft(fft(x) .* H.');
-    pc = exp(1i * pn) .* conj(xf) ./ abs(xf);
+    pc = exp(1i * pn) .* conj(sign(xf));
     % towards the maximal dc power in data part
     mp(ii) = abs(mean(pc))^2;
     err(ii - 1) = abs(mean(pc))^2 - mp(ii - 1);
     filtbw = filtbw + stepsize * err(ii - 1) * 1E5; % + 0.1 * sum(err) * 1E5;
 end
-
 figure; plot(err, 'o-'); hold on
 plot(mp, 's-'); grid on
     
