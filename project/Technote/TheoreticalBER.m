@@ -3,35 +3,23 @@
 % considered in this version.
 
 function [] = TheoreticalBER(input_k)
-if nargin < 1;
-    input_k = 1;
-end
+if nargin < 1, input_k = 1; end
 
-nSymbol = 10^6;
-
+ndata = 10^6;
 % NUMBER OF BIT PER SYMBOL
 k = input_k;
-
-refbit = randi([0 1], k, nSymbol);
-
+refbit = randi([0 1], k, ndata);
 % mapping bit to symbol
 sym = symbolizer_mqam(refbit);
-
 % symbol power, assuming unit symbol period
-ps = sum(abs(sym).^2) / nSymbol; 
+ps = sum(abs(sym).^2) / ndata;
 
 snr = -10 : 10; % in dB
 for ndx = 1 : length(snr)
-    % noise power
     pn = ps / idbw(snr(ndx));
-    
-    % awgn
     signal = sym + gaussian_noise(size(sym,1), size(sym,2), pn, 'linear', 'complex');
-   
     bit = slicer_mqam(signal, 2^k);
-   
-    ber(ndx) = sum(abs(bit(:) - refbit(:))) / (k * nSymbol);
-    
+    ber(ndx) = sum(abs(bit(:) - refbit(:))) / (k * ndata);
     fprintf('snr = %d, ber = %.2e\n', snr(ndx), ber(ndx));
 end
 
@@ -43,8 +31,7 @@ else
 end
 
 figure; 
-semilogy(snr, ber, 's-', snr, t_ber, 'k-');
-grid on;
+semilogy(snr, ber, 's-', snr, t_ber, 'k-'); grid on;
 xlabel('SNR [dB]'); 
 ylabel('BER'); 
 legend(sprintf('%d bit per symbol', k), 'Theory');

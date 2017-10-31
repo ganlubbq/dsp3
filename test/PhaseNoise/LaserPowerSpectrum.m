@@ -30,7 +30,7 @@ nsample = 10^5;
 t = 0 : (1/fs) : (nsample-1)/fs;
 freq = getFFTGrid(nsample, fs);
 
-% sigma2 = 2;
+% sigma2 = 2;d
 sigma2 = 2e-4
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for ii = 1 : 2
