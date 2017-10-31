@@ -2,28 +2,31 @@ function H = frequency_response(nsample, fs, order, bandwidth, type)
 % Calculate the frequency response of digital filter with input order and
 % 3dB bandwidth
 %
+% Call: H = frequency_response(nsample, fs, order, bandwidth, type)
+%
 % Input:
-%       nsample     - number of samples
-%       fs          - sampling frequency [Hz]
-%       order       - filter order/roll-off factor
-%       bandwidth   - filter 3dB bandwidth one-sided/baudrate [Hz]
-%       type        - filter type
+%    nsample   - number of samples
+%    fs        - sampling frequency [Hz]
+%    order     - filter order/roll-off factor
+%    bandwidth - filter 3dB bandwidth one-sided/baudrate [Hz]
+%    type      - filter type
 %
 % Reference:
 % [1] Martin Pfennigbauer et al "Choice of MUX/DEMUX filter
 % characteristics for NRZ RZ and CSRZ..." JLT 2006
 %
-% Note: The PSD = H.^2
-%
-% See also: calcDispResponse, calcOptGaussFlt
+% Note: PSD = H.^2
 
-if order < 0
-    error('filter order has to be positive');
-end
-
+if order < 0, warning('Filter::Filter Order'); keyboard; end
 switch lower(type)
     case 'bessel'
-        alpha = [1.0, 1.361654129, 1.755672389, 2.113917675, 2.427410702, 2.703395061];
+        alpha = [1.0, ...
+            1.361654129, ...
+            1.755672389, ...
+            2.113917675, ... 
+            2.427410702, ...
+            2.703395061, ...
+            ];
         
         % frequency grid in Hz
         freq = getFFTGrid(nsample, fs);
