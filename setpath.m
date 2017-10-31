@@ -21,7 +21,7 @@ end
 addpath([currentPath seperator]);
 addpath([currentPath seperator 'c']);
 addpath([currentPath seperator 'lib']);
-addpath([currentPath seperator 'test']);
+addpath([currentPath seperator 'project']);
 
 fprintf('----------------------------------------------------------------------------------------------------\n');
 fprintf('Checking file changes...\n'); tic;
