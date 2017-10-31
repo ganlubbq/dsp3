@@ -21,13 +21,8 @@ if nargin < 4
     % 3
 end
 
-if nargin < 3
-    VERBOSE = 1;
-end
-
-if nargin < 2
-    LOG = 0;
-end
+if nargin < 3, VERBOSE = 1; end
+if nargin < 2, LOG = 0; end
 
 % Log file
 if LOG
@@ -137,7 +132,6 @@ timeVector          = (0 : nsamples-1)' / sampling_freq;
 freqVector          = getFFTGrid(nsamples, sampling_freq);
 ALPHABET_SIZE       = 2 ^ bitpersym;
 vM.StartTime        = datestr(now);
-
 % initialize absolute time
 timeVectorAbs       = timeVector;
 
