@@ -17,8 +17,7 @@ sigma2 = 1; % noise power
 w = gaussian_noise(nsample, 1, sigma2, 'linear', 'real');
 x = A + w;
 
-
-% estimation initialization
+%%% estimation initialization
 mu = 0.01;
 xe_lms = zeros(size(x));
 
@@ -32,9 +31,9 @@ for ii = 1 : nsample
         xe_rls(ii) = x(1);
         variance(ii) = sigma2;
     else
-        % LMS
+        %%% LMS
         xe_lms(ii) = xe_lms(ii-1) + mu * (x(ii) - xe_lms(ii-1));
-        % RLS
+        %%% RLS
         gain(ii) = variance(ii-1) / (variance(ii-1) + sigma2);
         xe_rls(ii) = xe_rls(ii-1) + gain(ii) * (x(ii) - xe_rls(ii-1));
         variance(ii) = (1 - gain(ii)) * variance(ii-1);
