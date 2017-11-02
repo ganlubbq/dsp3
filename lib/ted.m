@@ -1,5 +1,24 @@
-function y = ted_spectrumacf(px, alg)
-%Timing error detector with various algorithms
+function y = ted(px, mode)
+%TED Timing error detector with various algorithms
+%   Spectral-line methods for symbol synchronization based on nonlinear
+%   operation of the input symbols include AVN, SLN, FLN, LOGN;
+%   Spectral-correlation methods for symbol synchronization based on
+%   spectrum autocorrelation includes DTP, SLN, LEE, GARDNER, GODARD;
+N = length(px);
+k = 1 : N;
+ex = exp(-1i .* (k - 1) .* pi ./ 2);
+
+if strcmpi(mode, 'AVN')
+    s = sum(abs(px) .* ex.');
+elseif strcmpi(mode, 'SLN')
+    s = sum(abs(px).^2 .* ex.');
+elseif strcmpi(mode, 'LOGN')
+    f = log(1 + 10.*abs(px).^2);
+    s = sum(f .* ex.');
+elseif strcmpi(mode, 'FLN')
+    s = sum(abs(px).^4 .* ex.');
+end
+y = -angle(s) / 2 / pi;
 
 if strcmpi(alg, 'dtp')
     x = abs(px(1 : 2 : end - 1)) .^ 2;
@@ -50,3 +69,6 @@ elseif strcmpi(alg, 'SLN')
 else
     keyboard;
 end
+
+
+return
