@@ -3,10 +3,8 @@ function [symbol] = hard_decision(x, mn)
 %
 %   Copyright 2012
 
-if ~iscolumn(x), warning('HD::column vector'); keyboard; end
-
+if ~iscolumn(x), warning('decision::column vector'); keyboard; end
 xnorm = normalization(x, mn);
-
 switch mn % MSB first
     case 2
         bit = (real(xnorm) > 0);
