@@ -10,6 +10,8 @@
 % lambda = 0.5. In extreme case with very small lambda, RLS becomes almost
 % memoryless, turnning "squares" to "square", i.e., focusing on the current
 % sample only.
+%
+% Ref: JG Proakis, M Salehi, "Communication systems engineering 2nd edition"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear;
 nsample = 1000;
@@ -39,8 +41,12 @@ x = x(:);
 sigma2 = calcrms(x)^2 / 100; % noise power
 x = x + gaussian_noise(nsample, 1, sigma2, 'linear', 'complex');
 
-[x_lms, w_lms] = least_squares_filter(x, sym, 'LMS', .01, [], 5);
-[x_rls, w_rls] = least_squares_filter(x, sym, 'RLS', [], 1.0, 5);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% P1 - linear adaptive equalizer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ps = sym; ps(50:end) = nan;
+[x_lms, w_lms] = least_squares_filter(x, ps, 'QPSK', 'LMS', .01, [], 5);
+[x_rls, w_rls] = least_squares_filter(x, ps, 'QPSK', 'RLS', [], 1.0, 5);
 err_lms = x_lms - sym;
 err_rls = x_rls - sym;
 
@@ -69,3 +75,15 @@ plot(real(w_lms.'), 'Color', color_table(1), 'LineWidth', 6); hold on
 plot(real(w_rls.'), 'Color', color_table(2), 'LineWidth', 2); grid on
 hold off
 xlabel('samples'); ylabel('filter taps');
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% P2 - Decision feedback equalizer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% P3 - Maximum likelihood sequence equalizer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
