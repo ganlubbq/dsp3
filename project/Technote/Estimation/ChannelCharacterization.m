@@ -23,7 +23,7 @@ p = length(h);
 %x = filter(h, 1, s);
 
 x = zeros(size(s));
-s_ext = [zeros(p - 1, 1); s];
+s_ext = zero_pad(s, p-1, 'front');
 for ii = 1 : nsample
     ss = s_ext((1 : p) + (ii - 1));
     x(ii) = h.' * ss;
@@ -32,8 +32,8 @@ x = x(:);
 sigma2 = calcrms(x)^2 / 100; % noise power
 x = x + gaussian_noise(nsample, 1, sigma2, 'linear', 'real');
 
-[y_lms, h_lms] = least_squares_filter(s, x, 'LMS', .01, [], p);
-[y_rls, h_rls] = least_squares_filter(s, x, 'RLS', [], 1.0, p);
+[y_lms, h_lms] = least_squares_filter(s, x, 'BPSK', 'LMS', .01, [], p);
+[y_rls, h_rls] = least_squares_filter(s, x, 'BPSK', 'RLS', [], 1.0, p);
 err_lms = x - y_lms;
 err_rls = x - y_rls;
 

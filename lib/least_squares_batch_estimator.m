@@ -1,6 +1,4 @@
-function estimated = estimatorLeastSquaresBatch(signals, observations)
-%ESTIMATORLEASTSQUARESBATCH Implementing the least squares estimator based
-%on a linear model.
+function estimated = least_squares_batch_estimator(signals, observations)
 % 
 % Linear model: signals * parameter_to_be_estimated = observations
 %
@@ -13,13 +11,8 @@ function estimated = estimatorLeastSquaresBatch(signals, observations)
 % Generally, N is required to be greater than or equal to p to form an
 % overdetermined system described by N linear equations with p unknowns.
 
-if size(signals,1) < size(signals,2)
-    warning('underdetermined system');
-end
-
-if ~iscolumn(observations)
-    warning('second input has to be a column vector'); keyboard;
-end
+if size(signals,1) < size(signals,2), warning('underdetermined system'); end
+if ~iscolumn(observations), warning('input::column vector'); keyboard; end
 
 % solving an overdetermined system to minimize squared error
 % estimated = inv(signals'*signals)*signals'*observations;

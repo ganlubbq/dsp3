@@ -33,7 +33,7 @@ h = [-0.02, 0.5, 1.0];
 % x = filter(h, 1, sym);
 x = zeros(size(sym));
 p = length(h);
-sym_ext = [zeros(p - 1, 1); sym];
+sym_ext = zero_pad(sym, p-1, 'front');
 for ii = 1 : nsample
     x(ii) = h * sym_ext((1 : p) + (ii - 1));
 end

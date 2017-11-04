@@ -3,7 +3,7 @@ function [y, filter_coef] = least_squares_filter(x, ts, mf, alg, gain, lambda, f
 % Two specific algorithms are implemented, i.e., least mean squares (LMS),
 % recursive least squares (RLS).
 %
-% y = least_squares_filter(x, ts, mf, alg, gain, lambda, filter_len)
+% Call: [y, filter_coef] = least_squares_filter(x, ts, mf, alg, gain, lambda, filter_len)
 %
 % Inputs:
 %   x : column vector, measured data to be filtered 
@@ -23,8 +23,7 @@ if length(x) ~= length(ts), keyboard; end
 if ~iscolumn(x), warning('input::column vector'); keyboard; end
 
 %%% extend measured data
-x_ext = [zeros(filter_len - 1, 1); x];
-
+x_ext = zero_pad(x, filter_len-1, 'front');
 %%% initialization - filter coefficients
 filter_coef = zeros(filter_len, length(x) - filter_len + 2);
 %%% initialization - covariance matrix
